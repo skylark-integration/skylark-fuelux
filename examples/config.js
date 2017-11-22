@@ -1,7 +1,7 @@
 requirejs.config({
     paths: {
         "skylarkjs" : "http://registry.skylarkjs.org/packages/skylark-utils/v0.9.3-beta/uncompressed/skylark-utils-all",
-        "bootstrap": "../../dist/js/uncompressed/skylark-bootstrap",
+        "bootstrap": "../dist/js/uncompressed/skylark-bootstrap",
         "holder": "../assets/js/vendor/holder"
     },
     packages : [

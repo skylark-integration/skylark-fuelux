@@ -1,29 +1,13 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Affix</title>
-  <link rel="stylesheet" href="../../../../dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../dist/css/bootstrap.min.css">
 
   <style>
-    html {
-      position: relative;
-      min-height: 100%;
-    }
-    body {
-      /* Margin bottom by footer height */
-      margin-bottom: 200px;
-    }
-    .footer {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      /* Set the fixed height of the footer here */
-      height: 200px;
-      background-color: #f5f5f5;
-    }
     /* Test Styles */
     .affixed-element-top.affix {
       top: 10px;
@@ -60,8 +44,8 @@
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
   <!--[if lt IE 9]>
-  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 </head>
 <body>
@@ -270,16 +254,20 @@
     </ul>
   </div>
 
+  <div class="col-md-12 js-footer">
+    <hr>
+
+    <p>Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Donec ullamcorper nulla non metus auctor fringilla. Nulla vitae elit libero, a pharetra augue. Maecenas sed diam eget risus varius blandit sit amet non magna.</p>
+
+    <p>Nullam id dolor id nibh ultricies vehicula ut id elit. Etiam porta sem malesuada magna mollis euismod. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Curabitur blandit tempus porttitor. Cras justo odio, dapibus ac facilisis in, egestas eget quam.</p>
+
+    <p>Sed posuere consectetur est at lobortis. Maecenas faucibus mollis interdum. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Nulla vitae elit libero, a pharetra augue. Nulla vitae elit libero, a pharetra augue.</p>
+
+    <p>Aenean lacinia bibendum nulla sed consectetur. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Nulla vitae elit libero, a pharetra augue. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Cras mattis consectetur purus sit amet fermentum. Sed posuere consectetur est at lobortis. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.</p>
+  </div>
 
 </div>
 
-<footer class="footer js-footer">
-  <div class="container">
-    <p class="text-muted">Place sticky footer content here.</p>
-  </div>
-</footer>
-
-<!-- JavaScript Includes -->
 <!-- JavaScript Includes -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.3/require.min.js" data-main="./config.js"></script>
 <!--    <script src="../vendor/jquery.min.js"></script>
@@ -290,35 +278,34 @@
 <script src="../../affix.js"></script>
 -->
 
-
 <!-- JavaScript Test -->
 <script>
     var initPage = function ($) {
         $(function () {
-          $('.js-affixed-element-top').affix({
-            offset: {
-              top: $('.js-page-header').outerHeight(true) - 10
-            , bottom: $('.js-footer').outerHeight(true) + 10
-            }
-          })
-          // todo(fat): sux you have to do this.
-          .on('affix.bs.affix', function (e) {
-            $(e.target).width(e.target.offsetWidth)
-          })
+            $('.js-affixed-element-top').affix({
+                offset: {
+                    top: $('.js-page-header').outerHeight(true) - 10
+                , bottom: $('.js-footer').outerHeight(true) + 10
+                }
+            })
+            // todo(fat): sux you have to do this.
+            .on('affix.bs.affix', function (e) {
+                $(e.target).width(e.target.offsetWidth)
+            })
 
-          $('.js-affixed-element-bottom').affix({
-            offset: {
-              bottom: $('.js-footer').outerHeight(true) + 10
-            }
-          })
+            $('.js-affixed-element-bottom').affix({
+                offset: {
+                    bottom: $('.js-footer').outerHeight(true) + 10
+                }
+            })
 
-          $('.js-grow-btn').on('click', function() {
-            $('.js-content').append('<p>Ipsum corrupti ipsam est temporibus.</p>')
-          })
-          $('.js-shrink-btn').on('click', function() {
-            $('.js-content p').last().remove()
-          })
-        });
+            $('.js-grow-btn').on('click', function () {
+                $('.js-content').append('<p>Ipsum corrupti ipsam est temporibus.</p>')
+            })
+            $('.js-shrink-btn').on('click', function () {
+                $('.js-content p').last().remove()
+            })
+        })
     };
 </script>
 </body>
