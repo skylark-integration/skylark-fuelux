@@ -5,11 +5,9 @@
  * details, see http://creativecommons.org/licenses/by/3.0/.
  */
 
-define(function (require) {
-	var jquery = require('jquery');
-
-	require('bootstrap');
-	require('fuelux');
+define([
+	"skylark-bs-swt"
+],function ($) {
 
 	// DATEPICKER
 

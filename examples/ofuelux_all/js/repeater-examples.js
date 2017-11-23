@@ -5,13 +5,13 @@
  * details, see http://creativecommons.org/licenses/by/3.0/.
  */
 
-define(function (require) {
-	var $ = require('jquery');
-	var _ = require('underscore');
-	require('bootstrap');
-	require('fuelux');
-	var pokemon = require('assets/js/data/pokemon');
-	var colors = require('assets/js/data/colors');
+define([
+	"skylark-utils",
+	"skylark-bs-swt",
+	"underscore",
+	"./data/pokemon",
+	"./data/colors"
+],function (sutils,$,_,pokemon,colors) {
 
 	var columns = [
 		{
@@ -53,7 +53,7 @@ define(function (require) {
 	var delays = ['300', '600', '900', '1200'];
 
 	var dataFilter = function dataFilter(options) {
-		var items = $.extend([], pokemon);
+		var items = sutils.langx.clone(pokemon);
 
 		var filterValue = new RegExp(options.filter, 'i');//Explicitly make a regex object instead of just using String.search() to avoid confusion with FuelUX search() and options.search
 		if (!filterValue.test('all')) {

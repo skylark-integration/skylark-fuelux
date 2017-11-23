@@ -58,7 +58,7 @@ define([
     this.targets      = []
     this.scrollHeight = this.getScrollHeight()
 
-    if (!$.isWindow(this.$scrollElement[0])) {
+    if (!langx.isWindow(this.$scrollElement[0])) {
       offsetMethod = 'position'
       offsetBase   = this.$scrollElement.scrollTop()
     }

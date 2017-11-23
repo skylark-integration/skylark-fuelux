@@ -55,10 +55,10 @@ define([
 		this.isInput = this.$field.is('input');
 		this.divInTextareaMode = (this.isContentEditableDiv && this.$field.attr('data-textarea') === 'true');
 
-		this.$field.on('focus.fu.placard', $.proxy(this.show, this));
-		this.$field.on('keydown.fu.placard', $.proxy(this.keyComplete, this));
-		this.$element.on('close.fu.placard', $.proxy(this.hide, this));
-		this.$accept.on('click.fu.placard', $.proxy(this.complete, this, 'accepted'));
+		this.$field.on('focus.fu.placard', langx.proxy(this.show, this));
+		this.$field.on('keydown.fu.placard', langx.proxy(this.keyComplete, this));
+		this.$element.on('close.fu.placard', langx.proxy(this.hide, this));
+		this.$accept.on('click.fu.placard', langx.proxy(this.complete, this, 'accepted'));
 		this.$cancel.on('click.fu.placard', function (e) {
 			e.preventDefault(); self.complete('cancelled');
 		});
@@ -282,7 +282,7 @@ define([
 			this.$element.trigger('shown.fu.placard');
 			this.clickStamp = new Date().getTime() + (Math.floor(Math.random() * 100) + 1);
 			if (!this.options.explicit) {
-				$(document).on('click.fu.placard.externalClick.' + this.clickStamp, $.proxy(this.externalClickListener, this));
+				$(document).on('click.fu.placard.externalClick.' + this.clickStamp, langx.proxy(this.externalClickListener, this));
 			}
 		}
 	};

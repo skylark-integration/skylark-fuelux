@@ -29,7 +29,7 @@ define([
 		this.$nextBtn = this.$element.find('button.btn-next');
 
 		var kids = this.$nextBtn.children().detach();
-		this.nextText = $.trim(this.$nextBtn.text());
+		this.nextText = langx.trim(this.$nextBtn.text());
 		this.$nextBtn.append(kids);
 
 		var steps = this.$element.children('.steps-container');
@@ -44,9 +44,9 @@ define([
 		steps = steps.find('.steps');
 
 		// handle events
-		this.$prevBtn.on('click.fu.wizard', $.proxy(this.previous, this));
-		this.$nextBtn.on('click.fu.wizard', $.proxy(this.next, this));
-		steps.on('click.fu.wizard', 'li.complete', $.proxy(this.stepclicked, this));
+		this.$prevBtn.on('click.fu.wizard', langx.proxy(this.previous, this));
+		this.$nextBtn.on('click.fu.wizard', langx.proxy(this.next, this));
+		steps.on('click.fu.wizard', 'li.complete', langx.proxy(this.stepclicked, this));
 
 		this.selectedItem(this.options.selectedItem);
 
@@ -238,7 +238,7 @@ define([
 
 			// only fire changed event after initializing
 			if (typeof (this.initialized) !== 'undefined') {
-				var e = $.Event('changed.fu.wizard');
+				var e = eventer.create('changed.fu.wizard');
 				this.$element.trigger(e, {
 					step: this.currentStep
 				});
@@ -254,7 +254,7 @@ define([
 			if (index < this.currentStep && this.options.disablePreviousStep) {//enforce restrictions
 				return;
 			} else {
-				var evt = $.Event('stepclicked.fu.wizard');
+				var evt = eventer.create('stepclicked.fu.wizard');
 				this.$element.trigger(evt, {
 					step: index + 1
 				});
@@ -292,7 +292,7 @@ define([
 				return;
 			}
 
-			var e = $.Event('actionclicked.fu.wizard');
+			var e = eventer.create('actionclicked.fu.wizard');
 			this.$element.trigger(e, {
 				step: this.currentStep,
 				direction: 'previous'
@@ -320,7 +320,7 @@ define([
 		},
 
 		next: function () {
-			var e = $.Event('actionclicked.fu.wizard');
+			var e = eventer.create('actionclicked.fu.wizard');
 			this.$element.trigger(e, {
 				step: this.currentStep,
 				direction: 'next'

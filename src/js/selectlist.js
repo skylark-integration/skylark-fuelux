@@ -28,7 +28,7 @@ define([
 		this.$label = this.$element.find('.selected-label');
 		this.$dropdownMenu = this.$element.find('.dropdown-menu');
 
-		this.$element.on('click.fu.selectlist', '.dropdown-menu a', $.proxy(this.itemClicked, this));
+		this.$element.on('click.fu.selectlist', '.dropdown-menu a', langx.proxy(this.itemClicked, this));
 		this.setDefaultSelection();
 
 		if (options.resize === 'auto' || this.$element.attr('data-resize') === 'auto') {

@@ -36,10 +36,10 @@ define([
 		this.$button = this.$element.find('.btn');
 		this.$inputGroupBtn = this.$element.find('.input-group-btn');
 
-		this.$element.on('click.fu.combobox', 'a', $.proxy(this.itemclicked, this));
-		this.$element.on('change.fu.combobox', 'input', $.proxy(this.inputchanged, this));
-		this.$element.on('shown.bs.dropdown', $.proxy(this.menuShown, this));
-		this.$input.on('keyup.fu.combobox', $.proxy(this.keypress, this));
+		this.$element.on('click.fu.combobox', 'a', langx.proxy(this.itemclicked, this));
+		this.$element.on('change.fu.combobox', 'input', langx.proxy(this.inputchanged, this));
+		this.$element.on('shown.bs.dropdown', langx.proxy(this.menuShown, this));
+		this.$input.on('keyup.fu.combobox', langx.proxy(this.keypress, this));
 
 		// set default selection
 		this.setDefaultSelection();

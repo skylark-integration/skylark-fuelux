@@ -11,7 +11,8 @@ define([
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
-  "skylark-utils/query"
+  "skylark-utils/query",
+  "./repeater"
 ],function(langx,browser,eventer,noder,geom,$){
 
 	/*

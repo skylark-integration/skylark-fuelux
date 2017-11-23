@@ -5580,7 +5580,7 @@ define('skylark-bs-swt/checkbox',[
 		this.$toggleContainer = $(containerSelector);
 
 		// handle internal events
-		this.$chk.on('change', $.proxy(this.itemchecked, this));
+		this.$chk.on('change', langx.proxy(this.itemchecked, this));
 
 		// set default state
 		this.setInitialState();
@@ -5988,10 +5988,10 @@ define('skylark-bs-swt/combobox',[
 		this.$button = this.$element.find('.btn');
 		this.$inputGroupBtn = this.$element.find('.input-group-btn');
 
-		this.$element.on('click.fu.combobox', 'a', $.proxy(this.itemclicked, this));
-		this.$element.on('change.fu.combobox', 'input', $.proxy(this.inputchanged, this));
-		this.$element.on('shown.bs.dropdown', $.proxy(this.menuShown, this));
-		this.$input.on('keyup.fu.combobox', $.proxy(this.keypress, this));
+		this.$element.on('click.fu.combobox', 'a', langx.proxy(this.itemclicked, this));
+		this.$element.on('change.fu.combobox', 'input', langx.proxy(this.inputchanged, this));
+		this.$element.on('shown.bs.dropdown', langx.proxy(this.menuShown, this));
+		this.$input.on('keyup.fu.combobox', langx.proxy(this.keypress, this));
 
 		// set default selection
 		this.setDefaultSelection();
@@ -6412,20 +6412,20 @@ define('skylark-bs-swt/datepicker',[
 		this.selectedDate = null;
 		this.yearRestriction = null;
 
-		this.$calendar.find('.datepicker-today').on('click.fu.datepicker', $.proxy(this.todayClicked, this));
-		this.$days.on('click.fu.datepicker', 'tr td button', $.proxy(this.dateClicked, this));
-		this.$header.find('.next').on('click.fu.datepicker', $.proxy(this.next, this));
-		this.$header.find('.prev').on('click.fu.datepicker', $.proxy(this.prev, this));
-		this.$headerTitle.on('click.fu.datepicker', $.proxy(this.titleClicked, this));
-		this.$input.on('change.fu.datepicker', $.proxy(this.inputChanged, this));
-		this.$input.on('mousedown.fu.datepicker', $.proxy(this.showDropdown, this));
-		this.$inputGroupBtn.on('hidden.bs.dropdown', $.proxy(this.hide, this));
-		this.$inputGroupBtn.on('shown.bs.dropdown', $.proxy(this.show, this));
-		this.$wheels.find('.datepicker-wheels-back').on('click.fu.datepicker', $.proxy(this.backClicked, this));
-		this.$wheels.find('.datepicker-wheels-select').on('click.fu.datepicker', $.proxy(this.selectClicked, this));
-		this.$wheelsMonth.on('click.fu.datepicker', 'ul button', $.proxy(this.monthClicked, this));
-		this.$wheelsYear.on('click.fu.datepicker', 'ul button', $.proxy(this.yearClicked, this));
-		this.$wheelsYear.find('ul').on('scroll.fu.datepicker', $.proxy(this.onYearScroll, this));
+		this.$calendar.find('.datepicker-today').on('click.fu.datepicker', langx.proxy(this.todayClicked, this));
+		this.$days.on('click.fu.datepicker', 'tr td button', langx.proxy(this.dateClicked, this));
+		this.$header.find('.next').on('click.fu.datepicker', langx.proxy(this.next, this));
+		this.$header.find('.prev').on('click.fu.datepicker', langx.proxy(this.prev, this));
+		this.$headerTitle.on('click.fu.datepicker', langx.proxy(this.titleClicked, this));
+		this.$input.on('change.fu.datepicker', langx.proxy(this.inputChanged, this));
+		this.$input.on('mousedown.fu.datepicker', langx.proxy(this.showDropdown, this));
+		this.$inputGroupBtn.on('hidden.bs.dropdown', langx.proxy(this.hide, this));
+		this.$inputGroupBtn.on('shown.bs.dropdown', langx.proxy(this.show, this));
+		this.$wheels.find('.datepicker-wheels-back').on('click.fu.datepicker', langx.proxy(this.backClicked, this));
+		this.$wheels.find('.datepicker-wheels-select').on('click.fu.datepicker', langx.proxy(this.selectClicked, this));
+		this.$wheelsMonth.on('click.fu.datepicker', 'ul button', langx.proxy(this.monthClicked, this));
+		this.$wheelsYear.on('click.fu.datepicker', 'ul button', langx.proxy(this.yearClicked, this));
+		this.$wheelsYear.find('ul').on('scroll.fu.datepicker', langx.proxy(this.onYearScroll, this));
 
 		var init = function () {
 			if (this.checkForMomentJS()) {
@@ -7402,7 +7402,7 @@ define('skylark-bs-swt/dropdown-autoflip',[
 
 		if(!targetSelector) {
 			// no selection so find the relevant ancestor
-			$.each(element.parents(), function (index, parentElement) {
+			langx.each(element.parents(), function (index, parentElement) {
 				if ($(parentElement).css('overflow') !== 'visible') {
 					containerElement = parentElement;
 					isWindow = false;
@@ -7463,7 +7463,7 @@ define('skylark-bs-swt/infinite-scroll',[
 		this.curPercentage = this.getPercentage();
 		this.fetchingData = false;
 
-		this.$element.on('scroll.fu.infinitescroll', $.proxy(this.onScroll, this));
+		this.$element.on('scroll.fu.infinitescroll', langx.proxy(this.onScroll, this));
 		this.onScroll();
 	};
 
@@ -7487,7 +7487,7 @@ define('skylark-bs-swt/infinite-scroll',[
 		},
 
 		enable: function () {
-			this.$element.on('scroll.fu.infinitescroll', $.proxy(this.onScroll, this));
+			this.$element.on('scroll.fu.infinitescroll', langx.proxy(this.onScroll, this));
 		},
 
 		end: function (content) {
@@ -7987,20 +7987,20 @@ define('skylark-bs-swt/picker',[
 
 		this.isInput = this.$trigger.is('input');
 
-		this.$trigger.on('keydown.fu.picker', $.proxy(this.keyComplete, this));
-		this.$trigger.on('focus.fu.picker', $.proxy(function inputFocus(e){
+		this.$trigger.on('keydown.fu.picker', langx.proxy(this.keyComplete, this));
+		this.$trigger.on('focus.fu.picker', langx.proxy(function inputFocus(e){
 			if(typeof e === "undefined" || $(e.target).is('input[type=text]')){
-				$.proxy(this.show(), this);
+				langx.proxy(this.show(), this);
 			}
 		}, this));
-		this.$trigger.on('click.fu.picker', $.proxy(function triggerClick(e){
+		this.$trigger.on('click.fu.picker', langx.proxy(function triggerClick(e){
 			if(!$(e.target).is('input[type=text]')){
-				$.proxy(this.toggle(), this);
+				langx.proxy(this.toggle(), this);
 			}else{
-				$.proxy(this.show(), this);
+				langx.proxy(this.show(), this);
 			}
 		}, this));
-		this.$accept.on('click.fu.picker', $.proxy(this.complete, this, 'accepted'));
+		this.$accept.on('click.fu.picker', langx.proxy(this.complete, this, 'accepted'));
 		this.$cancel.on('click.fu.picker', function (e) {
 			e.preventDefault(); self.complete('cancelled');
 		});
@@ -8166,7 +8166,7 @@ define('skylark-bs-swt/picker',[
 
 			this.clickStamp = new Date().getTime() + (Math.floor(Math.random() * 100) + 1);
 			if (!this.options.explicit) {
-				$(document).on('click.fu.picker.externalClick.' + this.clickStamp, $.proxy(this.externalClickListener, this));
+				$(document).on('click.fu.picker.externalClick.' + this.clickStamp, langx.proxy(this.externalClickListener, this));
 			}
 		}
 	};
@@ -8367,18 +8367,18 @@ define('skylark-bs-swt/pillbox',[
 		this.acceptKeyCodes = this._generateObject(this.options.acceptKeyCodes);
 		// Create an object out of the key code array, so we don't have to loop through it on every key stroke
 
-		this.$element.on('click.fu.pillbox', '.pill-group > .pill', $.proxy(this.itemClicked, this));
-		this.$element.on('click.fu.pillbox', $.proxy(this.inputFocus, this));
-		this.$element.on('keydown.fu.pillbox', '.pillbox-add-item', $.proxy(this.inputEvent, this));
+		this.$element.on('click.fu.pillbox', '.pill-group > .pill', langx.proxy(this.itemClicked, this));
+		this.$element.on('click.fu.pillbox', langx.proxy(this.inputFocus, this));
+		this.$element.on('keydown.fu.pillbox', '.pillbox-add-item', langx.proxy(this.inputEvent, this));
 		if (this.options.onKeyDown) {
-			this.$element.on('mousedown.fu.pillbox', '.suggest > li', $.proxy(this.suggestionClick, this));
+			this.$element.on('mousedown.fu.pillbox', '.suggest > li', langx.proxy(this.suggestionClick, this));
 		}
 
 		if (this.options.edit) {
 			this.$element.addClass('pills-editable');
-			this.$element.on('blur.fu.pillbox', '.pillbox-add-item', $.proxy(this.cancelEdit, this));
+			this.$element.on('blur.fu.pillbox', '.pillbox-add-item', langx.proxy(this.cancelEdit, this));
 		}
-		this.$element.on('blur.fu.pillbox', '.pillbox-add-item', $.proxy(this.inputEvent, this));
+		this.$element.on('blur.fu.pillbox', '.pillbox-add-item', langx.proxy(this.inputEvent, this));
 	};
 
 	Pillbox.prototype = {
@@ -8417,7 +8417,7 @@ define('skylark-bs-swt/pillbox',[
 						if (this.options.onRemove) {
 							this.options.onRemove(this.getItemData($item, {
 								el: $item
-							}), $.proxy(this._removeElement, this));
+							}), langx.proxy(this._removeElement, this));
 						} else {
 							this._removeElement(this.getItemData($item, {
 								el: $item
@@ -8503,7 +8503,7 @@ define('skylark-bs-swt/pillbox',[
 			}
 
 			if (items.length) {
-				$.each(items, function normalizeItemsObject (i, value) {
+				langx.each(items, function normalizeItemsObject (i, value) {
 					var data = {
 						text: value.text,
 						value: (value.value ? value.value : value.text),
@@ -8531,9 +8531,9 @@ define('skylark-bs-swt/pillbox',[
 
 				if (self.options.onAdd && isInternal) {
 					if (this.options.edit && this.currentEdit) {
-						self.options.onAdd(items[0], $.proxy(self.saveEdit, this));
+						self.options.onAdd(items[0], langx.proxy(self.saveEdit, this));
 					} else {
-						self.options.onAdd(items[0], $.proxy(self.placeItems, this));
+						self.options.onAdd(items[0], langx.proxy(self.placeItems, this));
 					}
 				} else if (this.options.edit && this.currentEdit) {
 					self.saveEdit(items);
@@ -8592,7 +8592,7 @@ define('skylark-bs-swt/pillbox',[
 
 			if (items.length) {
 				var newItems = [];
-				$.each(items, function prepareItemForAdd (i, item) {
+				langx.each(items, function prepareItemForAdd (i, item) {
 					var $item = $(item.el);
 
 					$item.attr('data-value', item.value);
@@ -8600,7 +8600,7 @@ define('skylark-bs-swt/pillbox',[
 
 					// DOM attributes
 					if (item.attr) {
-						$.each(item.attr, function handleDOMAttributes (key, value) {
+						langx.each(item.attr, function handleDOMAttributes (key, value) {
 							if (key === 'cssClass' || key === 'class') {
 								$item.addClass(value);
 							} else {
@@ -8618,15 +8618,15 @@ define('skylark-bs-swt/pillbox',[
 
 				if (this.$pillGroup.children('.pill').length > 0) {
 					if (index) {
-						$neighbor = this.$pillGroup.find('.pill:nth-child(' + index + ')');
+						$neighbor = this.$pillGroup.find('.pill').eq(index);
 
 						if ($neighbor.length) {
 							$neighbor.before(newItems);
 						} else {
-							this.$pillGroup.children('.pill:last').after(newItems);
+							this.$pillGroup.children('.pill').last().after(newItems);
 						}
 					} else {
-						this.$pillGroup.children('.pill:last').after(newItems);
+						this.$pillGroup.children('.pill').last().after(newItems);
 					}
 				} else {
 					this.$pillGroup.prepend(newItems);
@@ -8809,7 +8809,7 @@ define('skylark-bs-swt/pillbox',[
 			var selectors = [].slice.call(arguments).slice(0);
 			var self = this;
 
-			$.each(selectors, function doRemove (i, sel) {
+			langx.each(selectors, function doRemove (i, sel) {
 				self.$pillGroup.find(sel).remove();
 			});
 
@@ -8823,7 +8823,7 @@ define('skylark-bs-swt/pillbox',[
 			var values = [].slice.call(arguments).slice(0);
 			var self = this;
 
-			$.each(values, function doRemove (i, val) {
+			langx.each(values, function doRemove (i, val) {
 				self.$pillGroup.find('> .pill[data-value="' + val + '"]').remove();
 			});
 
@@ -8837,7 +8837,7 @@ define('skylark-bs-swt/pillbox',[
 			var text = [].slice.call(arguments).slice(0);
 			var self = this;
 
-			$.each(text, function doRemove (i, matchingText) {
+			langx.each(text, function doRemove (i, matchingText) {
 				self.$pillGroup.find('> .pill:contains("' + matchingText + '")').remove();
 			});
 
@@ -8908,7 +8908,7 @@ define('skylark-bs-swt/pillbox',[
 		_generateObject: function _generateObject (data) {
 			var obj = {};
 
-			$.each(data, function setObjectValue (index, value) {
+			langx.each(data, function setObjectValue (index, value) {
 				obj[value] = true;
 			});
 
@@ -8923,7 +8923,7 @@ define('skylark-bs-swt/pillbox',[
 			}
 
 			if (data.data && data.data.length) {
-				$.each(data.data, function appendSuggestions (index, value) {
+				langx.each(data.data, function appendSuggestions (index, value) {
 					var val = value.value ? value.value : value.text;
 
 					// markup concatentation is 10x faster, but does not allow data store
@@ -9115,10 +9115,10 @@ define('skylark-bs-swt/placard',[
 		this.isInput = this.$field.is('input');
 		this.divInTextareaMode = (this.isContentEditableDiv && this.$field.attr('data-textarea') === 'true');
 
-		this.$field.on('focus.fu.placard', $.proxy(this.show, this));
-		this.$field.on('keydown.fu.placard', $.proxy(this.keyComplete, this));
-		this.$element.on('close.fu.placard', $.proxy(this.hide, this));
-		this.$accept.on('click.fu.placard', $.proxy(this.complete, this, 'accepted'));
+		this.$field.on('focus.fu.placard', langx.proxy(this.show, this));
+		this.$field.on('keydown.fu.placard', langx.proxy(this.keyComplete, this));
+		this.$element.on('close.fu.placard', langx.proxy(this.hide, this));
+		this.$accept.on('click.fu.placard', langx.proxy(this.complete, this, 'accepted'));
 		this.$cancel.on('click.fu.placard', function (e) {
 			e.preventDefault(); self.complete('cancelled');
 		});
@@ -9342,7 +9342,7 @@ define('skylark-bs-swt/placard',[
 			this.$element.trigger('shown.fu.placard');
 			this.clickStamp = new Date().getTime() + (Math.floor(Math.random() * 100) + 1);
 			if (!this.options.explicit) {
-				$(document).on('click.fu.placard.externalClick.' + this.clickStamp, $.proxy(this.externalClickListener, this));
+				$(document).on('click.fu.placard.externalClick.' + this.clickStamp, langx.proxy(this.externalClickListener, this));
 			}
 		}
 	};
@@ -9515,7 +9515,7 @@ define('skylark-bs-swt/tooltip',[
     var options  = {}
     var defaults = this.getDefaults()
 
-    this._options && $.each(this._options, function (key, value) {
+    this._options && langx.each(this._options, function (key, value) {
       if (defaults[key] != value) options[key] = value
     })
 
@@ -10099,7 +10099,7 @@ define('skylark-bs-swt/radio',[
 		this.$toggleContainer = $(containerSelector);
 
 		// handle internal events
-		this.$radio.on('change', $.proxy(this.itemchecked, this));
+		this.$radio.on('change', langx.proxy(this.itemchecked, this));
 
 		// set default state
 		this.setInitialState();
@@ -10266,13 +10266,115 @@ define('skylark-bs-swt/radio',[
 
 });
 
-define('skylark-bs-swt/repeater',[
+define('skylark-bs-swt/loader',[
   "skylark-utils/langx",
   "skylark-utils/browser",
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
   "skylark-utils/query"
+],function(langx,browser,eventer,noder,geom,$){
+
+	/*
+	 * Fuel UX Checkbox
+	 * https://github.com/ExactTarget/fuelux
+	 *
+	 * Copyright (c) 2014 ExactTarget
+	 * Licensed under the BSD New license.
+	 */
+
+
+	var old = $.fn.loader;
+
+	// LOADER CONSTRUCTOR AND PROTOTYPE
+
+	var Loader = function (element, options) {
+		this.$element = $(element);
+		this.options = langx.mixin({}, $.fn.loader.defaults, options);
+	};
+
+	Loader.prototype = {
+
+		constructor: Loader,
+
+		destroy: function () {
+			this.$element.remove();
+			// any external bindings
+			// [none]
+			// empty elements to return to original markup
+			// [none]
+			// returns string of markup
+			return this.$element[0].outerHTML;
+		},
+
+		ieRepaint: function () {},
+
+		msieVersion: function () {},
+
+		next: function () {},
+
+		pause: function () {},
+
+		play: function () {},
+
+		previous: function () {},
+
+		reset: function () {}
+	};
+
+	// LOADER PLUGIN DEFINITION
+
+	$.fn.loader = function (option) {
+		var args = Array.prototype.slice.call(arguments, 1);
+		var methodReturn;
+
+		var $set = this.each(function () {
+			var $this = $(this);
+			var data = $this.data('fu.loader');
+			var options = typeof option === 'object' && option;
+
+			if (!data) {
+				$this.data('fu.loader', (data = new Loader(this, options)));
+			}
+
+			if (typeof option === 'string') {
+				methodReturn = data[option].apply(data, args);
+			}
+		});
+
+		return (methodReturn === undefined) ? $set : methodReturn;
+	};
+
+	$.fn.loader.defaults = {};
+
+	$.fn.loader.Constructor = Loader;
+
+	$.fn.loader.noConflict = function () {
+		$.fn.loader = old;
+		return this;
+	};
+
+	// INIT LOADER ON DOMCONTENTLOADED
+
+	$(function () {
+		$('[data-initialize=loader]').each(function () {
+			var $this = $(this);
+			if (!$this.data('fu.loader')) {
+				$this.loader($this.data());
+			}
+		});
+	});
+
+});
+
+define('skylark-bs-swt/repeater',[
+  "skylark-utils/langx",
+  "skylark-utils/browser",
+  "skylark-utils/eventer",
+  "skylark-utils/noder",
+  "skylark-utils/geom",
+  "skylark-utils/query",
+  "./loader"
 ],function(langx,browser,eventer,noder,geom,$){
 
 	/*
@@ -10343,14 +10445,14 @@ define('skylark-bs-swt/repeater',[
 				pageIncrement: null
 			});
 		});
-		this.$nextBtn.on('click.fu.repeater', $.proxy(this.next, this));
+		this.$nextBtn.on('click.fu.repeater', langx.proxy(this.next, this));
 		this.$pageSize.on('changed.fu.selectlist', function onPageSizeChanged (e, value) {
 			self.$element.trigger('pageSizeChanged.fu.repeater', value);
 			self.render({
 				pageIncrement: null
 			});
 		});
-		this.$prevBtn.on('click.fu.repeater', $.proxy(this.previous, this));
+		this.$prevBtn.on('click.fu.repeater', langx.proxy(this.previous, this));
 		this.$primaryPaging.find('.combobox').on('changed.fu.combobox', function onPrimaryPagingChanged (evt, data) {
 			self.pageInputChange(data.text, data);
 		});
@@ -10377,7 +10479,7 @@ define('skylark-bs-swt/repeater',[
 				self.pageInputChange(self.$secondaryPaging.val());
 			}
 		});
-		this.$views.find('input').on('change.fu.repeater', $.proxy(this.viewChanged, this));
+		this.$views.find('input').on('change.fu.repeater', langx.proxy(this.viewChanged, this));
 
 		$(window).on('resize.fu.repeater.' + this.stamp, function onResizeRepeater () {
 			clearTimeout(self.resizeTimeout);
@@ -10953,7 +11055,8 @@ define('skylark-bs-swt/repeater',[
 			var viewportMargins;
 			var scrubbedElements = [];
 			var previousProperties = [];
-			var $hiddenElements = this.$element.parentsUntil(':visible').addBack();
+			//var $hiddenElements = this.$element.parentsUntil(':visible').addBack(); // del addBack() not supported by skyalrk
+			var $hiddenElements = this.$element.parentsUntil(':visible');
 			var currentHiddenElement;
 			var currentElementIndex = 0;
 
@@ -11172,7 +11275,8 @@ define('skylark-bs-swt/repeater-list',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
-  "skylark-utils/query"
+  "skylark-utils/query",
+  "./repeater"
 ],function(langx,browser,eventer,noder,geom,$){
 
 	/*
@@ -12186,7 +12290,8 @@ define('skylark-bs-swt/repeater-thumbnail',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
-  "skylark-utils/query"
+  "skylark-utils/query",
+  "./repeater"  
 ],function(langx,browser,eventer,noder,geom,$){
 
 	/*
@@ -12391,7 +12496,7 @@ define('skylark-bs-swt/repeater-thumbnail',[
 			end = template.indexOf('}}', start + 2);
 
 			if (start > -1 && end > -1) {
-				val = $.trim(template.substring(start + 2, end));
+				val = langx.trim(template.substring(start + 2, end));
 				val = (itemData[val] !== undefined) ? itemData[val] : '';
 				template = template.substring(0, start) + val + template.substring(end + 2);
 			} else {
@@ -12438,7 +12543,7 @@ define('skylark-bs-swt/selectlist',[
 		this.$label = this.$element.find('.selected-label');
 		this.$dropdownMenu = this.$element.find('.dropdown-menu');
 
-		this.$element.on('click.fu.selectlist', '.dropdown-menu a', $.proxy(this.itemClicked, this));
+		this.$element.on('click.fu.selectlist', '.dropdown-menu a', langx.proxy(this.itemClicked, this));
 		this.setDefaultSelection();
 
 		if (options.resize === 'auto' || this.$element.attr('data-resize') === 'auto') {
@@ -12722,24 +12827,24 @@ define('skylark-bs-swt/spinbox',[
 		}
 
 		this.$input = this.$element.find('.spinbox-input');
-		this.$input.on('focusout.fu.spinbox', this.$input, $.proxy(this.change, this));
-		this.$element.on('keydown.fu.spinbox', this.$input, $.proxy(this.keydown, this));
-		this.$element.on('keyup.fu.spinbox', this.$input, $.proxy(this.keyup, this));
+		this.$input.on('focusout.fu.spinbox', this.$input, langx.proxy(this.change, this));
+		this.$element.on('keydown.fu.spinbox', this.$input, langx.proxy(this.keydown, this));
+		this.$element.on('keyup.fu.spinbox', this.$input, langx.proxy(this.keyup, this));
 
 		if (this.options.hold) {
-			this.$element.on('mousedown.fu.spinbox', '.spinbox-up', $.proxy(function () {
+			this.$element.on('mousedown.fu.spinbox', '.spinbox-up', langx.proxy(function () {
 				this.startSpin(true);
 			}, this));
-			this.$element.on('mouseup.fu.spinbox', '.spinbox-up, .spinbox-down', $.proxy(this.stopSpin, this));
-			this.$element.on('mouseout.fu.spinbox', '.spinbox-up, .spinbox-down', $.proxy(this.stopSpin, this));
-			this.$element.on('mousedown.fu.spinbox', '.spinbox-down', $.proxy(function () {
+			this.$element.on('mouseup.fu.spinbox', '.spinbox-up, .spinbox-down', langx.proxy(this.stopSpin, this));
+			this.$element.on('mouseout.fu.spinbox', '.spinbox-up, .spinbox-down', langx.proxy(this.stopSpin, this));
+			this.$element.on('mousedown.fu.spinbox', '.spinbox-down', langx.proxy(function () {
 				this.startSpin(false);
 			}, this));
 		} else {
-			this.$element.on('click.fu.spinbox', '.spinbox-up', $.proxy(function () {
+			this.$element.on('click.fu.spinbox', '.spinbox-up', langx.proxy(function () {
 				this.step(true);
 			}, this));
-			this.$element.on('click.fu.spinbox', '.spinbox-down', $.proxy(function () {
+			this.$element.on('click.fu.spinbox', '.spinbox-down', langx.proxy(function () {
 				this.step(false);
 			}, this));
 		}
@@ -12778,7 +12883,7 @@ define('skylark-bs-swt/spinbox',[
 		var legalUnit = false;
 		var suspectUnit = unit.toLowerCase();
 
-		$.each(validUnits, function (i, validUnit) {
+		langx.each(validUnits, function (i, validUnit) {
 			validUnit = validUnit.toLowerCase();
 			if (suspectUnit === validUnit) {
 				legalUnit = true;
@@ -12883,7 +12988,7 @@ define('skylark-bs-swt/spinbox',[
 					divisor = 4;
 				}
 
-				this.switches.timeout = setTimeout($.proxy(function () {
+				this.switches.timeout = setTimeout(langx.proxy(function () {
 					this.iterate(type);
 				}, this), this.switches.speed / divisor);
 				this.switches.count++;
@@ -13177,7 +13282,7 @@ define('skylark-bs-swt/scheduler',[
 		this.$startDate.datepicker(this.options.startDateOptions);
 
 		var startDateResponse = (typeof this.options.startDateChanged === "function") ? this.options.startDateChanged : this._guessEndDate;
-		this.$startDate.on('change changed.fu.datepicker dateClicked.fu.datepicker', $.proxy(startDateResponse, this));
+		this.$startDate.on('change changed.fu.datepicker dateClicked.fu.datepicker', langx.proxy(startDateResponse, this));
 
 		this.$startTime.combobox();
 		// init start time
@@ -13208,17 +13313,17 @@ define('skylark-bs-swt/scheduler',[
 		this.$element.find('.radio-custom').radio();
 
 		// bind events: 'change' is a Bootstrap JS fired event
-		this.$repeatIntervalSelect.on('changed.fu.selectlist', $.proxy(this.repeatIntervalSelectChanged, this));
-		this.$endSelect.on('changed.fu.selectlist', $.proxy(this.endSelectChanged, this));
+		this.$repeatIntervalSelect.on('changed.fu.selectlist', langx.proxy(this.repeatIntervalSelectChanged, this));
+		this.$endSelect.on('changed.fu.selectlist', langx.proxy(this.endSelectChanged, this));
 		this.$element.find('.repeat-days-of-the-week .btn-group .btn').on('change.fu.scheduler', function (e, data) {
 			self.changed(e, data, true);
 		});
-		this.$element.find('.combobox').on('changed.fu.combobox', $.proxy(this.changed, this));
-		this.$element.find('.datepicker').on('changed.fu.datepicker', $.proxy(this.changed, this));
-		this.$element.find('.datepicker').on('dateClicked.fu.datepicker', $.proxy(this.changed, this));
-		this.$element.find('.selectlist').on('changed.fu.selectlist', $.proxy(this.changed, this));
-		this.$element.find('.spinbox').on('changed.fu.spinbox', $.proxy(this.changed, this));
-		this.$element.find('.repeat-monthly .radio-custom, .repeat-yearly .radio-custom').on('change.fu.scheduler', $.proxy(this.changed, this));
+		this.$element.find('.combobox').on('changed.fu.combobox', langx.proxy(this.changed, this));
+		this.$element.find('.datepicker').on('changed.fu.datepicker', langx.proxy(this.changed, this));
+		this.$element.find('.datepicker').on('dateClicked.fu.datepicker', langx.proxy(this.changed, this));
+		this.$element.find('.selectlist').on('changed.fu.selectlist', langx.proxy(this.changed, this));
+		this.$element.find('.spinbox').on('changed.fu.spinbox', langx.proxy(this.changed, this));
+		this.$element.find('.repeat-monthly .radio-custom, .repeat-yearly .radio-custom').on('change.fu.scheduler', langx.proxy(this.changed, this));
 	};
 
 	var _getFormattedDate = function _getFormattedDate(dateObj, dash) {
@@ -13425,7 +13530,7 @@ define('skylark-bs-swt/scheduler',[
 			startDateTime += 'T';
 			hasAm = (startTime.search('am') >= 0);
 			hasPm = (startTime.search('pm') >= 0);
-			startTime = $.trim(startTime.replace(/am/g, '').replace(/pm/g, '')).split(':');
+			startTime = langx.trim(startTime.replace(/am/g, '').replace(/pm/g, '')).split(':');
 			startTime[0] = parseInt(startTime[0], 10);
 			startTime[1] = parseInt(startTime[1], 10);
 			if (hasAm && startTime[0] > 11) {
@@ -13724,9 +13829,9 @@ define('skylark-bs-swt/scheduler',[
 			startTime.time24HourFormat = startTimeISO8601.split('+')[0].split('-')[0];
 
 			if (startTimeISO8601.search(/\+/) > -1) {
-				startTime.timeZoneOffset = '+' + $.trim(startTimeISO8601.split('+')[1]);
+				startTime.timeZoneOffset = '+' + langx.trim(startTimeISO8601.split('+')[1]);
 			} else if (startTimeISO8601.search(/\-/) > -1) {
-				startTime.timeZoneOffset = '-' + $.trim(startTimeISO8601.split('-')[1]);
+				startTime.timeZoneOffset = '-' + langx.trim(startTimeISO8601.split('-')[1]);
 			} else {
 				startTime.timeZoneOffset = '+00:00';
 			}
@@ -13755,7 +13860,7 @@ define('skylark-bs-swt/scheduler',[
 				if (typeof (options.timeZone) === 'string') {
 					startTime.timeZoneQuerySelector += 'li[data-name="' + options.timeZone + '"]';
 				} else {
-					$.each(options.timeZone, function(key, value) {
+					langx.each(options.timeZone, function(key, value) {
 						startTime.timeZoneQuerySelector += 'li[data-' + key + '="' + value + '"]';
 					});
 				}
@@ -13952,7 +14057,7 @@ define('skylark-bs-swt/scrollspy',[
     this.targets      = []
     this.scrollHeight = this.getScrollHeight()
 
-    if (!$.isWindow(this.$scrollElement[0])) {
+    if (!langx.isWindow(this.$scrollElement[0])) {
       offsetMethod = 'position'
       offsetBase   = this.$scrollElement.scrollTop()
     }
@@ -14110,11 +14215,11 @@ define('skylark-bs-swt/search',[
 		this.$input = this.$element.find('input');
 		this.$icon = this.$element.find('.glyphicon, .fuelux-icon');
 
-		this.$button.on('click.fu.search', $.proxy(this.buttonclicked, this));
-		this.$input.on('keyup.fu.search', $.proxy(this.keypress, this));
+		this.$button.on('click.fu.search', langx.proxy(this.buttonclicked, this));
+		this.$input.on('keyup.fu.search', langx.proxy(this.keypress, this));
 
 		if (this.$repeater.length > 0) {
-			this.$repeater.on('rendered.fu.repeater', $.proxy(this.clearPending, this));
+			this.$repeater.on('rendered.fu.repeater', langx.proxy(this.clearPending, this));
 		}
 
 		this.activeSearch = '';
@@ -14537,16 +14642,16 @@ define('skylark-bs-swt/tree',[
 		this.$element.attr('tabindex', '0');
 
 		if (this.options.itemSelect) {
-			this.$element.on('click.fu.tree', '.tree-item', $.proxy(function callSelect (ev) {
+			this.$element.on('click.fu.tree', '.tree-item', langx.proxy(function callSelect (ev) {
 				this.selectItem(ev.currentTarget);
 			}, this));
 		}
 
-		this.$element.on('click.fu.tree', '.tree-branch-name', $.proxy(function callToggle (ev) {
+		this.$element.on('click.fu.tree', '.tree-branch-name', langx.proxy(function callToggle (ev) {
 			this.toggleFolder(ev.currentTarget);
 		}, this));
 
-		this.$element.on('click.fu.tree', '.tree-overflow', $.proxy(function callPopulate (ev) {
+		this.$element.on('click.fu.tree', '.tree-overflow', langx.proxy(function callPopulate (ev) {
 			this.populate($(ev.currentTarget));
 		}, this));
 
@@ -14554,10 +14659,10 @@ define('skylark-bs-swt/tree',[
 		if (this.options.folderSelect) {
 			this.$element.addClass('tree-folder-select');
 			this.$element.off('click.fu.tree', '.tree-branch-name');
-			this.$element.on('click.fu.tree', '.icon-caret', $.proxy(function callToggle (ev) {
+			this.$element.on('click.fu.tree', '.icon-caret', langx.proxy(function callToggle (ev) {
 				this.toggleFolder($(ev.currentTarget).parent());
 			}, this));
-			this.$element.on('click.fu.tree', '.tree-branch-name', $.proxy(function callSelect (ev) {
+			this.$element.on('click.fu.tree', '.tree-branch-name', langx.proxy(function callSelect (ev) {
 				this.selectFolder($(ev.currentTarget));
 			}, this));
 		}
@@ -14642,7 +14747,7 @@ define('skylark-bs-swt/tree',[
 			}
 
 			this.options.dataSource(treeData ? treeData : {}, function populateNodes (items) {
-				$.each(items.data, function buildNode (i, treeNode) {
+				langx.each(items.data, function buildNode (i, treeNode) {
 					var nodeType = treeNode.type;
 
 					// 'item' and 'overflow' remain consistent, but 'folder' maps to 'branch'
@@ -14681,7 +14786,7 @@ define('skylark-bs-swt/tree',[
 
 					// add attributes to tree-branch or tree-item
 					var attrs = treeNode.attr || treeNode.dataAttributes || [];
-					$.each(attrs, function setAttribute (attr, setTo) {
+					langx.each(attrs, function setAttribute (attr, setTo) {
 						switch (attr) {
 						case 'cssClass':
 						case 'class':
@@ -14843,7 +14948,7 @@ define('skylark-bs-swt/tree',[
 			var $sel = this.$element.find('.tree-selected');
 			var selected = [];
 
-			$.each($sel, function buildSelectedArray (i, value) {
+			langx.each($sel, function buildSelectedArray (i, value) {
 				selected.push($(value).data());
 			});
 			return selected;
@@ -15236,7 +15341,7 @@ define('skylark-bs-swt/tree',[
 
 	function multiSelectSyncNodes (self, clicked, selected) {
 		// search for currently selected and add to selected data list if needed
-		$.each(selected.$elements, function findCurrentlySelected (index, element) {
+		langx.each(selected.$elements, function findCurrentlySelected (index, element) {
 			var $element = $(element);
 
 			if ($element[0] !== clicked.$element[0]) {
@@ -15453,7 +15558,7 @@ define('skylark-bs-swt/wizard',[
 		this.$nextBtn = this.$element.find('button.btn-next');
 
 		var kids = this.$nextBtn.children().detach();
-		this.nextText = $.trim(this.$nextBtn.text());
+		this.nextText = langx.trim(this.$nextBtn.text());
 		this.$nextBtn.append(kids);
 
 		var steps = this.$element.children('.steps-container');
@@ -15468,9 +15573,9 @@ define('skylark-bs-swt/wizard',[
 		steps = steps.find('.steps');
 
 		// handle events
-		this.$prevBtn.on('click.fu.wizard', $.proxy(this.previous, this));
-		this.$nextBtn.on('click.fu.wizard', $.proxy(this.next, this));
-		steps.on('click.fu.wizard', 'li.complete', $.proxy(this.stepclicked, this));
+		this.$prevBtn.on('click.fu.wizard', langx.proxy(this.previous, this));
+		this.$nextBtn.on('click.fu.wizard', langx.proxy(this.next, this));
+		steps.on('click.fu.wizard', 'li.complete', langx.proxy(this.stepclicked, this));
 
 		this.selectedItem(this.options.selectedItem);
 
@@ -15662,7 +15767,7 @@ define('skylark-bs-swt/wizard',[
 
 			// only fire changed event after initializing
 			if (typeof (this.initialized) !== 'undefined') {
-				var e = $.Event('changed.fu.wizard');
+				var e = eventer.create('changed.fu.wizard');
 				this.$element.trigger(e, {
 					step: this.currentStep
 				});
@@ -15678,7 +15783,7 @@ define('skylark-bs-swt/wizard',[
 			if (index < this.currentStep && this.options.disablePreviousStep) {//enforce restrictions
 				return;
 			} else {
-				var evt = $.Event('stepclicked.fu.wizard');
+				var evt = eventer.create('stepclicked.fu.wizard');
 				this.$element.trigger(evt, {
 					step: index + 1
 				});
@@ -15716,7 +15821,7 @@ define('skylark-bs-swt/wizard',[
 				return;
 			}
 
-			var e = $.Event('actionclicked.fu.wizard');
+			var e = eventer.create('actionclicked.fu.wizard');
 			this.$element.trigger(e, {
 				step: this.currentStep,
 				direction: 'previous'
@@ -15744,7 +15849,7 @@ define('skylark-bs-swt/wizard',[
 		},
 
 		next: function () {
-			var e = $.Event('actionclicked.fu.wizard');
+			var e = eventer.create('actionclicked.fu.wizard');
 			this.$element.trigger(e, {
 				step: this.currentStep,
 				direction: 'next'

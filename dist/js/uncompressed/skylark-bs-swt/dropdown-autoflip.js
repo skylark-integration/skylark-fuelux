@@ -98,7 +98,7 @@ define([
 
 		if(!targetSelector) {
 			// no selection so find the relevant ancestor
-			$.each(element.parents(), function (index, parentElement) {
+			langx.each(element.parents(), function (index, parentElement) {
 				if ($(parentElement).css('overflow') !== 'visible') {
 					containerElement = parentElement;
 					isWindow = false;

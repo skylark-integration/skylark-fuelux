@@ -66,7 +66,7 @@ define([
 		this.$startDate.datepicker(this.options.startDateOptions);
 
 		var startDateResponse = (typeof this.options.startDateChanged === "function") ? this.options.startDateChanged : this._guessEndDate;
-		this.$startDate.on('change changed.fu.datepicker dateClicked.fu.datepicker', $.proxy(startDateResponse, this));
+		this.$startDate.on('change changed.fu.datepicker dateClicked.fu.datepicker', langx.proxy(startDateResponse, this));
 
 		this.$startTime.combobox();
 		// init start time
@@ -97,17 +97,17 @@ define([
 		this.$element.find('.radio-custom').radio();
 
 		// bind events: 'change' is a Bootstrap JS fired event
-		this.$repeatIntervalSelect.on('changed.fu.selectlist', $.proxy(this.repeatIntervalSelectChanged, this));
-		this.$endSelect.on('changed.fu.selectlist', $.proxy(this.endSelectChanged, this));
+		this.$repeatIntervalSelect.on('changed.fu.selectlist', langx.proxy(this.repeatIntervalSelectChanged, this));
+		this.$endSelect.on('changed.fu.selectlist', langx.proxy(this.endSelectChanged, this));
 		this.$element.find('.repeat-days-of-the-week .btn-group .btn').on('change.fu.scheduler', function (e, data) {
 			self.changed(e, data, true);
 		});
-		this.$element.find('.combobox').on('changed.fu.combobox', $.proxy(this.changed, this));
-		this.$element.find('.datepicker').on('changed.fu.datepicker', $.proxy(this.changed, this));
-		this.$element.find('.datepicker').on('dateClicked.fu.datepicker', $.proxy(this.changed, this));
-		this.$element.find('.selectlist').on('changed.fu.selectlist', $.proxy(this.changed, this));
-		this.$element.find('.spinbox').on('changed.fu.spinbox', $.proxy(this.changed, this));
-		this.$element.find('.repeat-monthly .radio-custom, .repeat-yearly .radio-custom').on('change.fu.scheduler', $.proxy(this.changed, this));
+		this.$element.find('.combobox').on('changed.fu.combobox', langx.proxy(this.changed, this));
+		this.$element.find('.datepicker').on('changed.fu.datepicker', langx.proxy(this.changed, this));
+		this.$element.find('.datepicker').on('dateClicked.fu.datepicker', langx.proxy(this.changed, this));
+		this.$element.find('.selectlist').on('changed.fu.selectlist', langx.proxy(this.changed, this));
+		this.$element.find('.spinbox').on('changed.fu.spinbox', langx.proxy(this.changed, this));
+		this.$element.find('.repeat-monthly .radio-custom, .repeat-yearly .radio-custom').on('change.fu.scheduler', langx.proxy(this.changed, this));
 	};
 
 	var _getFormattedDate = function _getFormattedDate(dateObj, dash) {
@@ -314,7 +314,7 @@ define([
 			startDateTime += 'T';
 			hasAm = (startTime.search('am') >= 0);
 			hasPm = (startTime.search('pm') >= 0);
-			startTime = $.trim(startTime.replace(/am/g, '').replace(/pm/g, '')).split(':');
+			startTime = langx.trim(startTime.replace(/am/g, '').replace(/pm/g, '')).split(':');
 			startTime[0] = parseInt(startTime[0], 10);
 			startTime[1] = parseInt(startTime[1], 10);
 			if (hasAm && startTime[0] > 11) {
@@ -613,9 +613,9 @@ define([
 			startTime.time24HourFormat = startTimeISO8601.split('+')[0].split('-')[0];
 
 			if (startTimeISO8601.search(/\+/) > -1) {
-				startTime.timeZoneOffset = '+' + $.trim(startTimeISO8601.split('+')[1]);
+				startTime.timeZoneOffset = '+' + langx.trim(startTimeISO8601.split('+')[1]);
 			} else if (startTimeISO8601.search(/\-/) > -1) {
-				startTime.timeZoneOffset = '-' + $.trim(startTimeISO8601.split('-')[1]);
+				startTime.timeZoneOffset = '-' + langx.trim(startTimeISO8601.split('-')[1]);
 			} else {
 				startTime.timeZoneOffset = '+00:00';
 			}
@@ -644,7 +644,7 @@ define([
 				if (typeof (options.timeZone) === 'string') {
 					startTime.timeZoneQuerySelector += 'li[data-name="' + options.timeZone + '"]';
 				} else {
-					$.each(options.timeZone, function(key, value) {
+					langx.each(options.timeZone, function(key, value) {
 						startTime.timeZoneQuerySelector += 'li[data-' + key + '="' + value + '"]';
 					});
 				}

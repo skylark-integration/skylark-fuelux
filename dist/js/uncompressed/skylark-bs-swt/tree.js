@@ -33,16 +33,16 @@ define([
 		this.$element.attr('tabindex', '0');
 
 		if (this.options.itemSelect) {
-			this.$element.on('click.fu.tree', '.tree-item', $.proxy(function callSelect (ev) {
+			this.$element.on('click.fu.tree', '.tree-item', langx.proxy(function callSelect (ev) {
 				this.selectItem(ev.currentTarget);
 			}, this));
 		}
 
-		this.$element.on('click.fu.tree', '.tree-branch-name', $.proxy(function callToggle (ev) {
+		this.$element.on('click.fu.tree', '.tree-branch-name', langx.proxy(function callToggle (ev) {
 			this.toggleFolder(ev.currentTarget);
 		}, this));
 
-		this.$element.on('click.fu.tree', '.tree-overflow', $.proxy(function callPopulate (ev) {
+		this.$element.on('click.fu.tree', '.tree-overflow', langx.proxy(function callPopulate (ev) {
 			this.populate($(ev.currentTarget));
 		}, this));
 
@@ -50,10 +50,10 @@ define([
 		if (this.options.folderSelect) {
 			this.$element.addClass('tree-folder-select');
 			this.$element.off('click.fu.tree', '.tree-branch-name');
-			this.$element.on('click.fu.tree', '.icon-caret', $.proxy(function callToggle (ev) {
+			this.$element.on('click.fu.tree', '.icon-caret', langx.proxy(function callToggle (ev) {
 				this.toggleFolder($(ev.currentTarget).parent());
 			}, this));
-			this.$element.on('click.fu.tree', '.tree-branch-name', $.proxy(function callSelect (ev) {
+			this.$element.on('click.fu.tree', '.tree-branch-name', langx.proxy(function callSelect (ev) {
 				this.selectFolder($(ev.currentTarget));
 			}, this));
 		}
@@ -138,7 +138,7 @@ define([
 			}
 
 			this.options.dataSource(treeData ? treeData : {}, function populateNodes (items) {
-				$.each(items.data, function buildNode (i, treeNode) {
+				langx.each(items.data, function buildNode (i, treeNode) {
 					var nodeType = treeNode.type;
 
 					// 'item' and 'overflow' remain consistent, but 'folder' maps to 'branch'
@@ -177,7 +177,7 @@ define([
 
 					// add attributes to tree-branch or tree-item
 					var attrs = treeNode.attr || treeNode.dataAttributes || [];
-					$.each(attrs, function setAttribute (attr, setTo) {
+					langx.each(attrs, function setAttribute (attr, setTo) {
 						switch (attr) {
 						case 'cssClass':
 						case 'class':
@@ -339,7 +339,7 @@ define([
 			var $sel = this.$element.find('.tree-selected');
 			var selected = [];
 
-			$.each($sel, function buildSelectedArray (i, value) {
+			langx.each($sel, function buildSelectedArray (i, value) {
 				selected.push($(value).data());
 			});
 			return selected;
@@ -732,7 +732,7 @@ define([
 
 	function multiSelectSyncNodes (self, clicked, selected) {
 		// search for currently selected and add to selected data list if needed
-		$.each(selected.$elements, function findCurrentlySelected (index, element) {
+		langx.each(selected.$elements, function findCurrentlySelected (index, element) {
 			var $element = $(element);
 
 			if ($element[0] !== clicked.$element[0]) {

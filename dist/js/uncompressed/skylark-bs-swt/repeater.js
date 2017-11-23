@@ -11,7 +11,8 @@ define([
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
-  "skylark-utils/query"
+  "skylark-utils/query",
+  "./loader"
 ],function(langx,browser,eventer,noder,geom,$){
 
 	/*
@@ -82,14 +83,14 @@ define([
 				pageIncrement: null
 			});
 		});
-		this.$nextBtn.on('click.fu.repeater', $.proxy(this.next, this));
+		this.$nextBtn.on('click.fu.repeater', langx.proxy(this.next, this));
 		this.$pageSize.on('changed.fu.selectlist', function onPageSizeChanged (e, value) {
 			self.$element.trigger('pageSizeChanged.fu.repeater', value);
 			self.render({
 				pageIncrement: null
 			});
 		});
-		this.$prevBtn.on('click.fu.repeater', $.proxy(this.previous, this));
+		this.$prevBtn.on('click.fu.repeater', langx.proxy(this.previous, this));
 		this.$primaryPaging.find('.combobox').on('changed.fu.combobox', function onPrimaryPagingChanged (evt, data) {
 			self.pageInputChange(data.text, data);
 		});
@@ -116,7 +117,7 @@ define([
 				self.pageInputChange(self.$secondaryPaging.val());
 			}
 		});
-		this.$views.find('input').on('change.fu.repeater', $.proxy(this.viewChanged, this));
+		this.$views.find('input').on('change.fu.repeater', langx.proxy(this.viewChanged, this));
 
 		$(window).on('resize.fu.repeater.' + this.stamp, function onResizeRepeater () {
 			clearTimeout(self.resizeTimeout);
@@ -692,7 +693,8 @@ define([
 			var viewportMargins;
 			var scrubbedElements = [];
 			var previousProperties = [];
-			var $hiddenElements = this.$element.parentsUntil(':visible').addBack();
+			//var $hiddenElements = this.$element.parentsUntil(':visible').addBack(); // del addBack() not supported by skyalrk
+			var $hiddenElements = this.$element.parentsUntil(':visible');
 			var currentHiddenElement;
 			var currentElementIndex = 0;
 

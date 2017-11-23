@@ -4,7 +4,8 @@ define([
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
-  "skylark-utils/query"
+  "skylark-utils/query",
+  "./repeater"  
 ],function(langx,browser,eventer,noder,geom,$){
 
 	/*
@@ -209,7 +210,7 @@ define([
 			end = template.indexOf('}}', start + 2);
 
 			if (start > -1 && end > -1) {
-				val = $.trim(template.substring(start + 2, end));
+				val = langx.trim(template.substring(start + 2, end));
 				val = (itemData[val] !== undefined) ? itemData[val] : '';
 				template = template.substring(0, start) + val + template.substring(end + 2);
 			} else {

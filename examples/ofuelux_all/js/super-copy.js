@@ -1,5 +1,8 @@
-
-$(function() {
+define([
+    "skylark-utils"
+],function(sutils){
+    var $ = sutils.query;
+sutils.eventer.ready(function() {
     var COPY_PROMPT_TEXT = 'copy';
     var KEYSTROKE_TEXT = '⌘ + c (ctrl + c)';
 
@@ -49,4 +52,6 @@ $(function() {
     $('.highlight code').each(function() {
         applySuperCopy($(this));
     });
+});
+
 });

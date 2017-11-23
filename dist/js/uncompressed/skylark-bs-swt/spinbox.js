@@ -42,24 +42,24 @@ define([
 		}
 
 		this.$input = this.$element.find('.spinbox-input');
-		this.$input.on('focusout.fu.spinbox', this.$input, $.proxy(this.change, this));
-		this.$element.on('keydown.fu.spinbox', this.$input, $.proxy(this.keydown, this));
-		this.$element.on('keyup.fu.spinbox', this.$input, $.proxy(this.keyup, this));
+		this.$input.on('focusout.fu.spinbox', this.$input, langx.proxy(this.change, this));
+		this.$element.on('keydown.fu.spinbox', this.$input, langx.proxy(this.keydown, this));
+		this.$element.on('keyup.fu.spinbox', this.$input, langx.proxy(this.keyup, this));
 
 		if (this.options.hold) {
-			this.$element.on('mousedown.fu.spinbox', '.spinbox-up', $.proxy(function () {
+			this.$element.on('mousedown.fu.spinbox', '.spinbox-up', langx.proxy(function () {
 				this.startSpin(true);
 			}, this));
-			this.$element.on('mouseup.fu.spinbox', '.spinbox-up, .spinbox-down', $.proxy(this.stopSpin, this));
-			this.$element.on('mouseout.fu.spinbox', '.spinbox-up, .spinbox-down', $.proxy(this.stopSpin, this));
-			this.$element.on('mousedown.fu.spinbox', '.spinbox-down', $.proxy(function () {
+			this.$element.on('mouseup.fu.spinbox', '.spinbox-up, .spinbox-down', langx.proxy(this.stopSpin, this));
+			this.$element.on('mouseout.fu.spinbox', '.spinbox-up, .spinbox-down', langx.proxy(this.stopSpin, this));
+			this.$element.on('mousedown.fu.spinbox', '.spinbox-down', langx.proxy(function () {
 				this.startSpin(false);
 			}, this));
 		} else {
-			this.$element.on('click.fu.spinbox', '.spinbox-up', $.proxy(function () {
+			this.$element.on('click.fu.spinbox', '.spinbox-up', langx.proxy(function () {
 				this.step(true);
 			}, this));
-			this.$element.on('click.fu.spinbox', '.spinbox-down', $.proxy(function () {
+			this.$element.on('click.fu.spinbox', '.spinbox-down', langx.proxy(function () {
 				this.step(false);
 			}, this));
 		}
@@ -98,7 +98,7 @@ define([
 		var legalUnit = false;
 		var suspectUnit = unit.toLowerCase();
 
-		$.each(validUnits, function (i, validUnit) {
+		langx.each(validUnits, function (i, validUnit) {
 			validUnit = validUnit.toLowerCase();
 			if (suspectUnit === validUnit) {
 				legalUnit = true;
@@ -203,7 +203,7 @@ define([
 					divisor = 4;
 				}
 
-				this.switches.timeout = setTimeout($.proxy(function () {
+				this.switches.timeout = setTimeout(langx.proxy(function () {
 					this.iterate(type);
 				}, this), this.switches.speed / divisor);
 				this.switches.count++;

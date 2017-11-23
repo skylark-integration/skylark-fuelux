@@ -5,12 +5,10 @@
  * details, see http://creativecommons.org/licenses/by/3.0/.
  */
 
-define(function (require) {
-	var jquery = require('jquery');
-
-	require('bootstrap');
-	require('moment');
-	require('fuelux');
+define([
+	"skylark-bs-swt",
+	"moment"
+],function ($) {
 
 	// SCHEDULER
 

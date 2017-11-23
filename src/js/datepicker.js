@@ -78,20 +78,20 @@ define([
 		this.selectedDate = null;
 		this.yearRestriction = null;
 
-		this.$calendar.find('.datepicker-today').on('click.fu.datepicker', $.proxy(this.todayClicked, this));
-		this.$days.on('click.fu.datepicker', 'tr td button', $.proxy(this.dateClicked, this));
-		this.$header.find('.next').on('click.fu.datepicker', $.proxy(this.next, this));
-		this.$header.find('.prev').on('click.fu.datepicker', $.proxy(this.prev, this));
-		this.$headerTitle.on('click.fu.datepicker', $.proxy(this.titleClicked, this));
-		this.$input.on('change.fu.datepicker', $.proxy(this.inputChanged, this));
-		this.$input.on('mousedown.fu.datepicker', $.proxy(this.showDropdown, this));
-		this.$inputGroupBtn.on('hidden.bs.dropdown', $.proxy(this.hide, this));
-		this.$inputGroupBtn.on('shown.bs.dropdown', $.proxy(this.show, this));
-		this.$wheels.find('.datepicker-wheels-back').on('click.fu.datepicker', $.proxy(this.backClicked, this));
-		this.$wheels.find('.datepicker-wheels-select').on('click.fu.datepicker', $.proxy(this.selectClicked, this));
-		this.$wheelsMonth.on('click.fu.datepicker', 'ul button', $.proxy(this.monthClicked, this));
-		this.$wheelsYear.on('click.fu.datepicker', 'ul button', $.proxy(this.yearClicked, this));
-		this.$wheelsYear.find('ul').on('scroll.fu.datepicker', $.proxy(this.onYearScroll, this));
+		this.$calendar.find('.datepicker-today').on('click.fu.datepicker', langx.proxy(this.todayClicked, this));
+		this.$days.on('click.fu.datepicker', 'tr td button', langx.proxy(this.dateClicked, this));
+		this.$header.find('.next').on('click.fu.datepicker', langx.proxy(this.next, this));
+		this.$header.find('.prev').on('click.fu.datepicker', langx.proxy(this.prev, this));
+		this.$headerTitle.on('click.fu.datepicker', langx.proxy(this.titleClicked, this));
+		this.$input.on('change.fu.datepicker', langx.proxy(this.inputChanged, this));
+		this.$input.on('mousedown.fu.datepicker', langx.proxy(this.showDropdown, this));
+		this.$inputGroupBtn.on('hidden.bs.dropdown', langx.proxy(this.hide, this));
+		this.$inputGroupBtn.on('shown.bs.dropdown', langx.proxy(this.show, this));
+		this.$wheels.find('.datepicker-wheels-back').on('click.fu.datepicker', langx.proxy(this.backClicked, this));
+		this.$wheels.find('.datepicker-wheels-select').on('click.fu.datepicker', langx.proxy(this.selectClicked, this));
+		this.$wheelsMonth.on('click.fu.datepicker', 'ul button', langx.proxy(this.monthClicked, this));
+		this.$wheelsYear.on('click.fu.datepicker', 'ul button', langx.proxy(this.yearClicked, this));
+		this.$wheelsYear.find('ul').on('scroll.fu.datepicker', langx.proxy(this.onYearScroll, this));
 
 		var init = function () {
 			if (this.checkForMomentJS()) {

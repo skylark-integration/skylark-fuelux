@@ -1,9 +1,6 @@
-define(function (require) {
-	var jquery = require('jquery');
-
-	require('bootstrap');
-	require('fuelux');
-
+define([
+	"skylark-bs-swt"
+],function ($) {
 	$('#pillboxIllustration').pillbox();
 
 	$('#myPillbox').pillbox({

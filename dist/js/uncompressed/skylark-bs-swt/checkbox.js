@@ -55,7 +55,7 @@ define([
 		this.$toggleContainer = $(containerSelector);
 
 		// handle internal events
-		this.$chk.on('change', $.proxy(this.itemchecked, this));
+		this.$chk.on('change', langx.proxy(this.itemchecked, this));
 
 		// set default state
 		this.setInitialState();

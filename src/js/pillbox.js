@@ -69,18 +69,18 @@ define([
 		this.acceptKeyCodes = this._generateObject(this.options.acceptKeyCodes);
 		// Create an object out of the key code array, so we don't have to loop through it on every key stroke
 
-		this.$element.on('click.fu.pillbox', '.pill-group > .pill', $.proxy(this.itemClicked, this));
-		this.$element.on('click.fu.pillbox', $.proxy(this.inputFocus, this));
-		this.$element.on('keydown.fu.pillbox', '.pillbox-add-item', $.proxy(this.inputEvent, this));
+		this.$element.on('click.fu.pillbox', '.pill-group > .pill', langx.proxy(this.itemClicked, this));
+		this.$element.on('click.fu.pillbox', langx.proxy(this.inputFocus, this));
+		this.$element.on('keydown.fu.pillbox', '.pillbox-add-item', langx.proxy(this.inputEvent, this));
 		if (this.options.onKeyDown) {
-			this.$element.on('mousedown.fu.pillbox', '.suggest > li', $.proxy(this.suggestionClick, this));
+			this.$element.on('mousedown.fu.pillbox', '.suggest > li', langx.proxy(this.suggestionClick, this));
 		}
 
 		if (this.options.edit) {
 			this.$element.addClass('pills-editable');
-			this.$element.on('blur.fu.pillbox', '.pillbox-add-item', $.proxy(this.cancelEdit, this));
+			this.$element.on('blur.fu.pillbox', '.pillbox-add-item', langx.proxy(this.cancelEdit, this));
 		}
-		this.$element.on('blur.fu.pillbox', '.pillbox-add-item', $.proxy(this.inputEvent, this));
+		this.$element.on('blur.fu.pillbox', '.pillbox-add-item', langx.proxy(this.inputEvent, this));
 	};
 
 	Pillbox.prototype = {
@@ -119,7 +119,7 @@ define([
 						if (this.options.onRemove) {
 							this.options.onRemove(this.getItemData($item, {
 								el: $item
-							}), $.proxy(this._removeElement, this));
+							}), langx.proxy(this._removeElement, this));
 						} else {
 							this._removeElement(this.getItemData($item, {
 								el: $item
@@ -205,7 +205,7 @@ define([
 			}
 
 			if (items.length) {
-				$.each(items, function normalizeItemsObject (i, value) {
+				langx.each(items, function normalizeItemsObject (i, value) {
 					var data = {
 						text: value.text,
 						value: (value.value ? value.value : value.text),
@@ -233,9 +233,9 @@ define([
 
 				if (self.options.onAdd && isInternal) {
 					if (this.options.edit && this.currentEdit) {
-						self.options.onAdd(items[0], $.proxy(self.saveEdit, this));
+						self.options.onAdd(items[0], langx.proxy(self.saveEdit, this));
 					} else {
-						self.options.onAdd(items[0], $.proxy(self.placeItems, this));
+						self.options.onAdd(items[0], langx.proxy(self.placeItems, this));
 					}
 				} else if (this.options.edit && this.currentEdit) {
 					self.saveEdit(items);
@@ -294,7 +294,7 @@ define([
 
 			if (items.length) {
 				var newItems = [];
-				$.each(items, function prepareItemForAdd (i, item) {
+				langx.each(items, function prepareItemForAdd (i, item) {
 					var $item = $(item.el);
 
 					$item.attr('data-value', item.value);
@@ -302,7 +302,7 @@ define([
 
 					// DOM attributes
 					if (item.attr) {
-						$.each(item.attr, function handleDOMAttributes (key, value) {
+						langx.each(item.attr, function handleDOMAttributes (key, value) {
 							if (key === 'cssClass' || key === 'class') {
 								$item.addClass(value);
 							} else {
@@ -320,15 +320,15 @@ define([
 
 				if (this.$pillGroup.children('.pill').length > 0) {
 					if (index) {
-						$neighbor = this.$pillGroup.find('.pill:nth-child(' + index + ')');
+						$neighbor = this.$pillGroup.find('.pill').eq(index);
 
 						if ($neighbor.length) {
 							$neighbor.before(newItems);
 						} else {
-							this.$pillGroup.children('.pill:last').after(newItems);
+							this.$pillGroup.children('.pill').last().after(newItems);
 						}
 					} else {
-						this.$pillGroup.children('.pill:last').after(newItems);
+						this.$pillGroup.children('.pill').last().after(newItems);
 					}
 				} else {
 					this.$pillGroup.prepend(newItems);
@@ -511,7 +511,7 @@ define([
 			var selectors = [].slice.call(arguments).slice(0);
 			var self = this;
 
-			$.each(selectors, function doRemove (i, sel) {
+			langx.each(selectors, function doRemove (i, sel) {
 				self.$pillGroup.find(sel).remove();
 			});
 
@@ -525,7 +525,7 @@ define([
 			var values = [].slice.call(arguments).slice(0);
 			var self = this;
 
-			$.each(values, function doRemove (i, val) {
+			langx.each(values, function doRemove (i, val) {
 				self.$pillGroup.find('> .pill[data-value="' + val + '"]').remove();
 			});
 
@@ -539,7 +539,7 @@ define([
 			var text = [].slice.call(arguments).slice(0);
 			var self = this;
 
-			$.each(text, function doRemove (i, matchingText) {
+			langx.each(text, function doRemove (i, matchingText) {
 				self.$pillGroup.find('> .pill:contains("' + matchingText + '")').remove();
 			});
 
@@ -610,7 +610,7 @@ define([
 		_generateObject: function _generateObject (data) {
 			var obj = {};
 
-			$.each(data, function setObjectValue (index, value) {
+			langx.each(data, function setObjectValue (index, value) {
 				obj[value] = true;
 			});
 
@@ -625,7 +625,7 @@ define([
 			}
 
 			if (data.data && data.data.length) {
-				$.each(data.data, function appendSuggestions (index, value) {
+				langx.each(data.data, function appendSuggestions (index, value) {
 					var val = value.value ? value.value : value.text;
 
 					// markup concatentation is 10x faster, but does not allow data store

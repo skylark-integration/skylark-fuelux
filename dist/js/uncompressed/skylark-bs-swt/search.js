@@ -39,11 +39,11 @@ define([
 		this.$input = this.$element.find('input');
 		this.$icon = this.$element.find('.glyphicon, .fuelux-icon');
 
-		this.$button.on('click.fu.search', $.proxy(this.buttonclicked, this));
-		this.$input.on('keyup.fu.search', $.proxy(this.keypress, this));
+		this.$button.on('click.fu.search', langx.proxy(this.buttonclicked, this));
+		this.$input.on('keyup.fu.search', langx.proxy(this.keypress, this));
 
 		if (this.$repeater.length > 0) {
-			this.$repeater.on('rendered.fu.repeater', $.proxy(this.clearPending, this));
+			this.$repeater.on('rendered.fu.repeater', langx.proxy(this.clearPending, this));
 		}
 
 		this.activeSearch = '';

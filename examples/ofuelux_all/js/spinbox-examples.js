@@ -5,11 +5,10 @@
  * details, see http://creativecommons.org/licenses/by/3.0/.
  */
 
-define(function (require) {
-	var jquery = require('jquery');
+define([
+	"skylark-bs-swt"
+],function ($) {
 
-	require('bootstrap');
-	require('fuelux');
 
 	// SPINBOX
 	$('#MySpinboxDecimal').spinbox({

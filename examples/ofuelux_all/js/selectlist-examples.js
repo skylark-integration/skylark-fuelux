@@ -4,12 +4,10 @@
  * Licensed under the Creative Commons Attribution 3.0 Unported License. For
  * details, see http://creativecommons.org/licenses/by/3.0/.
  */
+define([
+	"skylark-bs-swt"
+],function ($) {
 
-define(function (require) {
-	var jquery = require('jquery');
-
-	require('bootstrap');
-	require('fuelux');
 
 	// SELECTLIST
 	$('#mySelectlist').on('clicked.fu.selectlist', function (evt, target) {

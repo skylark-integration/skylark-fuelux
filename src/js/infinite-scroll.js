@@ -28,7 +28,7 @@ define([
 		this.curPercentage = this.getPercentage();
 		this.fetchingData = false;
 
-		this.$element.on('scroll.fu.infinitescroll', $.proxy(this.onScroll, this));
+		this.$element.on('scroll.fu.infinitescroll', langx.proxy(this.onScroll, this));
 		this.onScroll();
 	};
 
@@ -52,7 +52,7 @@ define([
 		},
 
 		enable: function () {
-			this.$element.on('scroll.fu.infinitescroll', $.proxy(this.onScroll, this));
+			this.$element.on('scroll.fu.infinitescroll', langx.proxy(this.onScroll, this));
 		},
 
 		end: function (content) {

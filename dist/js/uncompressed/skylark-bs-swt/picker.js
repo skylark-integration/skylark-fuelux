@@ -42,20 +42,20 @@ define([
 
 		this.isInput = this.$trigger.is('input');
 
-		this.$trigger.on('keydown.fu.picker', $.proxy(this.keyComplete, this));
-		this.$trigger.on('focus.fu.picker', $.proxy(function inputFocus(e){
+		this.$trigger.on('keydown.fu.picker', langx.proxy(this.keyComplete, this));
+		this.$trigger.on('focus.fu.picker', langx.proxy(function inputFocus(e){
 			if(typeof e === "undefined" || $(e.target).is('input[type=text]')){
-				$.proxy(this.show(), this);
+				langx.proxy(this.show(), this);
 			}
 		}, this));
-		this.$trigger.on('click.fu.picker', $.proxy(function triggerClick(e){
+		this.$trigger.on('click.fu.picker', langx.proxy(function triggerClick(e){
 			if(!$(e.target).is('input[type=text]')){
-				$.proxy(this.toggle(), this);
+				langx.proxy(this.toggle(), this);
 			}else{
-				$.proxy(this.show(), this);
+				langx.proxy(this.show(), this);
 			}
 		}, this));
-		this.$accept.on('click.fu.picker', $.proxy(this.complete, this, 'accepted'));
+		this.$accept.on('click.fu.picker', langx.proxy(this.complete, this, 'accepted'));
 		this.$cancel.on('click.fu.picker', function (e) {
 			e.preventDefault(); self.complete('cancelled');
 		});
@@ -221,7 +221,7 @@ define([
 
 			this.clickStamp = new Date().getTime() + (Math.floor(Math.random() * 100) + 1);
 			if (!this.options.explicit) {
-				$(document).on('click.fu.picker.externalClick.' + this.clickStamp, $.proxy(this.externalClickListener, this));
+				$(document).on('click.fu.picker.externalClick.' + this.clickStamp, langx.proxy(this.externalClickListener, this));
 			}
 		}
 	};

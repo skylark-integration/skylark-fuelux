@@ -5,24 +5,24 @@
  * details, see http://creativecommons.org/licenses/by/3.0/.
  */
 
-define(function (require) {
+define([
+	"skylark-bs-swt",
+	"./combobox-examples",
+	"./datepicker-examples",
+	"./infinite-scroll-examples",
+	"./repeater-examples",
+	"./placard-examples",
+	"./pillbox-examples",
+	"./scheduler-examples",
+	"./search-examples",
+	"./selectlist-examples",
+	"./spinbox-examples",
+	"./tree-examples",
+	"./wizard-examples",
+	"supercopy"
+],function ($) {
 	var $body = $(document.body);
 	var $window = $(window);
-
-	require('assets/js/combobox-examples');
-	require('assets/js/datepicker-examples');
-	require('assets/js/infinite-scroll-examples');
-	require('assets/js/repeater-examples');
-	require('assets/js/placard-examples');
-	require('assets/js/pillbox-examples');
-	require('assets/js/scheduler-examples');
-	require('assets/js/search-examples');
-	require('assets/js/selectlist-examples');
-	require('assets/js/spinbox-examples');
-	require('assets/js/tree-examples');
-	require('assets/js/wizard-examples');
-
-	require('supercopy');
 
 	$body.scrollspy({
 		target: '.fu-sidebar'

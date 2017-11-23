@@ -46,7 +46,7 @@ define([
 		this.$toggleContainer = $(containerSelector);
 
 		// handle internal events
-		this.$radio.on('change', $.proxy(this.itemchecked, this));
+		this.$radio.on('change', langx.proxy(this.itemchecked, this));
 
 		// set default state
 		this.setInitialState();
