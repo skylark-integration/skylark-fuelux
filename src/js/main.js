@@ -4,14 +4,32 @@ define([
     "./alert",
     "./button",
     "./carousel",
+    "./checkbox",
     "./collapse",
+    "./combobox",
+    "./datepicker",
     "./dropdown",
+    "./dropdown-autoflip",
+    "./infinite-scroll",
     "./modal",
+    "./picker",
+    "./pillbox",
+    "./placard",
     "./popover",
+    "./radio",
+    "./repeater",
+    "./repeater-list",
+    "./repeater-thumbnail",
+    "./scheduler",
     "./scrollspy",
+    "./search",
+    "./selectlist",
+    "./spinbox",
     "./tab",
     "./tooltip",
-    "./transition"
+    "./transition",
+    "./tree",
+    "./wizard"
 ], function($) {
     return $;
 })

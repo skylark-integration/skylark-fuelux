@@ -1,11 +1,11 @@
 define([
-  "skylark-utils/browser",
   "skylark-utils/langx",
+  "skylark-utils/browser",
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
   "skylark-utils/query"
-],function(browser,langx,eventer,noder,geom,$){
+],function(langx,browser,eventer,noder,geom,$){
 /* ========================================================================
  * Bootstrap: tooltip.js v3.3.7
  * http://getbootstrap.com/javascript/#tooltip

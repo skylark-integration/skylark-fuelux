@@ -4,8 +4,8 @@ var gulp = require('gulp'),
 
 
 module.exports = function() {
-//    del.sync([util.dest + '/**/*', '!' + util.dest + "/"], {
-//        force: true
-//    });
+    del.sync([util.dest + '**/*'], {
+        force: true
+    });
     console.log('Clean folder:\n', util.dest);
 };

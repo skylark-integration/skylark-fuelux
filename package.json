@@ -1,7 +1,7 @@
 {
-  "name": "skylark-bootstrap",
-  "description": "The most popular front-end framework for developing responsive, mobile first projects on the web.",
-  "version": "3.3.7",
+  "name": "skylark-bs-swt",
+  "description": "The skylark bootstrap standard widget tookit",
+  "version": "0.9.0-beta",
   "keywords": [
     "css",
     "less",
@@ -11,8 +11,8 @@
     "framework",
     "web"
   ],
-  "homepage": "http://getbootstrap.com",
-  "author": "Twitter, Inc.",
+  "homepage": "https://github.com/skylarkui/skylark-bs-swt/",
+  "author": "Hudaokeji, Inc.",
   "scripts": {
     "change-version": "node grunt/change-version.js",
     "update-shrinkwrap": "npm shrinkwrap --dev && shx mv ./npm-shrinkwrap.json ./grunt/npm-shrinkwrap.json",
@@ -20,13 +20,13 @@
   },
   "style": "dist/css/bootstrap.css",
   "less": "less/bootstrap.less",
-  "main": "./dist/js/npm",
+  "main": "./dist/js/main",
   "repository": {
     "type": "git",
-    "url": "https://github.com/twbs/bootstrap.git"
+    "url": "https://github.com/skylarkui/skylark-bs-swt.git"
   },
   "bugs": {
-    "url": "https://github.com/twbs/bootstrap/issues"
+    "url": "https://github.com/skylarkui/skylark-bs-swt/issues"
   },
   "license": "MIT",
   "devDependencies": {
