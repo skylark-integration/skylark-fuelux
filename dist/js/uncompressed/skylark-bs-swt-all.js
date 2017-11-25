@@ -666,17 +666,17 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
         var i;
 
         if (array.indexOf) {
-            return array.indexOf(item);
+            return array.indexOf(item) > -1;
         }
 
         i = array.length;
         while (i--) {
             if (array[i] === item) {
-                return i;
+                return true;
             }
         }
 
-        return -1;
+        return false;
     }
 
     function inherit(ctor, base) {
@@ -724,6 +724,10 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
 
     function isDefined(obj) {
         return typeof obj !== 'undefined';
+    }
+
+    function isHtmlNode(obj) {
+        return obj && (obj instanceof Node);
     }
 
     function isNumber(obj) {
@@ -1010,6 +1014,8 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
 
         isFunction: isFunction,
 
+        isHtmlNode : isHtmlNode,
+
         isObject: isObject,
 
         isPlainObject: isPlainObject,
@@ -1225,22 +1231,27 @@ define('skylark-utils/styler',[
     }
 
     function removeClass(elm, name) {
-        var cls = className(elm),
-            names;
-        if (langx.isString(name)) {
-            names = name.split(/\s+/g);
-        } else {
-            names = name;
-        }
+        if (name) {
+            var cls = className(elm),
+                names;
 
-        names.forEach(function(klass) {
-            var re = classRE(klass);
-            if (cls.match(re)) {
-                cls = cls.replace(re, " ");
+            if (langx.isString(name)) {
+                names = name.split(/\s+/g);
+            } else {
+                names = name;
             }
-        });
 
-        className(elm, cls.trim());
+            names.forEach(function(klass) {
+                var re = classRE(klass);
+                if (cls.match(re)) {
+                    cls = cls.replace(re, " ");
+                }
+            });
+
+            className(elm, cls.trim());
+        } else {
+            className(elm,"");
+        }
 
         return this;
     }
@@ -2050,7 +2061,7 @@ define('skylark-utils/finder',[
         },
 
         eq: function(elm, idx, nodes, value) {
-            return (idx === value);
+            return (idx == value);
         },
 
         'focus': function(elm) {
@@ -2061,9 +2072,14 @@ define('skylark-utils/finder',[
             return (idx === 0);
         },
 
+        gt: function(elm, idx, nodes, value) {
+            return (idx > value);
+        },
+
         has: function(elm, idx, nodes, sel) {
             return local.querySelector(elm, sel).length > 0;
         },
+
 
         hidden: function(elm) {
             return !local.pseudos["visible"](elm);
@@ -2071,6 +2087,14 @@ define('skylark-utils/finder',[
 
         last: function(elm, idx, nodes) {
             return (idx === nodes.length - 1);
+        },
+
+        lt: function(elm, idx, nodes, value) {
+            return (idx < value);
+        },
+
+        not: function(elm, idx, nodes, sel) {
+            return local.match(elm, sel);
         },
 
         parent: function(elm) {
@@ -2106,8 +2130,8 @@ define('skylark-utils/finder',[
         }
         if (attributes = cond.attributes) {
             for (var i = 0; i < attributes.length; i++) {
-                if (attributes[i].Operator) {
-                    nativeSelector += ("[" + attributes[i].key + attributes[i].Operator + JSON.stringify(attributes[i].value) + +"]");
+                if (attributes[i].operator) {
+                    nativeSelector += ("[" + attributes[i].key + attributes[i].operator + JSON.stringify(attributes[i].value)  +"]");
                 } else {
                     nativeSelector += ("[" + attributes[i].key + "]");
                 }
@@ -2119,7 +2143,7 @@ define('skylark-utils/finder',[
                 if (this.pseudos[part.key]) {
                     customPseudos.push(part);
                 } else {
-                    if (part.value !== undefine) {
+                    if (part.value !== undefined) {
                         nativeSelector += (":" + part.key + "(" + JSON.stringify(part))
                     }
                 }
@@ -2340,26 +2364,41 @@ define('skylark-utils/finder',[
 
 
     function ancestor(node, selector, root) {
+        var rootIsSelector = root && langx.isString(root);
         while (node = node.parentNode) {
             if (matches(node, selector)) {
                 return node;
             }
-            if (node == root) {
-                break;
-            }
+            if (root) {
+                if (rootIsSelector) {
+                    if (matches(node,root)) {
+                        break;
+                    }
+                } else if (node == root) {
+                    break;
+                }
+            } 
         }
         return null;
     }
 
-    function ancestors(node, selector) {
-        var ret = [];
+    function ancestors(node, selector,root) {
+        var ret = [],
+            rootIsSelector = root && langx.isString(root);
         while (node = node.parentNode) {
             if (matches(node, selector)) {
                 ret.push(node);
             }
-            if (node == ret) {
-                break;
-            }
+            if (root) {
+                if (rootIsSelector) {
+                    if (matches(node,root)) {
+                        break;
+                    }
+                } else if (node == root) {
+                    break;
+                }
+            } 
+
         }
         return ret;
     }
@@ -3024,7 +3063,7 @@ define('skylark-utils/eventer',[
                         var elm = this,
                             e = createProxy(domEvt),
                             args = domEvt._args,
-                            binding = self._bindings,
+                            bindings = self._bindings,
                             ns = e.namespace;
 
                         if (langx.isDefined(args)) {
@@ -3033,10 +3072,10 @@ define('skylark-utils/eventer',[
                             args = [e];
                         }
 
-                        bindings.some(function(binding) {
+                        langx.each(bindings,function(idx,binding) {
                             var match = elm;
                             if (e.isImmediatePropagationStopped && e.isImmediatePropagationStopped()) {
-                                return true;
+                                return false;
                             }
                             var fn = binding.fn,
                                 options = binding.options || {},
@@ -3045,7 +3084,7 @@ define('skylark-utils/eventer',[
                                 data = options.data;
 
                             if (ns && ns != options.ns) {
-                                return false;
+                                return ;
                             }
                             if (selector) {
                                 match = finder.closest(e.target, selector);
@@ -3055,7 +3094,7 @@ define('skylark-utils/eventer',[
                                         liveFired: elm
                                     });
                                 } else {
-                                    return false;
+                                    return ;
                                 }
                             }
 
@@ -3073,7 +3112,6 @@ define('skylark-utils/eventer',[
                                 e.preventDefault();
                                 e.stopPropagation();
                             }
-                            return false;
                         });;
                     };
 
@@ -4218,6 +4256,26 @@ define('skylark-utils/query',[
         }
     }
 
+    function wrapper_selector_until(func, context, last) {
+        return function(util,selector) {
+            var self = this,
+                params = slice.call(arguments);
+            if (selector === undefined) {
+                selector = util;
+                util = undefined;
+            }
+            var result = this.map(function(idx, elem) {
+                return func.apply(context, last ? [elem,util] : [elem, selector,util]);
+            });
+            if (last && selector) {
+                return result.filter(selector);
+            } else {
+                return result;
+            }
+        }
+    }
+
+
     function wrapper_every_act(func, context) {
         return function() {
             var self = this,
@@ -4488,6 +4546,9 @@ define('skylark-utils/query',[
 
             parents: wrapper_selector(finder.ancestors, finder),
 
+            parentsUntil: wrapper_selector_until(finder.ancestors, finder),
+
+
             parent: wrapper_selector(finder.parent, finder),
 
             children: wrapper_selector(finder.children, finder),
@@ -4670,6 +4731,9 @@ define('skylark-utils/query',[
 
                 if (value === undefined) {
                     var el = this[0];
+                    if (!el) {
+                        return undefined;
+                    }
                     var cb = geom.size(el);
                     if (margin) {
                         var me = geom.marginExtents(el);

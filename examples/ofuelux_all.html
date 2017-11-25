@@ -8215,9 +8215,17 @@ Remove one or more items at a specific position in the pillbox by passing option
           noGlobal: true
         }
       },
+      waitSeconds: 600,
+      packages: [
+         {
+            name: 'skylark-bs-swt',
+            location: '../dist/js/uncompressed/skylark-bs-swt',
+            main: 'main'
+          }
+      ],      
       paths: {
         "skylark-utils" : "http://registry.skylarkjs.org/packages/skylark-utils/v0.9.3-beta/uncompressed/skylark-utils-all",
-        "skylark-bs-swt": "../dist/js/uncompressed/skylark-bs-swt",
+//        "skylark-bs-swt": "../dist/js/uncompressed/skylark-bs-swt",
 
         assets: './ofuelux_all',
         moment: './ofuelux_all/vendor/moment-with-locales.min', // comment out if you dont want momentjs to be default
@@ -8245,7 +8253,13 @@ Remove one or more items at a specific position in the pillbox by passing option
   })();
 </script>
 <script>
-  require(['skylark-utils', 'skylark-bs-swt', 'moment', 'ofuelux_all/js/application'], function($){});
+  require(['skylark-utils'],function(){
+    require(['skylark-bs-swt', 'moment'],function(){
+      require(['ofuelux_all/js/application'], function($){
+
+      });
+    });
+  });
 </script>
 
 <!-- <script src="http://localhost:35729/livereload.js"></script> -->
