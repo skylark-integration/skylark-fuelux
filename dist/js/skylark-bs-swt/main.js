@@ -5,5 +5,5 @@
  * @link https://github.com/skylarkui/skylark-bs-swt/
  * @license MIT
  */
-define(["skylark-utils/query","./affix","./alert","./button","./carousel","./checkbox","./collapse","./combobox","./datepicker","./dropdown","./dropdown-autoflip","./infinite-scroll","./modal","./picker","./pillbox","./placard","./popover","./radio","./repeater","./repeater-list","./repeater-thumbnail","./scheduler","./scrollspy","./search","./selectlist","./spinbox","./tab","./tooltip","./transition","./tree","./wizard"],function(e){return e});
+define(["skylark-utils/query","./affix","./alert","./button","./carousel","./checkbox","./collapse","./combobox","./datepicker","./dropdown","./dropdown-autoflip","./infinite-scroll","./modal","./picker","./pillbox","./placard","./popover","./radio","./repeater","./repeater-list","./repeater-thumbnail","./scheduler","./scrollspy","./search","./selectlist","./spinbox","./tab","./toolbar","./tooltip","./transition","./tree","./wizard"],function(e){return e});
 //# sourceMappingURL=sourcemaps/main.js.map

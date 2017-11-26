@@ -1,14 +1,25 @@
+/**
+ * skylark-bs-swt - The skylark bootstrap standard widget tookit
+ * @author Hudaokeji, Inc.
+ * @version v0.9.0-beta
+ * @link https://github.com/skylarkui/skylark-bs-swt/
+ * @license MIT
+ */
 define([
+  "skylark-utils/skylark",
   "skylark-utils/langx",
   "skylark-utils/browser",
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
   "skylark-utils/query"
-],function(langx,browser,eventer,noder,geom,$){
+],function(skylark,langx,browser,eventer,noder,geom,$){
+	var ui = skylark.ui = skylark.ui || {}, 
+		sbswt = ui.sbswt = {};
 
+/*---------------------------------------------------------------------------------*/
 	/*
-	 * Fuel UX Checkbox
+	 * Fuel UX utilities.js
 	 * https://github.com/ExactTarget/fuelux
 	 *
 	 * Copyright (c) 2014 ExactTarget
@@ -52,7 +63,10 @@ define([
 		return $('<i>').text(questionableMarkup).html();
 	};
 
-	$.fn.utilities = {
+
+
+
+	langx.mixin(sbswt, {
 		CONST: CONST,
 		cleanInput: cleanInput,
 		isBackspaceKey: isBackspaceKey,
@@ -61,6 +75,18 @@ define([
 		isTabKey: isTabKey,
 		isUpArrow: isUpArrow,
 		isDownArrow: isDownArrow
-	};
+	});
 
+/*---------------------------------------------------------------------------------*/
+
+	var WidgetBase = langx.Evented.inherit({
+        klassName: "WidgetBase",
+    });
+
+
+	langx.mixin(sbswt, {
+		WidgetBase : WidgetBase
+	});
+
+	return sbswt;
 });

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Bootstrap Toolbar</title>
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta charset="UTF-8">
+		
+		<link rel="stylesheet" href="../dist/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+		
+		<script src="http://registry.skylarkjs.org/packages/skylark-utils/v0.9.3-beta/uncompressed/skylark-utils-all.js"></script>
+		<script src="../dist/js/uncompressed/skylark-bs-swt.js"></script>
+
+		<style type="text/css">
+			.toolbar {
+				background-color: lightgray;
+				background: linear-gradient(to bottom, #f7f7f7 0%,#bababa 100%);
+			}
+			.toolbar > .navbar { min-height: 0; }
+			.toolbar > .navbar > .btn-group {
+				margin: 5px;
+			}
+
+			.statusbar {
+				color: white;
+				background-color: #007ACC;
+				position: absolute;
+				bottom: 0px;
+				width: 100%;
+			}
+			.statusbar > .navbar { min-height: 0; margin: 0; }
+			.statusbar > .navbar > .btn-group {
+				margin: 0px 7px 0px 7px;
+			}
+			.statusbar .btn {
+				font-size: 85%;
+				color: white;
+				background: none;
+				border: none;
+				border-radius: 0px;
+				padding: 3px 6px;
+			}
+			.statusbar .btn:hover { background-color: #008DDF; }
+			.statusbar .btn:active, .statusbar .btn-group.open .btn {
+				color: white;
+				background-color: #0070C1;
+			}
+		</style>
+
+		<script type="text/javascript">
+			var $ = skylarkjs.query;
+			window.onload = function() {
+				$(".toolbar").toolbar({
+					show: true,
+					attr: {class: "toolbar"},
+
+					items : [
+						{
+							name : "font",
+							type : "buttongroup",
+							items : [
+								{ name: "bold", title: "Bold", icon: "fa fa-bold", onclick: this.bold },						
+								{ name: "italic", title: "Italic", icon: "fa fa-italic", onclick: this.italic }
+							]
+						},
+						{
+							name : "text",
+							type : "buttongroup",
+							items : [
+								{ name : "quote",title: "Quote text", icon: "fa fa-quote-left", onclick: this.quote },
+								{ name : "code",title: "Block of code", icon: "fa fa-code", onclick: this.code },
+								{ name : "image",title: "Add image", icon: "fa fa-image", onclick: this.image },
+								{ name : "link", title: "Hyperlink", icon: "fa fa-link", onclick: this.link }
+							]
+						},
+						{
+							name : "style",
+							type : "buttongroup",
+							items : [
+								{ name : "ol", title: "Ordered list", icon: "fa fa-list-ol", onclick: this.ol },
+								{ name : "ul",title: "Unordered list", icon: "fa fa-list-ul", onclick: this.ul },
+								{ name : "header",title: "Header", icon: "fa fa-header", onclick: this.header },
+								{ name : "table",title: "Table", icon: "fa fa-table", onclick: this.table }
+							]
+						},
+						{
+							name : "font",
+							type : "buttongroup",
+							items : [
+								{ name : "undo",title: "Undo", icon: "fa fa-undo", onclick: this.undo },
+								{ name : "redo",title: "Redo", icon: "fa fa-repeat", onclick: this.redo },
+							]
+						},
+						{ 
+							name : "newpage", 
+							type: "dropdown",
+							icon: "fa fa-file-text",
+							list: [
+								{ text: '<a href="#" class="btn-newpage">New Page</a>' },
+								{ class: "divider" },
+								{ text: '<a href="#">Page 1</a>' },
+								{ text: '<a href="#">Page 2</a>' },
+								{ text: '<a href="#">Page 3</a>' },
+								{ text: '<a href="#">Page 4</a>' },
+								{ text: '<a href="#">Page 5</a>' },
+								{ text: '<a href="#">Page 6</a>' }]
+						},
+						{ 
+							name  : "tabSize",
+							type: "input",
+							inputType: "number",
+							prefix: "Tab size",
+							sufix: "spaces",
+							style: "width: 80px"
+						}
+
+					]
+				});
+
+				$(".statusbar").toolbar({
+					items: [
+						{ name: "settings" ,icon: "fa fa-cogs" },
+						{ 
+							name: "language" ,
+							type: "dropup",
+							text: "Language",
+							list: [
+								{ text: '<a href="#">Plain text</a>' },
+								{ class: "divider" },
+								{ text: '<a href="#">HTML</a>' },
+								{ text: '<a href="#">JavaScript</a>' },
+								{ text: '<a href="#">Java</a>' },
+								{ text: '<a href="#">C/C++</a>' },
+								{ text: '<a href="#">OCaml</a>' },
+								{ text: '<a href="#">Haskell</a>' }]
+						},
+						{ 
+							name: "theme" ,
+							type: "dropup",
+							text: "Theme",
+							list: [
+								{ text: '<a href="#">Abyss</a>' },
+								{ text: '<a href="#">Dark+</a>' },
+								{ text: '<a href="#">Kimbie</a>' },
+								{ text: '<a href="#">High Contrast</a>' },
+								{ text: '<a href="#">Light</a>' },
+								{ text: '<a href="#">Monokai</a>' }]
+						},
+						{
+							name: "position" ,
+							text: "Ln 139, Col 54"
+						}
+					]
+				});
+
+			}
+		</script>
+	</head>
+	<body>
+		TOOLBAR 1:
+		<div class="toolbar" id="t1"></div>
+		
+		TOOLBAR 2:
+		<div class="toolbar" id="t2"></div>
+
+		<span style="position: absolute; bottom: 30px;">STATUSBAR 2:</span>
+		<div class="statusbar"></div>
+	</body>
+</html>

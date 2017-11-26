@@ -5,8 +5,9 @@ define([
   "skylark-utils/noder",
   "skylark-utils/geom",
   "skylark-utils/query",
-  "./utilities"
-],function(langx,browser,eventer,noder,geom,$){
+  "./sbswt",
+  "./dropdown-autoflip"
+],function(langx,browser,eventer,noder,geom,$,sbswt){
 
 	/*
 	 * Fuel UX Checkbox
@@ -15,30 +16,23 @@ define([
 	 * Copyright (c) 2014 ExactTarget
 	 * Licensed under the BSD New license.
 	 */
-	if (!$.fn.dropdownautoflip) {
-		throw new Error('Fuel UX pillbox control requires dropdown-autoflip.');
-	}
 
-	if (!$.fn.utilities) {
-		throw new Error('Fuel UX pillbox control requires FuelUX utilities.');
-	}
 	// -- END UMD WRAPPER PREFACE --
 
 	// -- BEGIN MODULE CODE HERE --
 
 	var old = $.fn.pillbox;
 
-	var utilities = $.fn.utilities;
-	var CONST = $.fn.utilities.CONST;
+	var CONST = sbswt.CONST;
 	var COMMA_KEYCODE = CONST.COMMA_KEYCODE;
 	var ENTER_KEYCODE = CONST.ENTER_KEYCODE;
-	var isBackspaceKey = utilities.isBackspaceKey;
-	var isDeleteKey = utilities.isDeleteKey;
-	var isTabKey = utilities.isTabKey;
-	var isUpArrow = utilities.isUpArrow;
-	var isDownArrow = utilities.isDownArrow;
-	var cleanInput = utilities.cleanInput;
-	var isShiftHeld = utilities.isShiftHeld;
+	var isBackspaceKey = sbswt.isBackspaceKey;
+	var isDeleteKey = sbswt.isDeleteKey;
+	var isTabKey = sbswt.isTabKey;
+	var isUpArrow = sbswt.isUpArrow;
+	var isDownArrow = sbswt.isDownArrow;
+	var cleanInput = sbswt.cleanInput;
+	var isShiftHeld = sbswt.isShiftHeld;
 
 	// PILLBOX CONSTRUCTOR AND PROTOTYPE
 	var Pillbox = function Pillbox (element, options) {

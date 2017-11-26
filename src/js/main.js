@@ -26,6 +26,7 @@ define([
     "./selectlist",
     "./spinbox",
     "./tab",
+    "./toolbar",
     "./tooltip",
     "./transition",
     "./tree",

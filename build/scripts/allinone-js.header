@@ -59,20 +59,16 @@
 
   if (isAmd) {
     define([
-      "skylark-bootstrap/main"
-    ],function($){
-      return $;
+      "skylark-bs-swt/main"
+    ],function(sbswt){
+      return sbswt;
     });
   } else {    
-    var query = require("skylark-bootstrap/main");
+    var sbswt = require("skylark-bs-swt/main");
 
     if (isCmd) {
-      exports = $;
-    } else {
-      if (!jQuery) {
-        globals.$ = $;
-      }
-    }
+      exports = sbswt;
+    } 
   }
 
 })(function(define,require) {

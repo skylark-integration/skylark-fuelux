@@ -33,65 +33,16 @@
 
 </head>
 <body data-spy="scroll" data-offset="80">
-<a class="sr-only" href="#content">Skip to main content</a>
 
 <!-- Docs master nav -->
 <header class="navbar navbar-fixed-top fu-docs-nav" role="banner">
-  <div class="container">
-    <div class="navbar-header">
-      <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".fu-navbar-collapse">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a href="index.html" class="navbar-brand">Fuel UX</a>
-    </div>
-    <nav class="collapse navbar-collapse fu-navbar-collapse" role="navigation">
-      <ul class="nav navbar-nav">
-        <li>
-          <a href="getting-started.html">Getting Started</a>
-        </li>
-<!--        <li>
-          <a href="http://getfuelux.com/css.html">CSS</a>
-        </li> -->
-        <!--<li>-->
-          <!--<a href="http://getfuelux.com/components.html">Components</a>-->
-        <!--</li>-->
-        <li class="active">
-          <a href="javascript.html">Controls</a>
-        </li>
-        <li>
-          <a href="extensions.html">Extensions</a>
-        </li>
-        <li>
-          <a href="formbuilder.html">Form Builder</a>
-        </li>
-
-        <li>
-          <a href="http://fuelux-tutorials.herokuapp.com/">Tutorials</a>
-        </li>
-
-        
-
-        <!--<li>
-          <a href="http://getfuelux.com/customize.html">Customize</a>
-        </li>-->
-      </ul>
-    </nav>
-
-
-    <!-- fork me ribbon, copied from https://github.com/blog/273-github-ribbons -->
-    <a id="forkMeRibbon" class="hidden-xs" href="https://github.com/ExactTarget/fuelux"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
-
-  </div>
 </header>
 
 <!-- Docs page layout -->
 <div class="fu-header" id="content">
   <div class="container">
     <h1>Controls</h1>
-    <p>Over a dozen jQuery plugins such as data repeaters, datepickers, pillboxes, trees, wizards, and much more.</p>
+    <p>Over skylark bootstrap standard widgets such as data repeaters, datepickers, pillboxes, trees, wizards, and much more.</p>
   </div>
 </div>
 
@@ -103,21 +54,6 @@
 ================================================== -->
 <div class="bs-docs-section">
   <h1 id="overview" class="page-header">Overview</h1>
-
-  <div class="fu-callout fu-callout-danger">
-    <h4 id="overview-plugin-dependencies">Plugin Dependencies</h4>
-    <p>Like Bootstrap, Fuel UX is a collection of jQuery plugins.</p>
-    <ul>
-      <li>All plugins depend on jQuery <i>and</i> Bootstrap; these must be loaded <strong>before</strong> Fuel UX.</li>
-      <li>Version requirements for jQuery/Bootstrap are documented in our <a href="https://github.com/ExactTarget/fuelux/blob/3.13.0/bower.json"><code>bower.json</code></a> file.</li>
-      <li>Check dependencies if including controls individually <span class="text-muted">(console errors will indicate unmet dependencies). Some controls depend on others.</span></li>
-    </ul>
-  </div>
-
-  <div class="fu-callout fu-callout-danger">
-    <h4 id="overview-class-dependeny">Class Dependency</h4>
-    <p>In order for Fuel UX to work, you must have the <code>fuelux</code> class on the body of your document <span class="text-muted">(Or at least on a parent container of the fuelux elements on your page)</span></p>
-  </div>
 
   <h3 id="overview-control-initialization">Control Initialization</h3>
 
@@ -8165,44 +8101,6 @@ Remove one or more items at a specific position in the pillbox by passing option
 </div>
 
 <footer class="fu-footer" role="contentinfo">
-  <div class="container">
-    <div class="fu-social">
-  <ul class="fu-social-buttons">
-    <li>
-      <iframe class="github-btn" src="http://ghbtns.com/github-btn.html?user=ExactTarget&amp;repo=fuelux&amp;type=watch&amp;count=true" width="100" height="20" title="Star on GitHub"></iframe>
-    </li>
-    <li>
-      <iframe class="github-btn" src="http://ghbtns.com/github-btn.html?user=ExactTarget&amp;repo=fuelux&amp;type=fork&amp;count=true" width="102" height="20" title="Fork on GitHub"></iframe>
-    </li>
-    <li class="follow-btn">
-      <a href="https://twitter.com/FuelUX" class="twitter-follow-button" data-link-color="#0069D6" data-show-count="true">Follow @FuelUX</a>
-    </li>
-    <li class="tweet-btn">
-      <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://getfuelux.com/" data-count="horizontal" data-via="FuelUX">Tweet</a>
-    </li>
-  </ul>
-</div>
-
-
-    <p>Designed and built by developers at the <a href="https://github.com/ExactTarget/" target="_blank">Salesforce Marketing Cloud.</a></p>
-    <p><a href="https://github.com/ExactTarget/fuelux/#philosophy-and-authors">A team of Salesforce Marketing Cloud Developers</a> maintains this project with the help of <a href="https://github.com/ExactTarget/fuelux/graphs/contributors">our contributors</a>.</p>
-    <p>Code licensed under <a href="https://github.com/ExactTarget/fuelux/blob/master/LICENSE" target="_blank">BSD-3</a>, documentation under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
-    <ul class="footer-links muted">
-      <li>Currently v3.13.0</li>
-      <li>&middot;</li>
-      <li><a href="https://github.com/ExactTarget/fuelux">GitHub</a></li>
-      <li>&middot;</li>
-      <li><a href="http://getfuelux.com/2.6/">v2.6</a></li>
-      <li>&middot;</li>
-      <li><a href="https://github.com/ExactTarget/fuelux/issues?state=open">Issues</a></li>
-      <li>&middot;</li>
-      <li><a href="https://github.com/ExactTarget/fuelux/releases">Releases</a></li>
-    </ul>
-  </div>
-
-    
-
-
 </footer>
 
 
@@ -8260,25 +8158,6 @@ Remove one or more items at a specific position in the pillbox by passing option
       });
     });
   });
-</script>
-
-<!-- <script src="http://localhost:35729/livereload.js"></script> -->
-<script>
-  var siteUrl = 'http://getfuelux.com'.toLowerCase();
-  var domain = siteUrl.split('//')[1] || siteUrl;
-
-  var currentHref = window.location.href;
-
-  var ghDomain = 'exacttarget.github.io/fuelux';
-  var rGhDomain = new RegExp(ghDomain.replace(/\./g, '\\.'), 'i');
-  var bRedirect = rGhDomain.test(currentHref);
-  if ( bRedirect ) {
-    window.onload = function() {
-      document.body.remove();
-    };
-
-    window.location.replace(currentHref.replace(ghDomain, domain));
-  }
 </script>
 
 </body>
