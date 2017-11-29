@@ -64,11 +64,14 @@
       return sbswt;
     });
   } else {    
-    var sbswt = require("skylark-bs-swt/main");
-
     if (isCmd) {
-      exports = sbswt;
-    } 
+      exports = require("skylark-bs-swt/main");
+    } else {
+      if (!globals.skylarkjs) {
+         globals.skylarkjs = require("skylark-langx/skylark");
+      }
+
+    }
   }
 
 })(function(define,require) {
