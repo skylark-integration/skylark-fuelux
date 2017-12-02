@@ -11,8 +11,10 @@ define([
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
-  "skylark-utils/query"
-],function(langx,browser,eventer,noder,geom,$){
+  "skylark-utils/query",
+  "./sbswt"
+],function(langx,browser,eventer,noder,geom,$,sbswt){
+
 
 	/*
 	 * Fuel UX Checkbox
@@ -26,32 +28,31 @@ define([
 
 	// SEARCH CONSTRUCTOR AND PROTOTYPE
 
-	var Search = function (element, options) {
-		this.$element = $(element);
-		this.$repeater = $(element).closest('.repeater');
-		this.options = langx.mixin({}, $.fn.search.defaults, options);
+	var Search = sbswt.Search = sbswt.WidgetBase.inherit({
+		klassName: "Search",
 
-		if (this.$element.attr('data-searchOnKeyPress') === 'true'){
-			this.options.searchOnKeyPress = true;
-		}
+		init : function(element,options) {
+			this.$element = $(element);
+			this.$repeater = $(element).closest('.repeater');
+			this.options = langx.mixin({}, $.fn.search.defaults, options);
 
-		this.$button = this.$element.find('button');
-		this.$input = this.$element.find('input');
-		this.$icon = this.$element.find('.glyphicon, .fuelux-icon');
+			if (this.$element.attr('data-searchOnKeyPress') === 'true'){
+				this.options.searchOnKeyPress = true;
+			}
 
-		this.$button.on('click.fu.search', langx.proxy(this.buttonclicked, this));
-		this.$input.on('keyup.fu.search', langx.proxy(this.keypress, this));
+			this.$button = this.$element.find('button');
+			this.$input = this.$element.find('input');
+			this.$icon = this.$element.find('.glyphicon, .fuelux-icon');
 
-		if (this.$repeater.length > 0) {
-			this.$repeater.on('rendered.fu.repeater', langx.proxy(this.clearPending, this));
-		}
+			this.$button.on('click.fu.search', langx.proxy(this.buttonclicked, this));
+			this.$input.on('keyup.fu.search', langx.proxy(this.keypress, this));
 
-		this.activeSearch = '';
-	};
+			if (this.$repeater.length > 0) {
+				this.$repeater.on('rendered.fu.repeater', langx.proxy(this.clearPending, this));
+			}
 
-	Search.prototype = {
-		constructor: Search,
-
+			this.activeSearch = '';
+		},
 		destroy: function () {
 			this.$element.remove();
 			// any external bindings
@@ -155,8 +156,7 @@ define([
 			this.$input.removeAttr('disabled');
 			this.$button.removeClass('disabled');
 		}
-	};
-
+	});
 
 	// SEARCH PLUGIN DEFINITION
 
@@ -213,4 +213,6 @@ define([
 		});
 	});
 	*/
+
+	return 	$.fn.search;
 });

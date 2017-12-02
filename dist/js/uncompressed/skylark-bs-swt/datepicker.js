@@ -11,8 +11,10 @@ define([
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
-  "skylark-utils/query"
-],function(langx,browser,eventer,noder,geom,$){
+  "skylark-utils/query",
+  "./sbswt"
+],function(langx,browser,eventer,noder,geom,$,sbswt){
+
 
 	/*
 	 * Fuel UX Checkbox
@@ -57,90 +59,89 @@ define([
 */
 	// DATEPICKER CONSTRUCTOR AND PROTOTYPE
 
-	var Datepicker = function (element, options) {
-		this.$element = $(element);
-		this.options = langx.mixin(true, {}, $.fn.datepicker.defaults, options);
+	var Datepicker = sbswt.Datepicker = sbswt.WidgetBase.inherit({
+		klassName: "Datepicker",
 
-		this.$calendar = this.$element.find('.datepicker-calendar');
-		this.$days = this.$calendar.find('.datepicker-calendar-days');
-		this.$header = this.$calendar.find('.datepicker-calendar-header');
-		this.$headerTitle = this.$header.find('.title');
-		this.$input = this.$element.find('input');
-		this.$inputGroupBtn = this.$element.find('.input-group-btn');
-		this.$wheels = this.$element.find('.datepicker-wheels');
-		this.$wheelsMonth = this.$element.find('.datepicker-wheels-month');
-		this.$wheelsYear = this.$element.find('.datepicker-wheels-year');
-		this.$dropdown = this.$element.find('[data-toggle="dropdown"]');
-		this.$dropdown.dropdown();
+		init : function(element,options) {
+			this.$element = $(element);
+			this.options = langx.mixin(true, {}, $.fn.datepicker.defaults, options);
 
-		this.artificialScrolling = false;
-		this.formatDate = this.options.formatDate || this.formatDate;
-		this.inputValue = null;
-		this.moment = false;
-		this.momentFormat = null;
-		this.parseDate = this.options.parseDate || this.parseDate;
-		this.preventBlurHide = false;
-		this.restricted = this.options.restricted || [];
-		this.restrictedParsed = [];
-		this.restrictedText = this.options.restrictedText;
-		this.sameYearOnly = this.options.sameYearOnly;
-		this.selectedDate = null;
-		this.yearRestriction = null;
+			this.$calendar = this.$element.find('.datepicker-calendar');
+			this.$days = this.$calendar.find('.datepicker-calendar-days');
+			this.$header = this.$calendar.find('.datepicker-calendar-header');
+			this.$headerTitle = this.$header.find('.title');
+			this.$input = this.$element.find('input');
+			this.$inputGroupBtn = this.$element.find('.input-group-btn');
+			this.$wheels = this.$element.find('.datepicker-wheels');
+			this.$wheelsMonth = this.$element.find('.datepicker-wheels-month');
+			this.$wheelsYear = this.$element.find('.datepicker-wheels-year');
+			this.$dropdown = this.$element.find('[data-toggle="dropdown"]');
+			this.$dropdown.dropdown();
 
-		this.$calendar.find('.datepicker-today').on('click.fu.datepicker', langx.proxy(this.todayClicked, this));
-		this.$days.on('click.fu.datepicker', 'tr td button', langx.proxy(this.dateClicked, this));
-		this.$header.find('.next').on('click.fu.datepicker', langx.proxy(this.next, this));
-		this.$header.find('.prev').on('click.fu.datepicker', langx.proxy(this.prev, this));
-		this.$headerTitle.on('click.fu.datepicker', langx.proxy(this.titleClicked, this));
-		this.$input.on('change.fu.datepicker', langx.proxy(this.inputChanged, this));
-		this.$input.on('mousedown.fu.datepicker', langx.proxy(this.showDropdown, this));
-		this.$inputGroupBtn.on('hidden.bs.dropdown', langx.proxy(this.hide, this));
-		this.$inputGroupBtn.on('shown.bs.dropdown', langx.proxy(this.show, this));
-		this.$wheels.find('.datepicker-wheels-back').on('click.fu.datepicker', langx.proxy(this.backClicked, this));
-		this.$wheels.find('.datepicker-wheels-select').on('click.fu.datepicker', langx.proxy(this.selectClicked, this));
-		this.$wheelsMonth.on('click.fu.datepicker', 'ul button', langx.proxy(this.monthClicked, this));
-		this.$wheelsYear.on('click.fu.datepicker', 'ul button', langx.proxy(this.yearClicked, this));
-		this.$wheelsYear.find('ul').on('scroll.fu.datepicker', langx.proxy(this.onYearScroll, this));
+			this.artificialScrolling = false;
+			this.formatDate = this.options.formatDate || this.formatDate;
+			this.inputValue = null;
+			this.moment = false;
+			this.momentFormat = null;
+			this.parseDate = this.options.parseDate || this.parseDate;
+			this.preventBlurHide = false;
+			this.restricted = this.options.restricted || [];
+			this.restrictedParsed = [];
+			this.restrictedText = this.options.restrictedText;
+			this.sameYearOnly = this.options.sameYearOnly;
+			this.selectedDate = null;
+			this.yearRestriction = null;
 
-		this.$element.on('click.fu.datepicker.data-api', '.datepicker input', function (e) {
-			e.stopPropagation();
-		});
+			this.$calendar.find('.datepicker-today').on('click.fu.datepicker', langx.proxy(this.todayClicked, this));
+			this.$days.on('click.fu.datepicker', 'tr td button', langx.proxy(this.dateClicked, this));
+			this.$header.find('.next').on('click.fu.datepicker', langx.proxy(this.next, this));
+			this.$header.find('.prev').on('click.fu.datepicker', langx.proxy(this.prev, this));
+			this.$headerTitle.on('click.fu.datepicker', langx.proxy(this.titleClicked, this));
+			this.$input.on('change.fu.datepicker', langx.proxy(this.inputChanged, this));
+			this.$input.on('mousedown.fu.datepicker', langx.proxy(this.showDropdown, this));
+			this.$inputGroupBtn.on('hidden.bs.dropdown', langx.proxy(this.hide, this));
+			this.$inputGroupBtn.on('shown.bs.dropdown', langx.proxy(this.show, this));
+			this.$wheels.find('.datepicker-wheels-back').on('click.fu.datepicker', langx.proxy(this.backClicked, this));
+			this.$wheels.find('.datepicker-wheels-select').on('click.fu.datepicker', langx.proxy(this.selectClicked, this));
+			this.$wheelsMonth.on('click.fu.datepicker', 'ul button', langx.proxy(this.monthClicked, this));
+			this.$wheelsYear.on('click.fu.datepicker', 'ul button', langx.proxy(this.yearClicked, this));
+			this.$wheelsYear.find('ul').on('scroll.fu.datepicker', langx.proxy(this.onYearScroll, this));
 
-		var init = function () {
-			if (this.checkForMomentJS()) {
-				moment = moment || window.moment;// need to pull in the global moment if they didn't do it via require
-				this.moment = true;
-				this.momentFormat = this.options.momentConfig.format;
-				this.setCulture(this.options.momentConfig.culture);
-
-				// support moment with lang (< v2.8) or locale
-				moment.locale = moment.locale || moment.lang;
-			}
-
-			this.setRestrictedDates(this.restricted);
-			if (!this.setDate(this.options.date)) {
-				this.$input.val('');
-				this.inputValue = this.$input.val();
-			}
-
-			if (this.sameYearOnly) {
-				this.yearRestriction = (this.selectedDate) ? this.selectedDate.getFullYear() : new Date().getFullYear();
-			}
-		};
-
-		if (requestedMoment) {
-			init.call(this);
-		} else {
-			datepickerStack.push({
-				init: init,
-				scope: this
+			this.$element.on('click.fu.datepicker.data-api', '.datepicker input', function (e) {
+				e.stopPropagation();
 			});
-		}
-	};
 
-	Datepicker.prototype = {
+			var init = function () {
+				if (this.checkForMomentJS()) {
+					moment = moment || window.moment;// need to pull in the global moment if they didn't do it via require
+					this.moment = true;
+					this.momentFormat = this.options.momentConfig.format;
+					this.setCulture(this.options.momentConfig.culture);
 
-		constructor: Datepicker,
+					// support moment with lang (< v2.8) or locale
+					moment.locale = moment.locale || moment.lang;
+				}
+
+				this.setRestrictedDates(this.restricted);
+				if (!this.setDate(this.options.date)) {
+					this.$input.val('');
+					this.inputValue = this.$input.val();
+				}
+
+				if (this.sameYearOnly) {
+					this.yearRestriction = (this.selectedDate) ? this.selectedDate.getFullYear() : new Date().getFullYear();
+				}
+			};
+
+			if (requestedMoment) {
+				init.call(this);
+			} else {
+				datepickerStack.push({
+					init: init,
+					scope: this
+				});
+			}
+		},
 
 		backClicked: function () {
 			this.changeView('calendar');
@@ -733,7 +734,9 @@ define([
 			this.$wheelsYear.find('.selected').removeClass('selected');
 			$(e.currentTarget).parent().addClass('selected');
 		}
-	};
+
+	});
+
 	//for control library consistency
 	Datepicker.prototype.getValue = Datepicker.prototype.getDate;
 
@@ -783,6 +786,7 @@ define([
 
 	// DATA-API
 
+	/*
 	$(document).on('mousedown.fu.datepicker.data-api', '[data-initialize=datepicker]', function (e) {
 		var $control = $(e.target).closest('.datepicker');
 		if (!$control.data('datepicker')) {
@@ -798,7 +802,6 @@ define([
 		}
 	});
 
-	/*
 	//used to prevent the dropdown from closing when clicking on the input
 	$(document).on('click.fu.datepicker.data-api', '.datepicker input', function (e) {
 		e.stopPropagation();
@@ -815,4 +818,6 @@ define([
 		});
 	});
 	*/
+
+	return $.fn.datepicker;
 });

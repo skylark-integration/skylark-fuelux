@@ -12,12 +12,13 @@ define([
   "skylark-utils/noder",
   "skylark-utils/geom",
   "skylark-utils/query",
+  "./sbswt",
   "./combobox",
   "./datepicker",
   "./radio",
   "./selectlist",
   "./spinbox"
-],function(langx,browser,eventer,noder,geom,$){
+],function(langx,browser,eventer,noder,geom,$,sbswt){
 
 	/*
 	 * Fuel UX Checkbox
@@ -27,10 +28,6 @@ define([
 	 * Licensed under the BSD New license.
 	 */
 
-	if (!$.fn.combobox || !$.fn.datepicker || !$.fn.radio || !$.fn.selectlist || !$.fn.spinbox) {
-		throw new Error('Fuel UX scheduler control requires combobox, datepicker, radio, selectlist, and spinbox.');
-	}
-
 	// -- END UMD WRAPPER PREFACE --
 
 	// -- BEGIN MODULE CODE HERE --
@@ -39,122 +36,86 @@ define([
 
 	// SCHEDULER CONSTRUCTOR AND PROTOTYPE
 
-	var Scheduler = function Scheduler(element, options) {
-		var self = this;
+	var Scheduler = sbswt.Scheduler = sbswt.WidgetBase.inherit({
+		klassName: "Scheduler",
 
-		this.$element = $(element);
-		this.options = langx.mixin({}, $.fn.scheduler.defaults, options);
+		init : function(element,options) {
+			var self = this;
 
-		// cache elements
-		this.$startDate = this.$element.find('.start-datetime .start-date');
-		this.$startTime = this.$element.find('.start-datetime .start-time');
+			this.$element = $(element);
+			this.options = langx.mixin({}, $.fn.scheduler.defaults, options);
 
-		this.$timeZone = this.$element.find('.timezone-container .timezone');
+			// cache elements
+			this.$startDate = this.$element.find('.start-datetime .start-date');
+			this.$startTime = this.$element.find('.start-datetime .start-time');
 
-		this.$repeatIntervalPanel = this.$element.find('.repeat-every-panel');
-		this.$repeatIntervalSelect = this.$element.find('.repeat-options');
+			this.$timeZone = this.$element.find('.timezone-container .timezone');
 
-		this.$repeatIntervalSpinbox = this.$element.find('.repeat-every');
-		this.$repeatIntervalTxt = this.$element.find('.repeat-every-text');
+			this.$repeatIntervalPanel = this.$element.find('.repeat-every-panel');
+			this.$repeatIntervalSelect = this.$element.find('.repeat-options');
 
-		this.$end = this.$element.find('.repeat-end');
-		this.$endSelect = this.$end.find('.end-options');
-		this.$endAfter = this.$end.find('.end-after');
-		this.$endDate = this.$end.find('.end-on-date');
+			this.$repeatIntervalSpinbox = this.$element.find('.repeat-every');
+			this.$repeatIntervalTxt = this.$element.find('.repeat-every-text');
 
-		// panels
-		this.$recurrencePanels = this.$element.find('.repeat-panel');
+			this.$end = this.$element.find('.repeat-end');
+			this.$endSelect = this.$end.find('.end-options');
+			this.$endAfter = this.$end.find('.end-after');
+			this.$endDate = this.$end.find('.end-on-date');
+
+			// panels
+			this.$recurrencePanels = this.$element.find('.repeat-panel');
 
 
-		this.$repeatIntervalSelect.selectlist();
+			this.$repeatIntervalSelect.selectlist();
 
-		//initialize sub-controls
-		this.$element.find('.selectlist').selectlist();
-		this.$startDate.datepicker(this.options.startDateOptions);
+			//initialize sub-controls
+			this.$element.find('.selectlist').selectlist();
+			this.$startDate.datepicker(this.options.startDateOptions);
 
-		var startDateResponse = (typeof this.options.startDateChanged === "function") ? this.options.startDateChanged : this._guessEndDate;
-		this.$startDate.on('change changed.fu.datepicker dateClicked.fu.datepicker', langx.proxy(startDateResponse, this));
+			var startDateResponse = (typeof this.options.startDateChanged === "function") ? this.options.startDateChanged : this._guessEndDate;
+			this.$startDate.on('change changed.fu.datepicker dateClicked.fu.datepicker', langx.proxy(startDateResponse, this));
 
-		this.$startTime.combobox();
-		// init start time
-		if (this.$startTime.find('input').val() === '') {
-			this.$startTime.combobox('selectByIndex', 0);
-		}
+			this.$startTime.combobox();
+			// init start time
+			if (this.$startTime.find('input').val() === '') {
+				this.$startTime.combobox('selectByIndex', 0);
+			}
 
-		// every 0 days/hours doesn't make sense, change if not set
-		if (this.$repeatIntervalSpinbox.find('input').val() === '0') {
-			this.$repeatIntervalSpinbox.spinbox({
+			// every 0 days/hours doesn't make sense, change if not set
+			if (this.$repeatIntervalSpinbox.find('input').val() === '0') {
+				this.$repeatIntervalSpinbox.spinbox({
+					'value': 1,
+					'min': 1,
+					'limitToStep': true
+				});
+			} else {
+				this.$repeatIntervalSpinbox.spinbox({
+					'min': 1,
+					'limitToStep': true
+				});
+			}
+
+			this.$endAfter.spinbox({
 				'value': 1,
 				'min': 1,
 				'limitToStep': true
 			});
-		} else {
-			this.$repeatIntervalSpinbox.spinbox({
-				'min': 1,
-				'limitToStep': true
+			this.$endDate.datepicker(this.options.endDateOptions);
+			this.$element.find('.radio-custom').radio();
+
+			// bind events: 'change' is a Bootstrap JS fired event
+			this.$repeatIntervalSelect.on('changed.fu.selectlist', langx.proxy(this.repeatIntervalSelectChanged, this));
+			this.$endSelect.on('changed.fu.selectlist', langx.proxy(this.endSelectChanged, this));
+			this.$element.find('.repeat-days-of-the-week .btn-group .btn').on('change.fu.scheduler', function (e, data) {
+				self.changed(e, data, true);
 			});
-		}
-
-		this.$endAfter.spinbox({
-			'value': 1,
-			'min': 1,
-			'limitToStep': true
-		});
-		this.$endDate.datepicker(this.options.endDateOptions);
-		this.$element.find('.radio-custom').radio();
-
-		// bind events: 'change' is a Bootstrap JS fired event
-		this.$repeatIntervalSelect.on('changed.fu.selectlist', langx.proxy(this.repeatIntervalSelectChanged, this));
-		this.$endSelect.on('changed.fu.selectlist', langx.proxy(this.endSelectChanged, this));
-		this.$element.find('.repeat-days-of-the-week .btn-group .btn').on('change.fu.scheduler', function (e, data) {
-			self.changed(e, data, true);
-		});
-		this.$element.find('.combobox').on('changed.fu.combobox', langx.proxy(this.changed, this));
-		this.$element.find('.datepicker').on('changed.fu.datepicker', langx.proxy(this.changed, this));
-		this.$element.find('.datepicker').on('dateClicked.fu.datepicker', langx.proxy(this.changed, this));
-		this.$element.find('.selectlist').on('changed.fu.selectlist', langx.proxy(this.changed, this));
-		this.$element.find('.spinbox').on('changed.fu.spinbox', langx.proxy(this.changed, this));
-		this.$element.find('.repeat-monthly .radio-custom, .repeat-yearly .radio-custom').on('change.fu.scheduler', langx.proxy(this.changed, this));
-	};
-
-	var _getFormattedDate = function _getFormattedDate(dateObj, dash) {
-		var fdate = '';
-		var item;
-
-		fdate += dateObj.getFullYear();
-		fdate += dash;
-		item = dateObj.getMonth() + 1;//because 0 indexing makes sense when dealing with months /sarcasm
-		fdate += (item < 10) ? '0' + item : item;
-		fdate += dash;
-		item = dateObj.getDate();
-		fdate += (item < 10) ? '0' + item : item;
-
-		return fdate;
-	};
-
-	var ONE_SECOND = 1000;
-	var ONE_MINUTE = ONE_SECOND * 60;
-	var ONE_HOUR = ONE_MINUTE * 60;
-	var ONE_DAY = ONE_HOUR * 24;
-	var ONE_WEEK = ONE_DAY * 7;
-	var ONE_MONTH = ONE_WEEK * 5;// No good way to increment by one month using vanilla JS. Since this is an end date, we only need to ensure that this date occurs after at least one or more repeat increments, but there is no reason for it to be exact.
-	var ONE_YEAR = ONE_WEEK * 52;
-	var INTERVALS = {
-		secondly: ONE_SECOND,
-		minutely: ONE_MINUTE,
-		hourly: ONE_HOUR,
-		daily: ONE_DAY,
-		weekly: ONE_WEEK,
-		monthly: ONE_MONTH,
-		yearly: ONE_YEAR
-	};
-
-	var _incrementDate = function _incrementDate(start, end, interval, increment) {
-		return new Date(start.getTime() + (INTERVALS[interval] * increment));
-	};
-
-	Scheduler.prototype = {
-		constructor: Scheduler,
+			this.$element.find('.combobox').on('changed.fu.combobox', langx.proxy(this.changed, this));
+			this.$element.find('.datepicker').on('changed.fu.datepicker', langx.proxy(this.changed, this));
+			this.$element.find('.datepicker').on('dateClicked.fu.datepicker', langx.proxy(this.changed, this));
+			this.$element.find('.selectlist').on('changed.fu.selectlist', langx.proxy(this.changed, this));
+			this.$element.find('.spinbox').on('changed.fu.spinbox', langx.proxy(this.changed, this));
+			this.$element.find('.repeat-monthly .radio-custom, .repeat-yearly .radio-custom').on('change.fu.scheduler', langx.proxy(this.changed, this));
+		},
 
 		destroy: function destroy() {
 			var markup;
@@ -739,6 +700,43 @@ define([
 				return this.getValue();
 			}
 		}
+
+	});
+
+	var _getFormattedDate = function _getFormattedDate(dateObj, dash) {
+		var fdate = '';
+		var item;
+
+		fdate += dateObj.getFullYear();
+		fdate += dash;
+		item = dateObj.getMonth() + 1;//because 0 indexing makes sense when dealing with months /sarcasm
+		fdate += (item < 10) ? '0' + item : item;
+		fdate += dash;
+		item = dateObj.getDate();
+		fdate += (item < 10) ? '0' + item : item;
+
+		return fdate;
+	};
+
+	var ONE_SECOND = 1000;
+	var ONE_MINUTE = ONE_SECOND * 60;
+	var ONE_HOUR = ONE_MINUTE * 60;
+	var ONE_DAY = ONE_HOUR * 24;
+	var ONE_WEEK = ONE_DAY * 7;
+	var ONE_MONTH = ONE_WEEK * 5;// No good way to increment by one month using vanilla JS. Since this is an end date, we only need to ensure that this date occurs after at least one or more repeat increments, but there is no reason for it to be exact.
+	var ONE_YEAR = ONE_WEEK * 52;
+	var INTERVALS = {
+		secondly: ONE_SECOND,
+		minutely: ONE_MINUTE,
+		hourly: ONE_HOUR,
+		daily: ONE_DAY,
+		weekly: ONE_WEEK,
+		monthly: ONE_MONTH,
+		yearly: ONE_YEAR
+	};
+
+	var _incrementDate = function _incrementDate(start, end, interval, increment) {
+		return new Date(start.getTime() + (INTERVALS[interval] * increment));
 	};
 
 
@@ -794,4 +792,6 @@ define([
 		});
 	});
 	*/
+
+	return $.fn.scheduler;
 });

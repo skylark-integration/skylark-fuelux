@@ -35,50 +35,51 @@ define([
 	var isShiftHeld = sbswt.isShiftHeld;
 
 	// PILLBOX CONSTRUCTOR AND PROTOTYPE
-	var Pillbox = function Pillbox (element, options) {
-		this.$element = $(element);
-		this.$moreCount = this.$element.find('.pillbox-more-count');
-		this.$pillGroup = this.$element.find('.pill-group');
-		this.$addItem = this.$element.find('.pillbox-add-item');
-		this.$addItemWrap = this.$addItem.parent();
-		this.$suggest = this.$element.find('.suggest');
-		this.$pillHTML = '<li class="btn btn-default pill">' +
-		'	<span></span>' +
-		'	<span class="glyphicon glyphicon-close">' +
-		'		<span class="sr-only">Remove</span>' +
-		'	</span>' +
-		'</li>';
 
-		this.options = langx.mixin({}, $.fn.pillbox.defaults, options);
+	var Pillbox = sbswt.Pillbox = sbswt.WidgetBase.inherit({
+		klassName: "Pillbox",
 
-		if (this.options.readonly === -1) {
-			if (this.$element.attr('data-readonly') !== undefined) {
+		init : function(element,options) {
+			this.$element = $(element);
+			this.$moreCount = this.$element.find('.pillbox-more-count');
+			this.$pillGroup = this.$element.find('.pill-group');
+			this.$addItem = this.$element.find('.pillbox-add-item');
+			this.$addItemWrap = this.$addItem.parent();
+			this.$suggest = this.$element.find('.suggest');
+			this.$pillHTML = '<li class="btn btn-default pill">' +
+			'	<span></span>' +
+			'	<span class="glyphicon glyphicon-close">' +
+			'		<span class="sr-only">Remove</span>' +
+			'	</span>' +
+			'</li>';
+
+			this.options = langx.mixin({}, $.fn.pillbox.defaults, options);
+
+			if (this.options.readonly === -1) {
+				if (this.$element.attr('data-readonly') !== undefined) {
+					this.readonly(true);
+				}
+			} else if (this.options.readonly) {
 				this.readonly(true);
 			}
-		} else if (this.options.readonly) {
-			this.readonly(true);
-		}
 
-		// EVENTS
-		this.acceptKeyCodes = this._generateObject(this.options.acceptKeyCodes);
-		// Create an object out of the key code array, so we don't have to loop through it on every key stroke
+			// EVENTS
+			this.acceptKeyCodes = this._generateObject(this.options.acceptKeyCodes);
+			// Create an object out of the key code array, so we don't have to loop through it on every key stroke
 
-		this.$element.on('click.fu.pillbox', '.pill-group > .pill', langx.proxy(this.itemClicked, this));
-		this.$element.on('click.fu.pillbox', langx.proxy(this.inputFocus, this));
-		this.$element.on('keydown.fu.pillbox', '.pillbox-add-item', langx.proxy(this.inputEvent, this));
-		if (this.options.onKeyDown) {
-			this.$element.on('mousedown.fu.pillbox', '.suggest > li', langx.proxy(this.suggestionClick, this));
-		}
+			this.$element.on('click.fu.pillbox', '.pill-group > .pill', langx.proxy(this.itemClicked, this));
+			this.$element.on('click.fu.pillbox', langx.proxy(this.inputFocus, this));
+			this.$element.on('keydown.fu.pillbox', '.pillbox-add-item', langx.proxy(this.inputEvent, this));
+			if (this.options.onKeyDown) {
+				this.$element.on('mousedown.fu.pillbox', '.suggest > li', langx.proxy(this.suggestionClick, this));
+			}
 
-		if (this.options.edit) {
-			this.$element.addClass('pills-editable');
-			this.$element.on('blur.fu.pillbox', '.pillbox-add-item', langx.proxy(this.cancelEdit, this));
-		}
-		this.$element.on('blur.fu.pillbox', '.pillbox-add-item', langx.proxy(this.inputEvent, this));
-	};
-
-	Pillbox.prototype = {
-		constructor: Pillbox,
+			if (this.options.edit) {
+				this.$element.addClass('pills-editable');
+				this.$element.on('blur.fu.pillbox', '.pillbox-add-item', langx.proxy(this.cancelEdit, this));
+			}
+			this.$element.on('blur.fu.pillbox', '.pillbox-add-item', langx.proxy(this.inputEvent, this));
+		},
 
 		destroy: function destroy () {
 			this.$element.remove();
@@ -674,7 +675,8 @@ define([
 				}
 			}
 		}
-	};
+	});
+
 
 	Pillbox.prototype.getValue = Pillbox.prototype.items;
 
@@ -761,4 +763,5 @@ define([
 	});
 	*/
 
+	return $.fn.pillbox;
 });

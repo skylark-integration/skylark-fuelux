@@ -4,8 +4,10 @@ define([
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
-  "skylark-utils/query"
-],function(langx,browser,eventer,noder,geom,$){
+  "skylark-utils/query",
+  "./sbswt"
+],function(langx,browser,eventer,noder,geom,$,sbswt){
+
 
 	/*
 	 * Fuel UX Checkbox
@@ -20,40 +22,38 @@ define([
 
 	// COMBOBOX CONSTRUCTOR AND PROTOTYPE
 
-	var Combobox = function (element, options) {
-		this.$element = $(element);
-		this.options = langx.mixin({}, $.fn.combobox.defaults, options);
+	var Combobox = sbswt.Combobox = sbswt.WidgetBase.inherit({
+		klassName: "Combobox",
 
-		this.$dropMenu = this.$element.find('.dropdown-menu');
-		this.$input = this.$element.find('input');
-		this.$button = this.$element.find('.btn');
-		this.$button.dropdown();
-		this.$inputGroupBtn = this.$element.find('.input-group-btn');
+		init : function(element,options) {
+			this.$element = $(element);
+			this.options = langx.mixin({}, $.fn.combobox.defaults, options);
 
-		this.$element.on('click.fu.combobox', 'a', langx.proxy(this.itemclicked, this));
-		this.$element.on('change.fu.combobox', 'input', langx.proxy(this.inputchanged, this));
-		this.$element.on('shown.bs.dropdown', langx.proxy(this.menuShown, this));
-		this.$input.on('keyup.fu.combobox', langx.proxy(this.keypress, this));
+			this.$dropMenu = this.$element.find('.dropdown-menu');
+			this.$input = this.$element.find('input');
+			this.$button = this.$element.find('.btn');
+			this.$button.dropdown();
+			this.$inputGroupBtn = this.$element.find('.input-group-btn');
 
-		// set default selection
-		this.setDefaultSelection();
+			this.$element.on('click.fu.combobox', 'a', langx.proxy(this.itemclicked, this));
+			this.$element.on('change.fu.combobox', 'input', langx.proxy(this.inputchanged, this));
+			this.$element.on('shown.bs.dropdown', langx.proxy(this.menuShown, this));
+			this.$input.on('keyup.fu.combobox', langx.proxy(this.keypress, this));
 
-		// if dropdown is empty, disable it
-		var items = this.$dropMenu.children('li');
-		if( items.length === 0) {
-			this.$button.addClass('disabled');
-		}
+			// set default selection
+			this.setDefaultSelection();
 
-		// filter on load in case the first thing they do is press navigational key to pop open the menu
-		if (this.options.filterOnKeypress) {
-			this.options.filter(this.$dropMenu.find('li'), this.$input.val(), this);
-		}
+			// if dropdown is empty, disable it
+			var items = this.$dropMenu.children('li');
+			if( items.length === 0) {
+				this.$button.addClass('disabled');
+			}
 
-	};
-
-	Combobox.prototype = {
-
-		constructor: Combobox,
+			// filter on load in case the first thing they do is press navigational key to pop open the menu
+			if (this.options.filterOnKeypress) {
+				this.options.filter(this.$dropMenu.find('li'), this.$input.val(), this);
+			}
+		},
 
 		destroy: function () {
 			this.$element.remove();
@@ -289,7 +289,10 @@ define([
 			// trigger changed event
 			this.$element.trigger('changed.fu.combobox', data);
 		}
-	};
+
+	});
+
+
 
 	Combobox.prototype.getValue = Combobox.prototype.selectedItem;
 
@@ -317,6 +320,7 @@ define([
 	};
 
 	$.fn.combobox.defaults = {
+
 		autoResizeMenu: true,
 		filterOnKeypress: false,
 		showOptionsOnKeypress: false,
@@ -347,7 +351,7 @@ define([
 		}
 	};
 
-	$.fn.combobox.Constructor = Combobox;
+	$.fn.combobox.Constructor =  Combobox;
 
 	$.fn.combobox.noConflict = function () {
 		$.fn.combobox = old;
@@ -375,4 +379,6 @@ define([
 		});
 	});
 	*/
+
+	return $.fn.combobox;
 });

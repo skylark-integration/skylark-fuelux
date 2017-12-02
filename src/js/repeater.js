@@ -5,8 +5,9 @@ define([
   "skylark-utils/noder",
   "skylark-utils/geom",
   "skylark-utils/query",
+  "./sbswt",
   "./loader"
-],function(langx,browser,eventer,noder,geom,$){
+],function(langx,browser,eventer,noder,geom,$,sbswt){
 
 	/*
 	 * Fuel UX Checkbox
@@ -20,239 +21,132 @@ define([
 
 	// REPEATER CONSTRUCTOR AND PROTOTYPE
 
-	var Repeater = function Repeater (element, options) {
-		var self = this;
-		var $btn;
-		var currentView;
+	var Repeater = sbswt.Repeater = sbswt.WidgetBase.inherit({
+		Repeater: "Affix",
 
-		this.$element = $(element);
+		init : function(element,options) {
+			var self = this;
+			var $btn;
+			var currentView;
 
-		this.$canvas = this.$element.find('.repeater-canvas');
-		this.$count = this.$element.find('.repeater-count');
-		this.$end = this.$element.find('.repeater-end');
-		this.$filters = this.$element.find('.repeater-filters');
-		this.$loader = this.$element.find('.repeater-loader');
-		this.$pageSize = this.$element.find('.repeater-itemization .selectlist');
-		this.$nextBtn = this.$element.find('.repeater-next');
-		this.$pages = this.$element.find('.repeater-pages');
-		this.$prevBtn = this.$element.find('.repeater-prev');
-		this.$primaryPaging = this.$element.find('.repeater-primaryPaging');
-		this.$search = this.$element.find('.repeater-search').find('.search');
-		this.$secondaryPaging = this.$element.find('.repeater-secondaryPaging');
-		this.$start = this.$element.find('.repeater-start');
-		this.$viewport = this.$element.find('.repeater-viewport');
-		this.$views = this.$element.find('.repeater-views');
+			this.$element = $(element);
 
-		this.$element.on('mousedown.bs.dropdown.data-api', '[data-toggle="dropdown"]',function(e) {
-			$(this).dropdown();
-		}); 
+			this.$canvas = this.$element.find('.repeater-canvas');
+			this.$count = this.$element.find('.repeater-count');
+			this.$end = this.$element.find('.repeater-end');
+			this.$filters = this.$element.find('.repeater-filters');
+			this.$loader = this.$element.find('.repeater-loader');
+			this.$pageSize = this.$element.find('.repeater-itemization .selectlist');
+			this.$nextBtn = this.$element.find('.repeater-next');
+			this.$pages = this.$element.find('.repeater-pages');
+			this.$prevBtn = this.$element.find('.repeater-prev');
+			this.$primaryPaging = this.$element.find('.repeater-primaryPaging');
+			this.$search = this.$element.find('.repeater-search').find('.search');
+			this.$secondaryPaging = this.$element.find('.repeater-secondaryPaging');
+			this.$start = this.$element.find('.repeater-start');
+			this.$viewport = this.$element.find('.repeater-viewport');
+			this.$views = this.$element.find('.repeater-views');
 
-		this.currentPage = 0;
-		this.currentView = null;
-		this.isDisabled = false;
-		this.infiniteScrollingCallback = function noop () {};
-		this.infiniteScrollingCont = null;
-		this.infiniteScrollingEnabled = false;
-		this.infiniteScrollingEnd = null;
-		this.infiniteScrollingOptions = {};
-		this.lastPageInput = 0;
-		this.options = langx.mixin({}, $.fn.repeater.defaults, options);
-		this.pageIncrement = 0;// store direction navigated
-		this.resizeTimeout = {};
-		this.stamp = new Date().getTime() + (Math.floor(Math.random() * 100) + 1);
-		this.storedDataSourceOpts = null;
-		this.syncingViewButtonState = false;
-		this.viewOptions = {};
-		this.viewType = null;
+			this.$element.on('mousedown.bs.dropdown.data-api', '[data-toggle="dropdown"]',function(e) {
+				$(this).dropdown();
+			}); 
 
-		this.$filters.selectlist();
-		this.$pageSize.selectlist();
-		this.$primaryPaging.find('.combobox').combobox();
-		this.$search.search({
-			searchOnKeyPress: this.options.searchOnKeyPress,
-			allowCancel: this.options.allowCancel
-		});
+			this.currentPage = 0;
+			this.currentView = null;
+			this.isDisabled = false;
+			this.infiniteScrollingCallback = function noop () {};
+			this.infiniteScrollingCont = null;
+			this.infiniteScrollingEnabled = false;
+			this.infiniteScrollingEnd = null;
+			this.infiniteScrollingOptions = {};
+			this.lastPageInput = 0;
+			this.options = langx.mixin({}, $.fn.repeater.defaults, options);
+			this.pageIncrement = 0;// store direction navigated
+			this.resizeTimeout = {};
+			this.stamp = new Date().getTime() + (Math.floor(Math.random() * 100) + 1);
+			this.storedDataSourceOpts = null;
+			this.syncingViewButtonState = false;
+			this.viewOptions = {};
+			this.viewType = null;
 
-		this.$filters.on('changed.fu.selectlist', function onFiltersChanged (e, value) {
-			self.$element.trigger('filtered.fu.repeater', value);
-			self.render({
-				clearInfinite: true,
-				pageIncrement: null
+			this.$filters.selectlist();
+			this.$pageSize.selectlist();
+			this.$primaryPaging.find('.combobox').combobox();
+			this.$search.search({
+				searchOnKeyPress: this.options.searchOnKeyPress,
+				allowCancel: this.options.allowCancel
 			});
-		});
-		this.$nextBtn.on('click.fu.repeater', langx.proxy(this.next, this));
-		this.$pageSize.on('changed.fu.selectlist', function onPageSizeChanged (e, value) {
-			self.$element.trigger('pageSizeChanged.fu.repeater', value);
-			self.render({
-				pageIncrement: null
-			});
-		});
-		this.$prevBtn.on('click.fu.repeater', langx.proxy(this.previous, this));
-		this.$primaryPaging.find('.combobox').on('changed.fu.combobox', function onPrimaryPagingChanged (evt, data) {
-			self.pageInputChange(data.text, data);
-		});
-		this.$search.on('searched.fu.search cleared.fu.search', function onSearched (e, value) {
-			self.$element.trigger('searchChanged.fu.repeater', value);
-			self.render({
-				clearInfinite: true,
-				pageIncrement: null
-			});
-		});
-		this.$search.on('canceled.fu.search', function onSearchCanceled (e, value) {
-			self.$element.trigger('canceled.fu.repeater', value);
-			self.render({
-				clearInfinite: true,
-				pageIncrement: null
-			});
-		});
 
-		this.$secondaryPaging.on('blur.fu.repeater', function onSecondaryPagingBlur () {
-			self.pageInputChange(self.$secondaryPaging.val());
-		});
-		this.$secondaryPaging.on('keyup', function onSecondaryPagingKeyup (e) {
-			if (e.keyCode === 13) {
+			this.$filters.on('changed.fu.selectlist', function onFiltersChanged (e, value) {
+				self.$element.trigger('filtered.fu.repeater', value);
+				self.render({
+					clearInfinite: true,
+					pageIncrement: null
+				});
+			});
+			this.$nextBtn.on('click.fu.repeater', langx.proxy(this.next, this));
+			this.$pageSize.on('changed.fu.selectlist', function onPageSizeChanged (e, value) {
+				self.$element.trigger('pageSizeChanged.fu.repeater', value);
+				self.render({
+					pageIncrement: null
+				});
+			});
+			this.$prevBtn.on('click.fu.repeater', langx.proxy(this.previous, this));
+			this.$primaryPaging.find('.combobox').on('changed.fu.combobox', function onPrimaryPagingChanged (evt, data) {
+				self.pageInputChange(data.text, data);
+			});
+			this.$search.on('searched.fu.search cleared.fu.search', function onSearched (e, value) {
+				self.$element.trigger('searchChanged.fu.repeater', value);
+				self.render({
+					clearInfinite: true,
+					pageIncrement: null
+				});
+			});
+			this.$search.on('canceled.fu.search', function onSearchCanceled (e, value) {
+				self.$element.trigger('canceled.fu.repeater', value);
+				self.render({
+					clearInfinite: true,
+					pageIncrement: null
+				});
+			});
+
+			this.$secondaryPaging.on('blur.fu.repeater', function onSecondaryPagingBlur () {
 				self.pageInputChange(self.$secondaryPaging.val());
-			}
-		});
-		this.$views.find('input').on('change.fu.repeater', langx.proxy(this.viewChanged, this));
+			});
+			this.$secondaryPaging.on('keyup', function onSecondaryPagingKeyup (e) {
+				if (e.keyCode === 13) {
+					self.pageInputChange(self.$secondaryPaging.val());
+				}
+			});
+			this.$views.find('input').on('change.fu.repeater', langx.proxy(this.viewChanged, this));
 
-		$(window).on('resize.fu.repeater.' + this.stamp, function onResizeRepeater () {
-			clearTimeout(self.resizeTimeout);
-			self.resizeTimeout = setTimeout(function resizeTimeout () {
+			$(window).on('resize.fu.repeater.' + this.stamp, function onResizeRepeater () {
+				clearTimeout(self.resizeTimeout);
+				self.resizeTimeout = setTimeout(function resizeTimeout () {
+					self.resize();
+					self.$element.trigger('resized.fu.repeater');
+				}, 75);
+			});
+
+			this.$loader.loader();
+			this.$loader.loader('pause');
+			if (this.options.defaultView !== -1) {
+				currentView = this.options.defaultView;
+			} else {
+				$btn = this.$views.find('label.active input');
+				currentView = ($btn.length > 0) ? $btn.val() : 'list';
+			}
+
+			this.setViewOptions(currentView);
+
+			this.initViewTypes(function initViewTypes () {
 				self.resize();
 				self.$element.trigger('resized.fu.repeater');
-			}, 75);
-		});
-
-		this.$loader.loader();
-		this.$loader.loader('pause');
-		if (this.options.defaultView !== -1) {
-			currentView = this.options.defaultView;
-		} else {
-			$btn = this.$views.find('label.active input');
-			currentView = ($btn.length > 0) ? $btn.val() : 'list';
-		}
-
-		this.setViewOptions(currentView);
-
-		this.initViewTypes(function initViewTypes () {
-			self.resize();
-			self.$element.trigger('resized.fu.repeater');
-			self.render({
-				changeView: currentView
+				self.render({
+					changeView: currentView
+				});
 			});
-		});
-	};
-
-	var logWarn = function logWarn (msg) {
-		if (window.console && window.console.warn) {
-			window.console.warn(msg);
-		}
-	};
-
-	var scan = function scan (cont) {
-		var keep = [];
-		cont.children().each(function eachContainerChild () {
-			var item = $(this);
-			var pres = item.attr('data-preserve');
-			if (pres === 'deep') {
-				item.detach();
-				keep.push(item);
-			} else if (pres === 'shallow') {
-				scan(item);
-				item.detach();
-				keep.push(item);
-			}
-		});
-		cont.empty();
-		cont.append(keep);
-	};
-
-	var addItem = function addItem ($parent, response) {
-		var action;
-		if (response) {
-			action = (response.action) ? response.action : 'append';
-			if (action !== 'none' && response.item !== undefined) {
-				var $container = (response.container !== undefined) ? $(response.container) : $parent;
-				$container[action](response.item);
-			}
-		}
-	};
-
-	var callNextInit = function callNextInit (currentViewType, viewTypes, callback) {
-		var nextViewType = currentViewType + 1;
-		if (nextViewType < viewTypes.length) {
-			initViewType.call(this, nextViewType, viewTypes, callback);
-		} else {
-			callback();
-		}
-	};
-
-	var initViewType = function initViewType (currentViewtype, viewTypes, callback) {
-		if (viewTypes[currentViewtype].initialize) {
-			viewTypes[currentViewtype].initialize.call(this, {}, function afterInitialize () {
-				callNextInit.call(this, currentViewtype, viewTypes, callback);
-			});
-		} else {
-			callNextInit.call(this, currentViewtype, viewTypes, callback);
-		}
-	};
-
-	// Does all of our cleanup post-render
-	var afterRender = function afterRender (state) {
-		var data = state.data || {};
-
-		if (this.infiniteScrollingEnabled) {
-			if (state.viewChanged || state.options.clearInfinite) {
-				this.initInfiniteScrolling();
-			}
-
-			this.infiniteScrollPaging(data, state.options);
-		}
-
-		this.$loader.hide().loader('pause');
-		this.enable();
-
-		this.$search.trigger('rendered.fu.repeater', {
-			data: data,
-			options: state.dataOptions,
-			renderOptions: state.options
-		});
-		this.$element.trigger('rendered.fu.repeater', {
-			data: data,
-			options: state.dataOptions,
-			renderOptions: state.options
-		});
-
-		// for maintaining support of 'loaded' event
-		this.$element.trigger('loaded.fu.repeater', state.dataOptions);
-	};
-
-	// This does the actual rendering of the repeater
-	var doRender = function doRender (state) {
-		var data = state.data || {};
-
-		if (this.infiniteScrollingEnabled) {
-			// pass empty object because data handled in infiniteScrollPaging method
-			this.infiniteScrollingCallback({});
-		} else {
-			this.itemization(data);
-			this.pagination(data);
-		}
-
-		var self = this;
-		this.renderItems(
-			state.viewTypeObj,
-			data,
-			function callAfterRender (d) {
-				state.data = d;
-				afterRender.call(self, state);
-			}
-		);
-	};
-
-	Repeater.prototype = {
-		constructor: Repeater,
+		},
 
 		clear: function clear (opts) {
 			var options = opts || {};
@@ -853,7 +747,117 @@ define([
 			}
 			this.syncingViewButtonState = false;
 		}
+		
+	});
+
+	var logWarn = function logWarn (msg) {
+		if (window.console && window.console.warn) {
+			window.console.warn(msg);
+		}
 	};
+
+	var scan = function scan (cont) {
+		var keep = [];
+		cont.children().each(function eachContainerChild () {
+			var item = $(this);
+			var pres = item.attr('data-preserve');
+			if (pres === 'deep') {
+				item.detach();
+				keep.push(item);
+			} else if (pres === 'shallow') {
+				scan(item);
+				item.detach();
+				keep.push(item);
+			}
+		});
+		cont.empty();
+		cont.append(keep);
+	};
+
+	var addItem = function addItem ($parent, response) {
+		var action;
+		if (response) {
+			action = (response.action) ? response.action : 'append';
+			if (action !== 'none' && response.item !== undefined) {
+				var $container = (response.container !== undefined) ? $(response.container) : $parent;
+				$container[action](response.item);
+			}
+		}
+	};
+
+	var callNextInit = function callNextInit (currentViewType, viewTypes, callback) {
+		var nextViewType = currentViewType + 1;
+		if (nextViewType < viewTypes.length) {
+			initViewType.call(this, nextViewType, viewTypes, callback);
+		} else {
+			callback();
+		}
+	};
+
+	var initViewType = function initViewType (currentViewtype, viewTypes, callback) {
+		if (viewTypes[currentViewtype].initialize) {
+			viewTypes[currentViewtype].initialize.call(this, {}, function afterInitialize () {
+				callNextInit.call(this, currentViewtype, viewTypes, callback);
+			});
+		} else {
+			callNextInit.call(this, currentViewtype, viewTypes, callback);
+		}
+	};
+
+	// Does all of our cleanup post-render
+	var afterRender = function afterRender (state) {
+		var data = state.data || {};
+
+		if (this.infiniteScrollingEnabled) {
+			if (state.viewChanged || state.options.clearInfinite) {
+				this.initInfiniteScrolling();
+			}
+
+			this.infiniteScrollPaging(data, state.options);
+		}
+
+		this.$loader.hide().loader('pause');
+		this.enable();
+
+		this.$search.trigger('rendered.fu.repeater', {
+			data: data,
+			options: state.dataOptions,
+			renderOptions: state.options
+		});
+		this.$element.trigger('rendered.fu.repeater', {
+			data: data,
+			options: state.dataOptions,
+			renderOptions: state.options
+		});
+
+		// for maintaining support of 'loaded' event
+		this.$element.trigger('loaded.fu.repeater', state.dataOptions);
+	};
+
+	// This does the actual rendering of the repeater
+	var doRender = function doRender (state) {
+		var data = state.data || {};
+
+		if (this.infiniteScrollingEnabled) {
+			// pass empty object because data handled in infiniteScrollPaging method
+			this.infiniteScrollingCallback({});
+		} else {
+			this.itemization(data);
+			this.pagination(data);
+		}
+
+		var self = this;
+		this.renderItems(
+			state.viewTypeObj,
+			data,
+			function callAfterRender (d) {
+				state.data = d;
+				afterRender.call(self, state);
+			}
+		);
+	};
+
+
 
 	// For backwards compatibility.
 	Repeater.prototype.runRenderer = Repeater.prototype.renderItems;
@@ -901,5 +905,8 @@ define([
 		$.fn.repeater = old;
 		return this;
 	};
+
+
+	return $.fn.repeater;
 
 });

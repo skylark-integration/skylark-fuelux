@@ -11,8 +11,10 @@ define([
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
-  "skylark-utils/query"
-],function(langx,browser,eventer,noder,geom,$){
+  "skylark-utils/query",
+  "./sbswt"
+],function(langx,browser,eventer,noder,geom,$,sbswt){
+
 
 	/*
 	 * Fuel UX Checkbox
@@ -25,68 +27,50 @@ define([
 	var old = $.fn.placard;
 	var EVENT_CALLBACK_MAP = { 'accepted': 'onAccept', 'cancelled': 'onCancel' };
 
+
 	// PLACARD CONSTRUCTOR AND PROTOTYPE
 
-	var Placard = function Placard(element, options) {
-		var self = this;
-		this.$element = $(element);
-		this.options = langx.mixin({}, $.fn.placard.defaults, options);
+	var Placard = sbswt.Placard = sbswt.WidgetBase.inherit({
+		klassName: "Placard",
 
-		if(this.$element.attr('data-ellipsis') === 'true'){
-			this.options.applyEllipsis = true;
-		}
+		init : function(element,options) {
+			var self = this;
+			this.$element = $(element);
+			this.options = langx.mixin({}, $.fn.placard.defaults, options);
 
-		this.$accept = this.$element.find('.placard-accept');
-		this.$cancel = this.$element.find('.placard-cancel');
-		this.$field = this.$element.find('.placard-field');
-		this.$footer = this.$element.find('.placard-footer');
-		this.$header = this.$element.find('.placard-header');
-		this.$popup = this.$element.find('.placard-popup');
-
-		this.actualValue = null;
-		this.clickStamp = '_';
-		this.previousValue = '';
-		if (this.options.revertOnCancel === -1) {
-			this.options.revertOnCancel = (this.$accept.length > 0);
-		}
-
-		// Placard supports inputs, textareas, or contenteditable divs. These checks determine which is being used
-		this.isContentEditableDiv = this.$field.is('div');
-		this.isInput = this.$field.is('input');
-		this.divInTextareaMode = (this.isContentEditableDiv && this.$field.attr('data-textarea') === 'true');
-
-		this.$field.on('focus.fu.placard', langx.proxy(this.show, this));
-		this.$field.on('keydown.fu.placard', langx.proxy(this.keyComplete, this));
-		this.$element.on('close.fu.placard', langx.proxy(this.hide, this));
-		this.$accept.on('click.fu.placard', langx.proxy(this.complete, this, 'accepted'));
-		this.$cancel.on('click.fu.placard', function (e) {
-			e.preventDefault(); self.complete('cancelled');
-		});
-
-		this.applyEllipsis();
-	};
-
-	var _isShown = function _isShown(placard) {
-		return placard.$element.hasClass('showing');
-	};
-
-	var _closeOtherPlacards = function _closeOtherPlacards() {
-		var otherPlacards;
-
-		otherPlacards = $(document).find('.placard.showing');
-		if (otherPlacards.length > 0) {
-			if (otherPlacards.data('fu.placard') && otherPlacards.data('fu.placard').options.explicit) {
-				return false;//failed
+			if(this.$element.attr('data-ellipsis') === 'true'){
+				this.options.applyEllipsis = true;
 			}
 
-			otherPlacards.placard('externalClickListener', {}, true);
-		}
+			this.$accept = this.$element.find('.placard-accept');
+			this.$cancel = this.$element.find('.placard-cancel');
+			this.$field = this.$element.find('.placard-field');
+			this.$footer = this.$element.find('.placard-footer');
+			this.$header = this.$element.find('.placard-header');
+			this.$popup = this.$element.find('.placard-popup');
 
-		return true;//succeeded
-	};
+			this.actualValue = null;
+			this.clickStamp = '_';
+			this.previousValue = '';
+			if (this.options.revertOnCancel === -1) {
+				this.options.revertOnCancel = (this.$accept.length > 0);
+			}
 
-	Placard.prototype = {
-		constructor: Placard,
+			// Placard supports inputs, textareas, or contenteditable divs. These checks determine which is being used
+			this.isContentEditableDiv = this.$field.is('div');
+			this.isInput = this.$field.is('input');
+			this.divInTextareaMode = (this.isContentEditableDiv && this.$field.attr('data-textarea') === 'true');
+
+			this.$field.on('focus.fu.placard', langx.proxy(this.show, this));
+			this.$field.on('keydown.fu.placard', langx.proxy(this.keyComplete, this));
+			this.$element.on('close.fu.placard', langx.proxy(this.hide, this));
+			this.$accept.on('click.fu.placard', langx.proxy(this.complete, this, 'accepted'));
+			this.$cancel.on('click.fu.placard', function (e) {
+				e.preventDefault(); self.complete('cancelled');
+			});
+
+			this.applyEllipsis();
+		},
 
 		complete: function complete(action) {
 			var func = this.options[ EVENT_CALLBACK_MAP[action] ];
@@ -285,7 +269,28 @@ define([
 				$(document).on('click.fu.placard.externalClick.' + this.clickStamp, langx.proxy(this.externalClickListener, this));
 			}
 		}
+		
+	});
+
+	var _isShown = function _isShown(placard) {
+		return placard.$element.hasClass('showing');
 	};
+
+	var _closeOtherPlacards = function _closeOtherPlacards() {
+		var otherPlacards;
+
+		otherPlacards = $(document).find('.placard.showing');
+		if (otherPlacards.length > 0) {
+			if (otherPlacards.data('fu.placard') && otherPlacards.data('fu.placard').options.explicit) {
+				return false;//failed
+			}
+
+			otherPlacards.placard('externalClickListener', {}, true);
+		}
+
+		return true;//succeeded
+	};
+
 
 	// PLACARD PLUGIN DEFINITION
 

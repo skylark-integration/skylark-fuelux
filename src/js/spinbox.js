@@ -4,8 +4,10 @@ define([
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
-  "skylark-utils/query"
-],function(langx,browser,eventer,noder,geom,$){
+  "skylark-utils/query",
+  "./sbswt"
+],function(langx,browser,eventer,noder,geom,$,sbswt){
+
 
 	/*
 	 * Fuel UX Checkbox
@@ -19,126 +21,71 @@ define([
 
 	// SPINBOX CONSTRUCTOR AND PROTOTYPE
 
-	var Spinbox = function Spinbox(element, options) {
-		this.$element = $(element);
-		this.$element.find('.btn').on('click', function (e) {
-			//keep spinbox from submitting if they forgot to say type="button" on their spinner buttons
-			e.preventDefault();
-		});
-		this.options = langx.mixin({}, $.fn.spinbox.defaults, options);
-		this.options.step = this.$element.data('step') || this.options.step;
+	var Spinbox = sbswt.Spinbox = sbswt.WidgetBase.inherit({
+		klassName: "Spinbox",
 
-		if (this.options.value < this.options.min) {
-			this.options.value = this.options.min;
-		} else if (this.options.max < this.options.value) {
-			this.options.value = this.options.max;
-		}
+		init : function(element,options) {
+			this.$element = $(element);
+			this.$element.find('.btn').on('click', function (e) {
+				//keep spinbox from submitting if they forgot to say type="button" on their spinner buttons
+				e.preventDefault();
+			});
+			this.options = langx.mixin({}, $.fn.spinbox.defaults, options);
+			this.options.step = this.$element.data('step') || this.options.step;
 
-		this.$input = this.$element.find('.spinbox-input');
-		this.$input.on('focusout.fu.spinbox', this.$input, langx.proxy(this.change, this));
-		this.$element.on('keydown.fu.spinbox', this.$input, langx.proxy(this.keydown, this));
-		this.$element.on('keyup.fu.spinbox', this.$input, langx.proxy(this.keyup, this));
-
-		if (this.options.hold) {
-			this.$element.on('mousedown.fu.spinbox', '.spinbox-up', langx.proxy(function () {
-				this.startSpin(true);
-			}, this));
-			this.$element.on('mouseup.fu.spinbox', '.spinbox-up, .spinbox-down', langx.proxy(this.stopSpin, this));
-			this.$element.on('mouseout.fu.spinbox', '.spinbox-up, .spinbox-down', langx.proxy(this.stopSpin, this));
-			this.$element.on('mousedown.fu.spinbox', '.spinbox-down', langx.proxy(function () {
-				this.startSpin(false);
-			}, this));
-		} else {
-			this.$element.on('click.fu.spinbox', '.spinbox-up', langx.proxy(function () {
-				this.step(true);
-			}, this));
-			this.$element.on('click.fu.spinbox', '.spinbox-down', langx.proxy(function () {
-				this.step(false);
-			}, this));
-		}
-
-		this.switches = {
-			count: 1,
-			enabled: true
-		};
-
-		if (this.options.speed === 'medium') {
-			this.switches.speed = 300;
-		} else if (this.options.speed === 'fast') {
-			this.switches.speed = 100;
-		} else {
-			this.switches.speed = 500;
-		}
-
-		this.options.defaultUnit = _isUnitLegal(this.options.defaultUnit, this.options.units) ? this.options.defaultUnit : '';
-		this.unit = this.options.defaultUnit;
-
-		this.lastValue = this.options.value;
-
-		this.render();
-
-		if (this.options.disabled) {
-			this.disable();
-		}
-	};
-
-	// Truly private methods
-	var _limitToStep = function _limitToStep(number, step) {
-		return Math.round(number / step) * step;
-	};
-
-	var _isUnitLegal = function _isUnitLegal(unit, validUnits) {
-		var legalUnit = false;
-		var suspectUnit = unit.toLowerCase();
-
-		langx.each(validUnits, function (i, validUnit) {
-			validUnit = validUnit.toLowerCase();
-			if (suspectUnit === validUnit) {
-				legalUnit = true;
-				return false;//break out of the loop
+			if (this.options.value < this.options.min) {
+				this.options.value = this.options.min;
+			} else if (this.options.max < this.options.value) {
+				this.options.value = this.options.max;
 			}
-		});
 
-		return legalUnit;
-	};
+			this.$input = this.$element.find('.spinbox-input');
+			this.$input.on('focusout.fu.spinbox', this.$input, langx.proxy(this.change, this));
+			this.$element.on('keydown.fu.spinbox', this.$input, langx.proxy(this.keydown, this));
+			this.$element.on('keyup.fu.spinbox', this.$input, langx.proxy(this.keyup, this));
 
-	var _applyLimits = function _applyLimits(value) {
-		// if unreadable
-		if (isNaN(parseFloat(value))) {
-			return value;
-		}
-
-		// if not within range return the limit
-		if (value > this.options.max) {
-			if (this.options.cycle) {
-				value = this.options.min;
+			if (this.options.hold) {
+				this.$element.on('mousedown.fu.spinbox', '.spinbox-up', langx.proxy(function () {
+					this.startSpin(true);
+				}, this));
+				this.$element.on('mouseup.fu.spinbox', '.spinbox-up, .spinbox-down', langx.proxy(this.stopSpin, this));
+				this.$element.on('mouseout.fu.spinbox', '.spinbox-up, .spinbox-down', langx.proxy(this.stopSpin, this));
+				this.$element.on('mousedown.fu.spinbox', '.spinbox-down', langx.proxy(function () {
+					this.startSpin(false);
+				}, this));
 			} else {
-				value = this.options.max;
+				this.$element.on('click.fu.spinbox', '.spinbox-up', langx.proxy(function () {
+					this.step(true);
+				}, this));
+				this.$element.on('click.fu.spinbox', '.spinbox-down', langx.proxy(function () {
+					this.step(false);
+				}, this));
 			}
-		} else if (value < this.options.min) {
-			if (this.options.cycle) {
-				value = this.options.max;
+
+			this.switches = {
+				count: 1,
+				enabled: true
+			};
+
+			if (this.options.speed === 'medium') {
+				this.switches.speed = 300;
+			} else if (this.options.speed === 'fast') {
+				this.switches.speed = 100;
 			} else {
-				value = this.options.min;
+				this.switches.speed = 500;
 			}
-		}
 
-		if (this.options.limitToStep && this.options.step) {
-			value = _limitToStep(value, this.options.step);
+			this.options.defaultUnit = _isUnitLegal(this.options.defaultUnit, this.options.units) ? this.options.defaultUnit : '';
+			this.unit = this.options.defaultUnit;
 
-			//force round direction so that it stays within bounds
-			if(value > this.options.max){
-				value = value - this.options.step;
-			} else if(value < this.options.min) {
-				value = value + this.options.step;
+			this.lastValue = this.options.value;
+
+			this.render();
+
+			if (this.options.disabled) {
+				this.disable();
 			}
-		}
-
-		return value;
-	};
-
-	Spinbox.prototype = {
-		constructor: Spinbox,
+		},
 
 		destroy: function destroy() {
 			this.$element.remove();
@@ -351,8 +298,62 @@ define([
 			}
 		}
 
+	});	
+
+	// Truly private methods
+	var _limitToStep = function _limitToStep(number, step) {
+		return Math.round(number / step) * step;
 	};
 
+	var _isUnitLegal = function _isUnitLegal(unit, validUnits) {
+		var legalUnit = false;
+		var suspectUnit = unit.toLowerCase();
+
+		langx.each(validUnits, function (i, validUnit) {
+			validUnit = validUnit.toLowerCase();
+			if (suspectUnit === validUnit) {
+				legalUnit = true;
+				return false;//break out of the loop
+			}
+		});
+
+		return legalUnit;
+	};
+
+	var _applyLimits = function _applyLimits(value) {
+		// if unreadable
+		if (isNaN(parseFloat(value))) {
+			return value;
+		}
+
+		// if not within range return the limit
+		if (value > this.options.max) {
+			if (this.options.cycle) {
+				value = this.options.min;
+			} else {
+				value = this.options.max;
+			}
+		} else if (value < this.options.min) {
+			if (this.options.cycle) {
+				value = this.options.max;
+			} else {
+				value = this.options.min;
+			}
+		}
+
+		if (this.options.limitToStep && this.options.step) {
+			value = _limitToStep(value, this.options.step);
+
+			//force round direction so that it stays within bounds
+			if(value > this.options.max){
+				value = value - this.options.step;
+			} else if(value < this.options.min) {
+				value = value + this.options.step;
+			}
+		}
+
+		return value;
+	};
 
 	// SPINBOX PLUGIN DEFINITION
 
@@ -422,4 +423,5 @@ define([
 	});
 	*/
 
+	return $.fn.spinbox;
 });

@@ -4,8 +4,10 @@ define([
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
-  "skylark-utils/query"
-],function(langx,browser,eventer,noder,geom,$){
+  "skylark-utils/query",
+  "./sbswt"
+],function(langx,browser,eventer,noder,geom,$,sbswt){
+
 
 	/*
 	 * Fuel UX Checkbox
@@ -18,86 +20,45 @@ define([
 
 	// PLACARD CONSTRUCTOR AND PROTOTYPE
 
-	var Picker = function Picker(element, options) {
-		var self = this;
-		this.$element = $(element);
-		this.options = langx.mixin({}, $.fn.picker.defaults, options);
 
-		this.$accept = this.$element.find('.picker-accept');
-		this.$cancel = this.$element.find('.picker-cancel');
-		this.$trigger = this.$element.find('.picker-trigger');
-		this.$footer = this.$element.find('.picker-footer');
-		this.$header = this.$element.find('.picker-header');
-		this.$popup = this.$element.find('.picker-popup');
-		this.$body = this.$element.find('.picker-body');
+	var Picker = sbswt.Picker = sbswt.WidgetBase.inherit({
+		klassName: "Picker",
 
-		this.clickStamp = '_';
+		init : function(element,options) {
+			var self = this;
+			this.$element = $(element);
+			this.options = langx.mixin({}, $.fn.picker.defaults, options);
 
-		this.isInput = this.$trigger.is('input');
+			this.$accept = this.$element.find('.picker-accept');
+			this.$cancel = this.$element.find('.picker-cancel');
+			this.$trigger = this.$element.find('.picker-trigger');
+			this.$footer = this.$element.find('.picker-footer');
+			this.$header = this.$element.find('.picker-header');
+			this.$popup = this.$element.find('.picker-popup');
+			this.$body = this.$element.find('.picker-body');
 
-		this.$trigger.on('keydown.fu.picker', langx.proxy(this.keyComplete, this));
-		this.$trigger.on('focus.fu.picker', langx.proxy(function inputFocus(e){
-			if(typeof e === "undefined" || $(e.target).is('input[type=text]')){
-				langx.proxy(this.show(), this);
-			}
-		}, this));
-		this.$trigger.on('click.fu.picker', langx.proxy(function triggerClick(e){
-			if(!$(e.target).is('input[type=text]')){
-				langx.proxy(this.toggle(), this);
-			}else{
-				langx.proxy(this.show(), this);
-			}
-		}, this));
-		this.$accept.on('click.fu.picker', langx.proxy(this.complete, this, 'accepted'));
-		this.$cancel.on('click.fu.picker', function (e) {
-			e.preventDefault(); self.complete('cancelled');
-		});
+			this.clickStamp = '_';
 
+			this.isInput = this.$trigger.is('input');
 
-	};
-
-	var _isOffscreen = function _isOffscreen(picker) {
-		var windowHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-		var scrollTop = $(document).scrollTop();
-		var popupTop = picker.$popup.offset();
-		var popupBottom = popupTop.top + picker.$popup.outerHeight(true);
-
-		//if the bottom of the popup goes off the page, but the top does not, dropup.
-		if (popupBottom > windowHeight + scrollTop || popupTop.top < scrollTop){
-			return true;
-		}else{//otherwise, prefer showing the top of the popup only vs the bottom
-			return false;
-		}
-	};
-
-	var _display = function _display(picker) {
-		picker.$popup.css('visibility', 'hidden');
-
-		_showBelow(picker);
-
-		//if part of the popup is offscreen try to show it above
-		if(_isOffscreen(picker)){
-			_showAbove(picker);
-
-			//if part of the popup is still offscreen, prefer cutting off the bottom
-			if(_isOffscreen(picker)){
-				_showBelow(picker);
-			}
-		}
-
-		picker.$popup.css('visibility', 'visible');
-	};
-
-	var _showAbove = function _showAbove(picker) {
-		picker.$popup.css('top', - picker.$popup.outerHeight(true) + 'px');
-	};
-
-	var _showBelow = function _showBelow(picker) {
-		picker.$popup.css('top', picker.$trigger.outerHeight(true) + 'px');
-	};
-
-	Picker.prototype = {
-		constructor: Picker,
+			this.$trigger.on('keydown.fu.picker', langx.proxy(this.keyComplete, this));
+			this.$trigger.on('focus.fu.picker', langx.proxy(function inputFocus(e){
+				if(typeof e === "undefined" || $(e.target).is('input[type=text]')){
+					langx.proxy(this.show(), this);
+				}
+			}, this));
+			this.$trigger.on('click.fu.picker', langx.proxy(function triggerClick(e){
+				if(!$(e.target).is('input[type=text]')){
+					langx.proxy(this.toggle(), this);
+				}else{
+					langx.proxy(this.show(), this);
+				}
+			}, this));
+			this.$accept.on('click.fu.picker', langx.proxy(this.complete, this, 'accepted'));
+			this.$cancel.on('click.fu.picker', function (e) {
+				e.preventDefault(); self.complete('cancelled');
+			});
+		},
 
 		complete: function complete(action) {
 			var EVENT_CALLBACK_MAP = {
@@ -217,7 +178,48 @@ define([
 				$(document).on('click.fu.picker.externalClick.' + this.clickStamp, langx.proxy(this.externalClickListener, this));
 			}
 		}
+	});
+
+	var _isOffscreen = function _isOffscreen(picker) {
+		var windowHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+		var scrollTop = $(document).scrollTop();
+		var popupTop = picker.$popup.offset();
+		var popupBottom = popupTop.top + picker.$popup.outerHeight(true);
+
+		//if the bottom of the popup goes off the page, but the top does not, dropup.
+		if (popupBottom > windowHeight + scrollTop || popupTop.top < scrollTop){
+			return true;
+		}else{//otherwise, prefer showing the top of the popup only vs the bottom
+			return false;
+		}
 	};
+
+	var _display = function _display(picker) {
+		picker.$popup.css('visibility', 'hidden');
+
+		_showBelow(picker);
+
+		//if part of the popup is offscreen try to show it above
+		if(_isOffscreen(picker)){
+			_showAbove(picker);
+
+			//if part of the popup is still offscreen, prefer cutting off the bottom
+			if(_isOffscreen(picker)){
+				_showBelow(picker);
+			}
+		}
+
+		picker.$popup.css('visibility', 'visible');
+	};
+
+	var _showAbove = function _showAbove(picker) {
+		picker.$popup.css('top', - picker.$popup.outerHeight(true) + 'px');
+	};
+
+	var _showBelow = function _showBelow(picker) {
+		picker.$popup.css('top', picker.$trigger.outerHeight(true) + 'px');
+	};
+
 
 	// PLACARD PLUGIN DEFINITION
 
@@ -277,4 +279,5 @@ define([
 	});
 	*/
 
+	return $.fn.picker;
 });

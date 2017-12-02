@@ -4,8 +4,10 @@ define([
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
-  "skylark-utils/query"
-],function(langx,browser,eventer,noder,geom,$){
+  "skylark-utils/query",
+  "./sbswt"
+],function(langx,browser,eventer,noder,geom,$,sbswt){
+
 
 	/*
 	 * Fuel UX Checkbox
@@ -25,38 +27,38 @@ define([
 		}
 	};
 
-	var Checkbox = function Checkbox (element, options) {
-		this.options = langx.mixin({}, $.fn.checkbox.defaults, options);
-		var $element = $(element);
 
-		if (element.tagName.toLowerCase() !== 'label') {
-			logError('Checkbox must be initialized on the `label` that wraps the `input` element. See https://github.com/ExactTarget/fuelux/blob/master/reference/markup/checkbox.html for example of proper markup. Call `.checkbox()` on the `<label>` not the `<input>`');
-			return;
-		}
+	var Checkbox = sbswt.Checkbox = sbswt.WidgetBase.inherit({
+		klassName: "Checkbox",
 
-		// cache elements
-		this.$label = $element;
-		this.$chk = this.$label.find('input[type="checkbox"]');
-		this.$container = $element.parent('.checkbox'); // the container div
+		init : function(element,options) {
+			this.options = langx.mixin({}, $.fn.checkbox.defaults, options);
+			var $element = $(element);
 
-		if (!this.options.ignoreVisibilityCheck && this.$chk.css('visibility').match(/hidden|collapse/)) {
-			logError('For accessibility reasons, in order for tab and space to function on checkbox, checkbox `<input />`\'s `visibility` must not be set to `hidden` or `collapse`. See https://github.com/ExactTarget/fuelux/pull/1996 for more details.');
-		}
+			if (element.tagName.toLowerCase() !== 'label') {
+				logError('Checkbox must be initialized on the `label` that wraps the `input` element. See https://github.com/ExactTarget/fuelux/blob/master/reference/markup/checkbox.html for example of proper markup. Call `.checkbox()` on the `<label>` not the `<input>`');
+				return;
+			}
 
-		// determine if a toggle container is specified
-		var containerSelector = this.$chk.attr('data-toggle');
-		this.$toggleContainer = $(containerSelector);
+			// cache elements
+			this.$label = $element;
+			this.$chk = this.$label.find('input[type="checkbox"]');
+			this.$container = $element.parent('.checkbox'); // the container div
 
-		// handle internal events
-		this.$chk.on('change', langx.proxy(this.itemchecked, this));
+			if (!this.options.ignoreVisibilityCheck && this.$chk.css('visibility').match(/hidden|collapse/)) {
+				logError('For accessibility reasons, in order for tab and space to function on checkbox, checkbox `<input />`\'s `visibility` must not be set to `hidden` or `collapse`. See https://github.com/ExactTarget/fuelux/pull/1996 for more details.');
+			}
 
-		// set default state
-		this.setInitialState();
-	};
+			// determine if a toggle container is specified
+			var containerSelector = this.$chk.attr('data-toggle');
+			this.$toggleContainer = $(containerSelector);
 
-	Checkbox.prototype = {
+			// handle internal events
+			this.$chk.on('change', langx.proxy(this.itemchecked, this));
 
-		constructor: Checkbox,
+			// set default state
+			this.setInitialState();
+		},
 
 		setInitialState: function setInitialState () {
 			var $chk = this.$chk;
@@ -149,7 +151,9 @@ define([
 			this.$label.remove();
 			return this.$label[0].outerHTML;
 		}
-	};
+	});
+
+
 
 	Checkbox.prototype.getValue = Checkbox.prototype.isChecked;
 
@@ -207,4 +211,6 @@ define([
 		});
 	});
 	*/
+
+	return $.fn.checkbox;
 });

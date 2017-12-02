@@ -4,8 +4,10 @@ define([
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
-  "skylark-utils/query"
-],function(langx,browser,eventer,noder,geom,$){
+  "skylark-utils/query",
+  "./sbswt"
+],function(langx,browser,eventer,noder,geom,$,sbswt){
+
 
 	/*
 	 * Fuel UX Checkbox
@@ -18,58 +20,57 @@ define([
 	var old = $.fn.selectlist;
 	// SELECT CONSTRUCTOR AND PROTOTYPE
 
-	var Selectlist = function (element, options) {
-		this.$element = $(element);
-		this.options = langx.mixin({}, $.fn.selectlist.defaults, options);
+	var Selectlist = sbswt.Selectlist = sbswt.WidgetBase.inherit({
+		klassName: "Selectlist",
+
+		init : function(element,options) {
+			this.$element = $(element);
+			this.options = langx.mixin({}, $.fn.selectlist.defaults, options);
 
 
-		this.$button = this.$element.find('.btn.dropdown-toggle');
-		this.$hiddenField = this.$element.find('.hidden-field');
-		this.$label = this.$element.find('.selected-label');
-		this.$dropdownMenu = this.$element.find('.dropdown-menu');
+			this.$button = this.$element.find('.btn.dropdown-toggle');
+			this.$hiddenField = this.$element.find('.hidden-field');
+			this.$label = this.$element.find('.selected-label');
+			this.$dropdownMenu = this.$element.find('.dropdown-menu');
 
-		this.$element.on('click.fu.selectlist', '.dropdown-menu a', langx.proxy(this.itemClicked, this));
-		this.setDefaultSelection();
+			this.$element.on('click.fu.selectlist', '.dropdown-menu a', langx.proxy(this.itemClicked, this));
+			this.setDefaultSelection();
 
-		if (options.resize === 'auto' || this.$element.attr('data-resize') === 'auto') {
-			this.resize();
-		}
+			if (options.resize === 'auto' || this.$element.attr('data-resize') === 'auto') {
+				this.resize();
+			}
 
-		// if selectlist is empty or is one item, disable it
-		var items = this.$dropdownMenu.children('li');
-		if( items.length === 0) {
-			this.disable();
-			this.doSelect( $(this.options.emptyLabelHTML));
-		}
+			// if selectlist is empty or is one item, disable it
+			var items = this.$dropdownMenu.children('li');
+			if( items.length === 0) {
+				this.disable();
+				this.doSelect( $(this.options.emptyLabelHTML));
+			}
 
-		// support jumping focus to first letter in dropdown when key is pressed
-		this.$element.on('shown.bs.dropdown', function () {
-				var $this = $(this);
-				// attach key listener when dropdown is shown
-				$(document).on('keypress.fu.selectlist', function(e){
+			// support jumping focus to first letter in dropdown when key is pressed
+			this.$element.on('shown.bs.dropdown', function () {
+					var $this = $(this);
+					// attach key listener when dropdown is shown
+					$(document).on('keypress.fu.selectlist', function(e){
 
-					// get the key that was pressed
-					var key = String.fromCharCode(e.which);
-					// look the items to find the first item with the first character match and set focus
-					$this.find("li").each(function(idx,item){
-						if ($(item).text().charAt(0).toLowerCase() === key) {
-							$(item).children('a').focus();
-							return false;
-						}
-					});
+						// get the key that was pressed
+						var key = String.fromCharCode(e.which);
+						// look the items to find the first item with the first character match and set focus
+						$this.find("li").each(function(idx,item){
+							if ($(item).text().charAt(0).toLowerCase() === key) {
+								$(item).children('a').focus();
+								return false;
+							}
+						});
 
+				});
 			});
-		});
 
-		// unbind key event when dropdown is hidden
-		this.$element.on('hide.bs.dropdown', function () {
-				$(document).off('keypress.fu.selectlist');
-		});
-	};
-
-	Selectlist.prototype = {
-
-		constructor: Selectlist,
+			// unbind key event when dropdown is hidden
+			this.$element.on('hide.bs.dropdown', function () {
+					$(document).off('keypress.fu.selectlist');
+			});
+		},
 
 		destroy: function () {
 			this.$element.remove();
@@ -214,7 +215,9 @@ define([
 			this.$element.addClass('disabled');
 			this.$button.addClass('disabled');
 		}
-	};
+
+	});	
+
 
 	Selectlist.prototype.getValue = Selectlist.prototype.selectedItem;
 
@@ -276,4 +279,5 @@ define([
 
 	*/
 
+	return $.fn.selectlist;
 });

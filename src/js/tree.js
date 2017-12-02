@@ -4,8 +4,10 @@ define([
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
-  "skylark-utils/query"
-],function(langx,browser,eventer,noder,geom,$){
+  "skylark-utils/query",
+  "./sbswt"
+],function(langx,browser,eventer,noder,geom,$,sbswt){
+
 
 	/*
 	 * Fuel UX Checkbox
@@ -19,53 +21,52 @@ define([
 
 	// TREE CONSTRUCTOR AND PROTOTYPE
 
-	var Tree = function Tree(element, options) {
-		this.$element = $(element);
-		this.options = langx.mixin({}, $.fn.tree.defaults, options);
+	var Tree = sbswt.Tree = sbswt.WidgetBase.inherit({
+		klassName: "Tree",
 
-		this.$element.attr('tabindex', '0');
+		init : function(element,options) {
+			this.$element = $(element);
+			this.options = langx.mixin({}, $.fn.tree.defaults, options);
 
-		if (this.options.itemSelect) {
-			this.$element.on('click.fu.tree', '.tree-item', langx.proxy(function callSelect (ev) {
-				this.selectItem(ev.currentTarget);
+			this.$element.attr('tabindex', '0');
+
+			if (this.options.itemSelect) {
+				this.$element.on('click.fu.tree', '.tree-item', langx.proxy(function callSelect (ev) {
+					this.selectItem(ev.currentTarget);
+				}, this));
+			}
+
+			this.$element.on('click.fu.tree', '.tree-branch-name', langx.proxy(function callToggle (ev) {
+				this.toggleFolder(ev.currentTarget);
 			}, this));
-		}
 
-		this.$element.on('click.fu.tree', '.tree-branch-name', langx.proxy(function callToggle (ev) {
-			this.toggleFolder(ev.currentTarget);
-		}, this));
-
-		this.$element.on('click.fu.tree', '.tree-overflow', langx.proxy(function callPopulate (ev) {
-			this.populate($(ev.currentTarget));
-		}, this));
-
-		// folderSelect default is true
-		if (this.options.folderSelect) {
-			this.$element.addClass('tree-folder-select');
-			this.$element.off('click.fu.tree', '.tree-branch-name');
-			this.$element.on('click.fu.tree', '.icon-caret', langx.proxy(function callToggle (ev) {
-				this.toggleFolder($(ev.currentTarget).parent());
+			this.$element.on('click.fu.tree', '.tree-overflow', langx.proxy(function callPopulate (ev) {
+				this.populate($(ev.currentTarget));
 			}, this));
-			this.$element.on('click.fu.tree', '.tree-branch-name', langx.proxy(function callSelect (ev) {
-				this.selectFolder($(ev.currentTarget));
-			}, this));
-		}
 
-		this.$element.on('focus', function setFocusOnTab () {
-			var $tree = $(this);
-			focusIn($tree, $tree);
-		});
+			// folderSelect default is true
+			if (this.options.folderSelect) {
+				this.$element.addClass('tree-folder-select');
+				this.$element.off('click.fu.tree', '.tree-branch-name');
+				this.$element.on('click.fu.tree', '.icon-caret', langx.proxy(function callToggle (ev) {
+					this.toggleFolder($(ev.currentTarget).parent());
+				}, this));
+				this.$element.on('click.fu.tree', '.tree-branch-name', langx.proxy(function callSelect (ev) {
+					this.selectFolder($(ev.currentTarget));
+				}, this));
+			}
 
-		this.$element.on('keydown', function processKeypress (e) {
-			return navigateTree($(this), e);
-		});
+			this.$element.on('focus', function setFocusOnTab () {
+				var $tree = $(this);
+				focusIn($tree, $tree);
+			});
 
-		this.render();
-	};
+			this.$element.on('keydown', function processKeypress (e) {
+				return navigateTree($(this), e);
+			});
 
-	Tree.prototype = {
-		constructor: Tree,
-
+			this.render();
+		},
 		deselectAll: function deselectAll(n) {
 			// clear all child tree nodes and style as deselected
 			var nodes = n || this.$element;
@@ -488,8 +489,7 @@ define([
 
 			this.$element.trigger('refreshedFolder.fu.tree', $treeFolder.data());
 		}
-
-	};
+	});
 
 	// ALIASES
 
@@ -909,4 +909,5 @@ define([
 		return this;
 	};
 
+	return $.fn.tree;
 });

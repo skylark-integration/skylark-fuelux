@@ -4,8 +4,10 @@ define([
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
-  "skylark-utils/query"
-],function(langx,browser,eventer,noder,geom,$){
+  "skylark-utils/query",
+  "./sbswt"
+],function(langx,browser,eventer,noder,geom,$,sbswt){
+
 
 	/*
 	 * Fuel UX Checkbox
@@ -20,15 +22,13 @@ define([
 
 	// LOADER CONSTRUCTOR AND PROTOTYPE
 
-	var Loader = function (element, options) {
-		this.$element = $(element);
-		this.options = langx.mixin({}, $.fn.loader.defaults, options);
-	};
+	var Loader = sbswt.Loader = sbswt.WidgetBase.inherit({
+		klassName: "Loader",
 
-	Loader.prototype = {
-
-		constructor: Loader,
-
+		init : function(element,options) {
+			this.$element = $(element);
+			this.options = langx.mixin({}, $.fn.loader.defaults, options);
+		},
 		destroy: function () {
 			this.$element.remove();
 			// any external bindings
@@ -52,7 +52,7 @@ define([
 		previous: function () {},
 
 		reset: function () {}
-	};
+	});
 
 	// LOADER PLUGIN DEFINITION
 
@@ -97,4 +97,6 @@ define([
 		});
 	});
 	*/
+
+	return $.fn.loader;
 });

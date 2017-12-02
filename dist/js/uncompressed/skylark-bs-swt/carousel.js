@@ -6,11 +6,15 @@
  * @license MIT
  */
 define([
-  "skylark-utils/browser",
   "skylark-utils/langx",
+  "skylark-utils/browser",
   "skylark-utils/eventer",
-  "skylark-utils/query"
-],function(browser,langx,eventer,$){
+  "skylark-utils/noder",
+  "skylark-utils/geom",
+  "skylark-utils/query",
+  "./sbswt"
+],function(langx,browser,eventer,noder,geom,$,sbswt){
+
 /* ========================================================================
  * Bootstrap: carousel.js v3.3.7
  * http://getbootstrap.com/javascript/#carousel
@@ -24,7 +28,10 @@ define([
   // CAROUSEL CLASS DEFINITION
   // =========================
 
-  var Carousel = function (element, options) {
+  var Carousel = sbswt.Carousel = sbswt.WidgetBase.inherit({
+    klassName: "Carousel",
+
+    init : function(element,options) {
     this.$element    = $(element)
     this.$indicators = this.$element.find('.carousel-indicators')
     this.options     = options
@@ -58,6 +65,10 @@ define([
         e.preventDefault();
 
     });      
+    }
+  });  
+
+  var Carousel = function (element, options) {
   }
 
   Carousel.VERSION  = '3.3.7'
@@ -271,5 +282,6 @@ define([
   })
   */
 
+  return $.fn.carousel;
 
 });

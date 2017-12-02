@@ -3,8 +3,9 @@ define([
   "skylark-utils/langx",
   "skylark-utils/eventer",
   "skylark-utils/query",
-  "./tooltip"  
-],function(browser,langx,eventer,$){
+  "./sbswt",
+  "./tooltip" 
+],function(browser,langx,eventer,$,sbswt,tooltip){
 /* ========================================================================
  * Bootstrap: popover.js v3.3.7
  * http://getbootstrap.com/javascript/#popovers
@@ -18,11 +19,49 @@ define([
   // POPOVER PUBLIC CLASS DEFINITION
   // ===============================
 
-  var Popover = function (element, options) {
-    this.init('popover', element, options)
-  }
+  var Popover = sbswt.Popover = tooltip.Constructor.inherit({
+    klassName: "Popover",
 
-  if (!$.fn.tooltip) throw new Error('Popover requires tooltip.js')
+    getDefaults : function () {
+      return Popover.DEFAULTS
+    },
+
+    setContent : function () {
+      var $tip    = this.tip()
+      var title   = this.getTitle()
+      var content = this.getContent()
+
+      $tip.find('.popover-title')[this.options.html ? 'html' : 'text'](title)
+      $tip.find('.popover-content').children().detach().end()[ // we use append for html objects to maintain js events
+        this.options.html ? (typeof content == 'string' ? 'html' : 'append') : 'text'
+      ](content)
+
+      $tip.removeClass('fade top bottom left right in')
+
+      // IE8 doesn't accept hiding via the `:empty` pseudo selector, we have to do
+      // this manually by checking the contents.
+      if (!$tip.find('.popover-title').html()) $tip.find('.popover-title').hide()
+    },
+
+    hasContent : function () {
+      return this.getTitle() || this.getContent()
+    },
+
+    getContent : function () {
+      var $e = this.$element
+      var o  = this.options
+
+      return $e.attr('data-content')
+        || (typeof o.content == 'function' ?
+              o.content.call($e[0]) :
+              o.content)
+    },
+
+    arrow : function () {
+      return (this.$arrow = this.$arrow || this.tip().find('.arrow'))
+    }
+
+  });  
 
   Popover.VERSION  = '3.3.7'
 
@@ -36,49 +75,6 @@ define([
 
   // NOTE: POPOVER EXTENDS tooltip.js
   // ================================
-
-  Popover.prototype = langx.mixin({}, $.fn.tooltip.Constructor.prototype)
-
-  Popover.prototype.constructor = Popover
-
-  Popover.prototype.getDefaults = function () {
-    return Popover.DEFAULTS
-  }
-
-  Popover.prototype.setContent = function () {
-    var $tip    = this.tip()
-    var title   = this.getTitle()
-    var content = this.getContent()
-
-    $tip.find('.popover-title')[this.options.html ? 'html' : 'text'](title)
-    $tip.find('.popover-content').children().detach().end()[ // we use append for html objects to maintain js events
-      this.options.html ? (typeof content == 'string' ? 'html' : 'append') : 'text'
-    ](content)
-
-    $tip.removeClass('fade top bottom left right in')
-
-    // IE8 doesn't accept hiding via the `:empty` pseudo selector, we have to do
-    // this manually by checking the contents.
-    if (!$tip.find('.popover-title').html()) $tip.find('.popover-title').hide()
-  }
-
-  Popover.prototype.hasContent = function () {
-    return this.getTitle() || this.getContent()
-  }
-
-  Popover.prototype.getContent = function () {
-    var $e = this.$element
-    var o  = this.options
-
-    return $e.attr('data-content')
-      || (typeof o.content == 'function' ?
-            o.content.call($e[0]) :
-            o.content)
-  }
-
-  Popover.prototype.arrow = function () {
-    return (this.$arrow = this.$arrow || this.tip().find('.arrow'))
-  }
 
 
   // POPOVER PLUGIN DEFINITION
@@ -96,10 +92,10 @@ define([
     })
   }
 
-  var old = $.fn.popover
+  var old = $.fn.popover;
 
-  $.fn.popover             = Plugin
-  $.fn.popover.Constructor = Popover
+  $.fn.popover             = Plugin;
+  $.fn.popover.Constructor = Popover;
 
 
   // POPOVER NO CONFLICT
@@ -108,6 +104,7 @@ define([
   $.fn.popover.noConflict = function () {
     $.fn.popover = old
     return this
-  }
+  };
 
+  return $.fn.popover;
 });

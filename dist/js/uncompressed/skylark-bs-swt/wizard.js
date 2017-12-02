@@ -11,8 +11,9 @@ define([
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
-  "skylark-utils/query"
-],function(langx,browser,eventer,noder,geom,$){
+  "skylark-utils/query",
+  "./sbswt"
+],function(langx,browser,eventer,noder,geom,$,sbswt){
 
 	/*
 	 * Fuel UX Checkbox
@@ -26,46 +27,45 @@ define([
 
 	// WIZARD CONSTRUCTOR AND PROTOTYPE
 
-	var Wizard = function (element, options) {
-		this.$element = $(element);
-		this.options = langx.mixin({}, $.fn.wizard.defaults, options);
-		this.options.disablePreviousStep = (this.$element.attr('data-restrict') === 'previous') ? true : this.options.disablePreviousStep;
-		this.currentStep = this.options.selectedItem.step;
-		this.numSteps = this.$element.find('.steps li').length;
-		this.$prevBtn = this.$element.find('button.btn-prev');
-		this.$nextBtn = this.$element.find('button.btn-next');
+	var Wizard = sbswt.Wizard = sbswt.WidgetBase.inherit({
+		klassName: "Wizard",
 
-		var kids = this.$nextBtn.children().detach();
-		this.nextText = langx.trim(this.$nextBtn.text());
-		this.$nextBtn.append(kids);
+		init : function(element,options) {
+			this.$element = $(element);
+			this.options = langx.mixin({}, $.fn.wizard.defaults, options);
+			this.options.disablePreviousStep = (this.$element.attr('data-restrict') === 'previous') ? true : this.options.disablePreviousStep;
+			this.currentStep = this.options.selectedItem.step;
+			this.numSteps = this.$element.find('.steps li').length;
+			this.$prevBtn = this.$element.find('button.btn-prev');
+			this.$nextBtn = this.$element.find('button.btn-next');
 
-		var steps = this.$element.children('.steps-container');
-		// maintains backwards compatibility with < 3.8, will be removed in the future
-		if (steps.length === 0) {
-			steps = this.$element;
-			this.$element.addClass('no-steps-container');
-			if (window && window.console && window.console.warn) {
-				window.console.warn('please update your wizard markup to include ".steps-container" as seen in http://getfuelux.com/javascript.html#wizard-usage-markup');
+			var kids = this.$nextBtn.children().detach();
+			this.nextText = langx.trim(this.$nextBtn.text());
+			this.$nextBtn.append(kids);
+
+			var steps = this.$element.children('.steps-container');
+			// maintains backwards compatibility with < 3.8, will be removed in the future
+			if (steps.length === 0) {
+				steps = this.$element;
+				this.$element.addClass('no-steps-container');
+				if (window && window.console && window.console.warn) {
+					window.console.warn('please update your wizard markup to include ".steps-container" as seen in http://getfuelux.com/javascript.html#wizard-usage-markup');
+				}
 			}
-		}
-		steps = steps.find('.steps');
+			steps = steps.find('.steps');
 
-		// handle events
-		this.$prevBtn.on('click.fu.wizard', langx.proxy(this.previous, this));
-		this.$nextBtn.on('click.fu.wizard', langx.proxy(this.next, this));
-		steps.on('click.fu.wizard', 'li.complete', langx.proxy(this.stepclicked, this));
+			// handle events
+			this.$prevBtn.on('click.fu.wizard', langx.proxy(this.previous, this));
+			this.$nextBtn.on('click.fu.wizard', langx.proxy(this.next, this));
+			steps.on('click.fu.wizard', 'li.complete', langx.proxy(this.stepclicked, this));
 
-		this.selectedItem(this.options.selectedItem);
+			this.selectedItem(this.options.selectedItem);
 
-		if (this.options.disablePreviousStep) {
-			this.$prevBtn.attr('disabled', true);
-			this.$element.find('.steps').addClass('previous-disabled');
-		}
-	};
-
-	Wizard.prototype = {
-
-		constructor: Wizard,
+			if (this.options.disablePreviousStep) {
+				this.$prevBtn.attr('disabled', true);
+				this.$element.find('.steps').addClass('previous-disabled');
+			}
+		},
 
 		destroy: function () {
 			this.$element.remove();
@@ -391,7 +391,8 @@ define([
 
 			return retVal;
 		}
-	};
+
+	});
 
 
 	// WIZARD PLUGIN DEFINITION
@@ -451,5 +452,7 @@ define([
 		});
 	});
 	*/
+
+	return $.fn.wizard ;
 
 });

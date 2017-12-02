@@ -11,8 +11,10 @@ define([
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
-  "skylark-utils/query"
-],function(langx,browser,eventer,noder,geom,$){
+  "skylark-utils/query",
+  "./sbswt"
+],function(langx,browser,eventer,noder,geom,$,sbswt){
+
 
 	/*
 	 * Fuel UX Checkbox
@@ -31,37 +33,36 @@ define([
 		}
 	};
 
-	var Radio = function Radio (element, options) {
-		this.options = langx.mixin({}, $.fn.radio.defaults, options);
+	var Radio = sbswt.Radio = sbswt.WidgetBase.inherit({
+		klassName: "Radio",
 
-		if (element.tagName.toLowerCase() !== 'label') {
-			logError('Radio must be initialized on the `label` that wraps the `input` element. See https://github.com/ExactTarget/fuelux/blob/master/reference/markup/radio.html for example of proper markup. Call `.radio()` on the `<label>` not the `<input>`');
-			return;
-		}
+		init : function(element,options) {
+			this.options = langx.mixin({}, $.fn.radio.defaults, options);
 
-		// cache elements
-		this.$label = $(element);
-		this.$radio = this.$label.find('input[type="radio"]');
-		this.groupName = this.$radio.attr('name'); // don't cache group itself since items can be added programmatically
+			if (element.tagName.toLowerCase() !== 'label') {
+				logError('Radio must be initialized on the `label` that wraps the `input` element. See https://github.com/ExactTarget/fuelux/blob/master/reference/markup/radio.html for example of proper markup. Call `.radio()` on the `<label>` not the `<input>`');
+				return;
+			}
 
-		if (!this.options.ignoreVisibilityCheck && this.$radio.css('visibility').match(/hidden|collapse/)) {
-			logError('For accessibility reasons, in order for tab and space to function on radio, `visibility` must not be set to `hidden` or `collapse`. See https://github.com/ExactTarget/fuelux/pull/1996 for more details.');
-		}
+			// cache elements
+			this.$label = $(element);
+			this.$radio = this.$label.find('input[type="radio"]');
+			this.groupName = this.$radio.attr('name'); // don't cache group itself since items can be added programmatically
 
-		// determine if a toggle container is specified
-		var containerSelector = this.$radio.attr('data-toggle');
-		this.$toggleContainer = $(containerSelector);
+			if (!this.options.ignoreVisibilityCheck && this.$radio.css('visibility').match(/hidden|collapse/)) {
+				logError('For accessibility reasons, in order for tab and space to function on radio, `visibility` must not be set to `hidden` or `collapse`. See https://github.com/ExactTarget/fuelux/pull/1996 for more details.');
+			}
 
-		// handle internal events
-		this.$radio.on('change', langx.proxy(this.itemchecked, this));
+			// determine if a toggle container is specified
+			var containerSelector = this.$radio.attr('data-toggle');
+			this.$toggleContainer = $(containerSelector);
 
-		// set default state
-		this.setInitialState();
-	};
+			// handle internal events
+			this.$radio.on('change', langx.proxy(this.itemchecked, this));
 
-	Radio.prototype = {
-
-		constructor: Radio,
+			// set default state
+			this.setInitialState();
+		},
 
 		setInitialState: function setInitialState () {
 			var $radio = this.$radio;
@@ -160,7 +161,9 @@ define([
 			this.$label.remove();
 			return this.$label[0].outerHTML;
 		}
-	};
+
+	});
+
 
 	Radio.prototype.getValue = Radio.prototype.isChecked;
 
@@ -219,4 +222,5 @@ define([
 	});
 	*/
 
+	return $.fn.radio;
 });

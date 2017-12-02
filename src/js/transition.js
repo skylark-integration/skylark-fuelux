@@ -1,9 +1,13 @@
 define([
-  "skylark-utils/browser",
   "skylark-utils/langx",
+  "skylark-utils/browser",
   "skylark-utils/eventer",
-  "skylark-utils/query"
-],function(browser,langx,eventer,$){
+  "skylark-utils/noder",
+  "skylark-utils/geom",
+  "skylark-utils/query",
+  "./sbswt"
+],function(langx,browser,eventer,noder,geom,$,sbswt){
+
 /* ========================================================================
  * Bootstrap: transition.js v3.3.7
  * http://getbootstrap.com/javascript/#transitions
