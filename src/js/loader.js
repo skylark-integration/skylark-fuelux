@@ -87,7 +87,7 @@ define([
 	};
 
 	// INIT LOADER ON DOMCONTENTLOADED
-
+	/*
 	$(function () {
 		$('[data-initialize=loader]').each(function () {
 			var $this = $(this);
@@ -96,5 +96,5 @@ define([
 			}
 		});
 	});
-
+	*/
 });

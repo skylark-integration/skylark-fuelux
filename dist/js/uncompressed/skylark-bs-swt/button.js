@@ -25,9 +25,28 @@ define([
   // ==============================
 
   var Button = function (element, options) {
-    this.$element  = $(element)
+    var $el = this.$element  = $(element)
     this.options   = langx.mixin({}, Button.DEFAULTS, options)
     this.isLoading = false
+
+    if ($el.closest('[data-toggle^="button"]')) {
+      $el.on("click.bs.button.data-api",langx.proxy(function(e){
+        this.toggle()
+
+        if (!($(e.target).is('input[type="radio"], input[type="checkbox"]'))) {
+          // Prevent double click on radios, and the double selections (so cancellation) on checkboxes
+          e.preventDefault()
+          // The target component still receive the focus
+          var $btn = this.$element; 
+          if ($btn.is('input,button')) {
+            $btn.trigger('focus');
+          } else {
+            $btn.find('input:visible,button:visible').first().trigger('focus');
+          }
+        }
+      },this));
+    }
+
   }
 
   Button.VERSION  = '3.3.7'
@@ -89,16 +108,20 @@ define([
   function Plugin(option) {
     return this.each(function () {
       var $this   = $(this)
-      var data    = $this.data('bs.button')
+      var wgt    = $this.data('bs.button')
       var options = typeof option == 'object' && option
 
-      if (!data) $this.data('bs.button', (data = new Button(this, options)))
+      if (!wgt) {
+        $this.data('bs.button', (wgt = new Button(this, options)));
+      }
 
-      if (option == 'toggle') data.toggle()
-      else if (option) data.setState(option)
-    })
+      if (option == 'toggle') {
+        wgt.toggle();
+      } else if (option) {
+        wgt.setState(option);
+      }
+    });
   }
-
   var old = $.fn.button
 
   $.fn.button             = Plugin
@@ -116,7 +139,7 @@ define([
 
   // BUTTON DATA-API
   // ===============
-
+  /*  
   $(document)
     .on('click.bs.button.data-api', '[data-toggle^="button"]', function (e) {
       var $btn = $(e.target).closest('.btn')
@@ -132,5 +155,7 @@ define([
     .on('focus.bs.button.data-api blur.bs.button.data-api', '[data-toggle^="button"]', function (e) {
       $(e.target).closest('.btn').toggleClass('focus', /^focus(in)?$/.test(e.type))
     })
+  */
 
+  return Button;
 });

@@ -202,7 +202,7 @@ define([
 			var $originEl = $(e.target);
 			var i, l;
 
-			if (e.target === el || $originEl.parents('.placard:first').get(0) === el) {
+			if (noder.contains(el,e.target)) {
 				return false;
 			} else {
 				for (i = 0, l = exceptions.length; i < l; i++) {
@@ -320,8 +320,8 @@ define([
 		return this;
 	};
 
+	/*
 	// DATA-API
-
 	$(document).on('focus.fu.placard.data-api', '[data-initialize=placard]', function (e) {
 		var $control = $(e.target).closest('.placard');
 		if (!$control.data('fu.placard')) {
@@ -337,5 +337,5 @@ define([
 			$this.placard($this.data());
 		});
 	});
-
+	*/
 });

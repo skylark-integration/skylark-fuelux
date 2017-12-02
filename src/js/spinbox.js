@@ -403,6 +403,7 @@ define([
 
 	// DATA-API
 
+	/*
 	$(document).on('mousedown.fu.spinbox.data-api', '[data-initialize=spinbox]', function (e) {
 		var $control = $(e.target).closest('.spinbox');
 		if (!$control.data('fu.spinbox')) {
@@ -419,5 +420,6 @@ define([
 			}
 		});
 	});
+	*/
 
 });

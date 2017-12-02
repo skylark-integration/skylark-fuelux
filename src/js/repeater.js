@@ -43,6 +43,10 @@ define([
 		this.$viewport = this.$element.find('.repeater-viewport');
 		this.$views = this.$element.find('.repeater-views');
 
+		this.$element.on('mousedown.bs.dropdown.data-api', '[data-toggle="dropdown"]',function(e) {
+			$(this).dropdown();
+		}); 
+
 		this.currentPage = 0;
 		this.currentView = null;
 		this.isDisabled = false;

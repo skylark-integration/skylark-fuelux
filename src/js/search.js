@@ -189,7 +189,7 @@ define([
 
 
 	// DATA-API
-
+	/*
 	$(document).on('mousedown.fu.search.data-api', '[data-initialize=search]', function (e) {
 		var $control = $(e.target).closest('.search');
 		if (!$control.data('fu.search')) {
@@ -205,5 +205,5 @@ define([
 			$this.search($this.data());
 		});
 	});
-
+	*/
 });

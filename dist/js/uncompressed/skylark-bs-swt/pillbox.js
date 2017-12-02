@@ -750,6 +750,7 @@ define([
 
 	// DATA-API
 
+	/*
 	$(document).on('mousedown.fu.pillbox.data-api', '[data-initialize=pillbox]', function dataAPI (e) {
 		var $control = $(e.target).closest('.pillbox');
 		if (!$control.data('fu.pillbox')) {
@@ -765,5 +766,6 @@ define([
 			$this.pillbox($this.data());
 		});
 	});
+	*/
 
 });

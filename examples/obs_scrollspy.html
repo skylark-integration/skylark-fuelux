@@ -108,5 +108,20 @@
 <script src="../../dropdown.js"></script>
 <script src="../../collapse.js"></script>
 -->
+
+    <script>
+    function initPage($) {
+        $(function () {
+          $('[data-spy="scroll"]').each(function () {
+            var $spy = $(this);
+            $spy.scrollspy($spy.data());
+          });
+
+          $('[data-toggle="dropdown"]').dropdown();
+
+        });
+    }
+
+    </script>
 </body>
 </html>

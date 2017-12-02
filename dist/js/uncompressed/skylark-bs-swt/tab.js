@@ -28,6 +28,10 @@ define([
     // jscs:disable requireDollarBeforejQueryAssignment
     this.element = $(element)
     // jscs:enable requireDollarBeforejQueryAssignment
+    this.element.on("click.bs.tab.data-api",langx.proxy(function(e){
+      e.preventDefault()
+      this.show();
+    },this));
   }
 
   Tab.VERSION = '3.3.7'
@@ -154,6 +158,7 @@ define([
   // TAB DATA-API
   // ============
 
+  /*
   var clickHandler = function (e) {
     e.preventDefault()
     Plugin.call($(this), 'show')
@@ -162,5 +167,5 @@ define([
   $(document)
     .on('click.bs.tab.data-api', '[data-toggle="tab"]', clickHandler)
     .on('click.bs.tab.data-api', '[data-toggle="pill"]', clickHandler)
-
+  */
 });

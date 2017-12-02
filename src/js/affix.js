@@ -149,7 +149,7 @@ define([
 
   // AFFIX DATA-API
   // ==============
-
+  /*
   $(window).on('load', function () {
     $('[data-spy="affix"]').each(function () {
       var $spy = $(this)
@@ -163,5 +163,5 @@ define([
       Plugin.call($spy, data)
     })
   })
-
+  */
 });

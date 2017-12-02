@@ -38,7 +38,26 @@ define([
 
     this.options.pause == 'hover' && !('ontouchstart' in document.documentElement) && this.$element
       .on('mouseenter.bs.carousel', langx.proxy(this.pause, this))
-      .on('mouseleave.bs.carousel', langx.proxy(this.cycle, this))
+      .on('mouseleave.bs.carousel', langx.proxy(this.cycle, this));
+
+    this.$element.on("click.bs.carousel.data-api","[data-slide],[data-slide-to]",function(e){
+        var href
+        var $this   = $(this)
+        var $target = $($this.attr('data-target') || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '')) // strip for ie7
+        if (!$target.hasClass('carousel')) return
+        var options = langx.mixin({}, $target.data(), $this.data());
+        var slideIndex = $this.attr('data-slide-to')
+        if (slideIndex) options.interval = false
+
+        Plugin.call($target, options);
+
+        if (slideIndex) {
+          $target.data('bs.carousel').to(slideIndex);
+        }
+
+        e.preventDefault();
+
+    });      
   }
 
   Carousel.VERSION  = '3.3.7'
@@ -187,14 +206,20 @@ define([
   function Plugin(option) {
     return this.each(function () {
       var $this   = $(this)
-      var data    = $this.data('bs.carousel')
+      var wgt    = $this.data('bs.carousel')
       var options = langx.mixin({}, Carousel.DEFAULTS, $this.data(), typeof option == 'object' && option)
       var action  = typeof option == 'string' ? option : options.slide
 
-      if (!data) $this.data('bs.carousel', (data = new Carousel(this, options)))
-      if (typeof option == 'number') data.to(option)
-      else if (action) data[action]()
-      else if (options.interval) data.pause().cycle()
+      if (!wgt) {
+        $this.data('bs.carousel', (wgt = new Carousel(this, options)));
+      }
+      if (typeof option == 'number') {
+        wgt.to(option);
+      } else if (action) {
+        wgt[action]()
+      }else if (options.interval) {
+        wgt.pause().cycle();
+      }  
     })
   }
 
@@ -215,7 +240,7 @@ define([
 
   // CAROUSEL DATA-API
   // =================
-
+  /*
   var clickHandler = function (e) {
     var href
     var $this   = $(this)
@@ -244,5 +269,7 @@ define([
       Plugin.call($carousel, $carousel.data())
     })
   })
+  */
+
 
 });

@@ -30,7 +30,7 @@ define([
     "./tooltip",
     "./transition",
     "./tree",
-    "./Window",
+    "./window",
     "./wizard"
 ], function($) {
     return $;

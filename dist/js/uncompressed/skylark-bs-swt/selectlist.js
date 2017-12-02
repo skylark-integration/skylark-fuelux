@@ -263,6 +263,7 @@ define([
 
 	// DATA-API
 
+	/*
 	$(document).on('mousedown.fu.selectlist.data-api', '[data-initialize=selectlist]', function (e) {
 		var $control = $(e.target).closest('.selectlist');
 		if (!$control.data('fu.selectlist')) {
@@ -279,5 +280,7 @@ define([
 			}
 		});
 	});
+
+	*/
 
 });

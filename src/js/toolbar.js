@@ -25,6 +25,10 @@ define([
 			this.$container = $('<nav class="navbar"/>');
 			this.$el = $(elm).append(this.$container);
 
+			this.$container.on('mousedown.bs.dropdown.data-api', '[data-toggle="dropdown"]',function(e) {
+				$(this).dropdown();
+			}); 
+
 			this.render();
         },
 

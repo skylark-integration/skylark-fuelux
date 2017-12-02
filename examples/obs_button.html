@@ -72,6 +72,9 @@
     var initPage = function ($) {
 
         $(function () {
+            $('[data-toggle="button"]').button('toggle');
+            $('[data-toggle="buttons"] .btn').button('toggle');
+            
             $('.js-loading-button').on('click', function () {
                 var btn = $(this).button('loading')
                 setTimeout(function () {

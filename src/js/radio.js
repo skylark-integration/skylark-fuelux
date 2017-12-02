@@ -193,7 +193,7 @@ define([
 
 
 	// DATA-API
-
+	/*
 	$(document).on('mouseover.fu.radio.data-api', '[data-initialize=radio]', function initializeRadios (e) {
 		var $control = $(e.target);
 		if (!$control.data('fu.radio')) {
@@ -210,5 +210,6 @@ define([
 			}
 		});
 	});
+	*/
 
 });

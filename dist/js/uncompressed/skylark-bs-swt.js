@@ -234,7 +234,7 @@ define('skylark-bs-swt/affix',[
 
   // AFFIX DATA-API
   // ==============
-
+  /*
   $(window).on('load', function () {
     $('[data-spy="affix"]').each(function () {
       var $spy = $(this)
@@ -248,7 +248,7 @@ define('skylark-bs-swt/affix',[
       Plugin.call($spy, data)
     })
   })
-
+  */
 });
 
 define('skylark-bs-swt/alert',[
@@ -321,10 +321,14 @@ define('skylark-bs-swt/alert',[
   function Plugin(option) {
     return this.each(function () {
       var $this = $(this)
-      var data  = $this.data('bs.alert')
+      var wgt  = $this.data('bs.alert')
 
-      if (!data) $this.data('bs.alert', (data = new Alert(this)))
-      if (typeof option == 'string') data[option].call($this)
+      if (!wgt) {
+        $this.data('bs.alert', (wgt = new Alert(this)));
+      }
+      if (typeof option == 'string') {
+        wgt[option].call($this);
+      }
     })
   }
 
@@ -346,8 +350,9 @@ define('skylark-bs-swt/alert',[
   // ALERT DATA-API
   // ==============
 
+  /*
   $(document).on('click.bs.alert.data-api', dismiss, Alert.prototype.close)
-
+  */
 });
 
 define('skylark-bs-swt/button',[
@@ -370,9 +375,28 @@ define('skylark-bs-swt/button',[
   // ==============================
 
   var Button = function (element, options) {
-    this.$element  = $(element)
+    var $el = this.$element  = $(element)
     this.options   = langx.mixin({}, Button.DEFAULTS, options)
     this.isLoading = false
+
+    if ($el.closest('[data-toggle^="button"]')) {
+      $el.on("click.bs.button.data-api",langx.proxy(function(e){
+        this.toggle()
+
+        if (!($(e.target).is('input[type="radio"], input[type="checkbox"]'))) {
+          // Prevent double click on radios, and the double selections (so cancellation) on checkboxes
+          e.preventDefault()
+          // The target component still receive the focus
+          var $btn = this.$element; 
+          if ($btn.is('input,button')) {
+            $btn.trigger('focus');
+          } else {
+            $btn.find('input:visible,button:visible').first().trigger('focus');
+          }
+        }
+      },this));
+    }
+
   }
 
   Button.VERSION  = '3.3.7'
@@ -434,16 +458,20 @@ define('skylark-bs-swt/button',[
   function Plugin(option) {
     return this.each(function () {
       var $this   = $(this)
-      var data    = $this.data('bs.button')
+      var wgt    = $this.data('bs.button')
       var options = typeof option == 'object' && option
 
-      if (!data) $this.data('bs.button', (data = new Button(this, options)))
+      if (!wgt) {
+        $this.data('bs.button', (wgt = new Button(this, options)));
+      }
 
-      if (option == 'toggle') data.toggle()
-      else if (option) data.setState(option)
-    })
+      if (option == 'toggle') {
+        wgt.toggle();
+      } else if (option) {
+        wgt.setState(option);
+      }
+    });
   }
-
   var old = $.fn.button
 
   $.fn.button             = Plugin
@@ -461,7 +489,7 @@ define('skylark-bs-swt/button',[
 
   // BUTTON DATA-API
   // ===============
-
+  /*  
   $(document)
     .on('click.bs.button.data-api', '[data-toggle^="button"]', function (e) {
       var $btn = $(e.target).closest('.btn')
@@ -477,7 +505,9 @@ define('skylark-bs-swt/button',[
     .on('focus.bs.button.data-api blur.bs.button.data-api', '[data-toggle^="button"]', function (e) {
       $(e.target).closest('.btn').toggleClass('focus', /^focus(in)?$/.test(e.type))
     })
+  */
 
+  return Button;
 });
 
 define('skylark-bs-swt/carousel',[
@@ -513,7 +543,26 @@ define('skylark-bs-swt/carousel',[
 
     this.options.pause == 'hover' && !('ontouchstart' in document.documentElement) && this.$element
       .on('mouseenter.bs.carousel', langx.proxy(this.pause, this))
-      .on('mouseleave.bs.carousel', langx.proxy(this.cycle, this))
+      .on('mouseleave.bs.carousel', langx.proxy(this.cycle, this));
+
+    this.$element.on("click.bs.carousel.data-api","[data-slide],[data-slide-to]",function(e){
+        var href
+        var $this   = $(this)
+        var $target = $($this.attr('data-target') || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '')) // strip for ie7
+        if (!$target.hasClass('carousel')) return
+        var options = langx.mixin({}, $target.data(), $this.data());
+        var slideIndex = $this.attr('data-slide-to')
+        if (slideIndex) options.interval = false
+
+        Plugin.call($target, options);
+
+        if (slideIndex) {
+          $target.data('bs.carousel').to(slideIndex);
+        }
+
+        e.preventDefault();
+
+    });      
   }
 
   Carousel.VERSION  = '3.3.7'
@@ -662,14 +711,20 @@ define('skylark-bs-swt/carousel',[
   function Plugin(option) {
     return this.each(function () {
       var $this   = $(this)
-      var data    = $this.data('bs.carousel')
+      var wgt    = $this.data('bs.carousel')
       var options = langx.mixin({}, Carousel.DEFAULTS, $this.data(), typeof option == 'object' && option)
       var action  = typeof option == 'string' ? option : options.slide
 
-      if (!data) $this.data('bs.carousel', (data = new Carousel(this, options)))
-      if (typeof option == 'number') data.to(option)
-      else if (action) data[action]()
-      else if (options.interval) data.pause().cycle()
+      if (!wgt) {
+        $this.data('bs.carousel', (wgt = new Carousel(this, options)));
+      }
+      if (typeof option == 'number') {
+        wgt.to(option);
+      } else if (action) {
+        wgt[action]()
+      }else if (options.interval) {
+        wgt.pause().cycle();
+      }  
     })
   }
 
@@ -690,7 +745,7 @@ define('skylark-bs-swt/carousel',[
 
   // CAROUSEL DATA-API
   // =================
-
+  /*
   var clickHandler = function (e) {
     var href
     var $this   = $(this)
@@ -719,6 +774,8 @@ define('skylark-bs-swt/carousel',[
       Plugin.call($carousel, $carousel.data())
     })
   })
+  */
+
 
 });
 
@@ -913,6 +970,7 @@ define('skylark-bs-swt/checkbox',[
 
 	// DATA-API
 
+	/*
 	$(document).on('mouseover.fu.checkbox.data-api', '[data-initialize=checkbox]', function initializeCheckboxes (e) {
 		var $control = $(e.target);
 		if (!$control.data('fu.checkbox')) {
@@ -929,6 +987,7 @@ define('skylark-bs-swt/checkbox',[
 			}
 		});
 	});
+	*/
 });
 
 define('skylark-bs-swt/collapse',[
@@ -965,7 +1024,24 @@ define('skylark-bs-swt/collapse',[
       this.addAriaAndCollapsedClass(this.$element, this.$trigger)
     }
 
-    if (this.options.toggle) this.toggle()
+    if (this.options.toggle) {
+      this.toggle();
+    }
+
+    this.$element.on('click.bs.collapse.data-api', '[data-toggle="collapse"]', function (e) {
+      var $this   = $(this)
+
+      if (!$this.attr('data-target')) {
+        e.preventDefault();
+      }
+
+      var $target = getTargetFromTrigger($this);
+      var data    = $target.data('bs.collapse');
+      var option  = data ? 'toggle' : $this.data();
+
+      Plugin.call($target, option);
+    })
+
   }
 
   Collapse.VERSION  = '3.3.7'
@@ -1134,7 +1210,7 @@ define('skylark-bs-swt/collapse',[
 
   // COLLAPSE DATA-API
   // =================
-
+  /*
   $(document).on('click.bs.collapse.data-api', '[data-toggle="collapse"]', function (e) {
     var $this   = $(this)
 
@@ -1146,6 +1222,7 @@ define('skylark-bs-swt/collapse',[
 
     Plugin.call($target, option)
   })
+*/
 
 });
 
@@ -1178,6 +1255,7 @@ define('skylark-bs-swt/combobox',[
 		this.$dropMenu = this.$element.find('.dropdown-menu');
 		this.$input = this.$element.find('input');
 		this.$button = this.$element.find('.btn');
+		this.$button.dropdown();
 		this.$inputGroupBtn = this.$element.find('.input-group-btn');
 
 		this.$element.on('click.fu.combobox', 'a', langx.proxy(this.itemclicked, this));
@@ -1506,6 +1584,8 @@ define('skylark-bs-swt/combobox',[
 
 	// DATA-API
 
+	/*
+
 	$(document).on('mousedown.fu.combobox.data-api', '[data-initialize=combobox]', function (e) {
 		var $control = $(e.target).closest('.combobox');
 		if (!$control.data('fu.combobox')) {
@@ -1522,6 +1602,7 @@ define('skylark-bs-swt/combobox',[
 			}
 		});
 	});
+	*/
 });
 
 define('skylark-bs-swt/datepicker',[
@@ -1589,6 +1670,8 @@ define('skylark-bs-swt/datepicker',[
 		this.$wheels = this.$element.find('.datepicker-wheels');
 		this.$wheelsMonth = this.$element.find('.datepicker-wheels-month');
 		this.$wheelsYear = this.$element.find('.datepicker-wheels-year');
+		this.$dropdown = this.$element.find('[data-toggle="dropdown"]');
+		this.$dropdown.dropdown();
 
 		this.artificialScrolling = false;
 		this.formatDate = this.options.formatDate || this.formatDate;
@@ -1618,6 +1701,10 @@ define('skylark-bs-swt/datepicker',[
 		this.$wheelsMonth.on('click.fu.datepicker', 'ul button', langx.proxy(this.monthClicked, this));
 		this.$wheelsYear.on('click.fu.datepicker', 'ul button', langx.proxy(this.yearClicked, this));
 		this.$wheelsYear.find('ul').on('scroll.fu.datepicker', langx.proxy(this.onYearScroll, this));
+
+		this.$element.on('click.fu.datepicker.data-api', '.datepicker input', function (e) {
+			e.stopPropagation();
+		});
 
 		var init = function () {
 			if (this.checkForMomentJS()) {
@@ -2311,6 +2398,7 @@ define('skylark-bs-swt/datepicker',[
 		}
 	});
 
+	/*
 	//used to prevent the dropdown from closing when clicking on the input
 	$(document).on('click.fu.datepicker.data-api', '.datepicker input', function (e) {
 		e.stopPropagation();
@@ -2326,7 +2414,7 @@ define('skylark-bs-swt/datepicker',[
 			$this.datepicker($this.data());
 		});
 	});
-
+	*/
 });
 
 define('skylark-bs-swt/dropdown',[
@@ -2351,7 +2439,9 @@ define('skylark-bs-swt/dropdown',[
   var backdrop = '.dropdown-backdrop'
   var toggle   = '[data-toggle="dropdown"]'
   var Dropdown = function (element) {
-    $(element).on('click.bs.dropdown', this.toggle)
+    var $el = this.$element = $(element);
+    $el.on('click.bs.dropdown', this.toggle);
+    $el.on('keydown.bs.dropdown', '[data-toggle="dropdown"],.dropdown-menu',this.keydown);
   }
 
   Dropdown.VERSION = '3.3.7'
@@ -2489,14 +2579,20 @@ define('skylark-bs-swt/dropdown',[
 
   // APPLY TO STANDARD DROPDOWN ELEMENTS
   // ===================================
+  $(document)
+    .on('click.bs.dropdown.data-api', clearMenus)
+    .on('click.bs.dropdown.data-api', '.dropdown form', function (e) { e.stopPropagation() });
 
+  /*
   $(document)
     .on('click.bs.dropdown.data-api', clearMenus)
     .on('click.bs.dropdown.data-api', '.dropdown form', function (e) { e.stopPropagation() })
     .on('click.bs.dropdown.data-api', toggle, Dropdown.prototype.toggle)
     .on('keydown.bs.dropdown.data-api', toggle, Dropdown.prototype.keydown)
     .on('keydown.bs.dropdown.data-api', '.dropdown-menu', Dropdown.prototype.keydown);
-  
+  */
+
+
   return Dropdown;
 
 });
@@ -3122,7 +3218,7 @@ define('skylark-bs-swt/modal',[
 
   // MODAL DATA-API
   // ==============
-
+  /*
   $(document).on('click.bs.modal.data-api', '[data-toggle="modal"]', function (e) {
     var $this   = $(this)
     var href    = $this.attr('href')
@@ -3139,7 +3235,7 @@ define('skylark-bs-swt/modal',[
     })
     Plugin.call($target, option, this)
   })
-
+  */
 });
 
 define('skylark-bs-swt/picker',[
@@ -3403,6 +3499,7 @@ define('skylark-bs-swt/picker',[
 
 	// DATA-API
 
+	/*
 	$(document).on('focus.fu.picker.data-api', '[data-initialize=picker]', function (e) {
 		var $control = $(e.target).closest('.picker');
 		if (!$control.data('fu.picker')) {
@@ -3418,6 +3515,7 @@ define('skylark-bs-swt/picker',[
 			$this.picker($this.data());
 		});
 	});
+	*/
 
 });
 
@@ -4252,6 +4350,7 @@ define('skylark-bs-swt/pillbox',[
 
 	// DATA-API
 
+	/*
 	$(document).on('mousedown.fu.pillbox.data-api', '[data-initialize=pillbox]', function dataAPI (e) {
 		var $control = $(e.target).closest('.pillbox');
 		if (!$control.data('fu.pillbox')) {
@@ -4267,6 +4366,7 @@ define('skylark-bs-swt/pillbox',[
 			$this.pillbox($this.data());
 		});
 	});
+	*/
 
 });
 
@@ -4474,7 +4574,7 @@ define('skylark-bs-swt/placard',[
 			var $originEl = $(e.target);
 			var i, l;
 
-			if (e.target === el || $originEl.parents('.placard:first').get(0) === el) {
+			if (noder.contains(el,e.target)) {
 				return false;
 			} else {
 				for (i = 0, l = exceptions.length; i < l; i++) {
@@ -4592,8 +4692,8 @@ define('skylark-bs-swt/placard',[
 		return this;
 	};
 
+	/*
 	// DATA-API
-
 	$(document).on('focus.fu.placard.data-api', '[data-initialize=placard]', function (e) {
 		var $control = $(e.target).closest('.placard');
 		if (!$control.data('fu.placard')) {
@@ -4609,7 +4709,7 @@ define('skylark-bs-swt/placard',[
 			$this.placard($this.data());
 		});
 	});
-
+	*/
 });
 
 define('skylark-bs-swt/tooltip',[
@@ -5128,16 +5228,16 @@ define('skylark-bs-swt/tooltip',[
 
   var old = $.fn.tooltip
 
-  $.fn.tooltip             = Plugin
-  $.fn.tooltip.Constructor = Tooltip
+  $.fn.tooltip             = Plugin;
+  $.fn.tooltip.Constructor = Tooltip;
 
 
   // TOOLTIP NO CONFLICT
   // ===================
 
   $.fn.tooltip.noConflict = function () {
-    $.fn.tooltip = old
-    return this
+    $.fn.tooltip = old;
+    return this;
   }
 
 });
@@ -5451,7 +5551,7 @@ define('skylark-bs-swt/radio',[
 
 
 	// DATA-API
-
+	/*
 	$(document).on('mouseover.fu.radio.data-api', '[data-initialize=radio]', function initializeRadios (e) {
 		var $control = $(e.target);
 		if (!$control.data('fu.radio')) {
@@ -5468,6 +5568,7 @@ define('skylark-bs-swt/radio',[
 			}
 		});
 	});
+	*/
 
 });
 
@@ -5560,7 +5661,7 @@ define('skylark-bs-swt/loader',[
 	};
 
 	// INIT LOADER ON DOMCONTENTLOADED
-
+	/*
 	$(function () {
 		$('[data-initialize=loader]').each(function () {
 			var $this = $(this);
@@ -5569,7 +5670,7 @@ define('skylark-bs-swt/loader',[
 			}
 		});
 	});
-
+	*/
 });
 
 define('skylark-bs-swt/repeater',[
@@ -5616,6 +5717,10 @@ define('skylark-bs-swt/repeater',[
 		this.$start = this.$element.find('.repeater-start');
 		this.$viewport = this.$element.find('.repeater-viewport');
 		this.$views = this.$element.find('.repeater-views');
+
+		this.$element.on('mousedown.bs.dropdown.data-api', '[data-toggle="dropdown"]',function(e) {
+			$(this).dropdown();
+		}); 
 
 		this.currentPage = 0;
 		this.currentView = null;
@@ -7976,6 +8081,7 @@ define('skylark-bs-swt/selectlist',[
 
 	// DATA-API
 
+	/*
 	$(document).on('mousedown.fu.selectlist.data-api', '[data-initialize=selectlist]', function (e) {
 		var $control = $(e.target).closest('.selectlist');
 		if (!$control.data('fu.selectlist')) {
@@ -7992,6 +8098,8 @@ define('skylark-bs-swt/selectlist',[
 			}
 		});
 	});
+
+	*/
 
 });
 
@@ -8400,6 +8508,7 @@ define('skylark-bs-swt/spinbox',[
 
 	// DATA-API
 
+	/*
 	$(document).on('mousedown.fu.spinbox.data-api', '[data-initialize=spinbox]', function (e) {
 		var $control = $(e.target).closest('.spinbox');
 		if (!$control.data('fu.spinbox')) {
@@ -8416,6 +8525,7 @@ define('skylark-bs-swt/spinbox',[
 			}
 		});
 	});
+	*/
 
 });
 
@@ -9190,6 +9300,7 @@ define('skylark-bs-swt/scheduler',[
 
 
 	// DATA-API
+	/*
 
 	$(document).on('mousedown.fu.scheduler.data-api', '[data-initialize=scheduler]', function (e) {
 		var $control = $(e.target).closest('.scheduler');
@@ -9206,7 +9317,7 @@ define('skylark-bs-swt/scheduler',[
 			$this.scheduler($this.data());
 		});
 	});
-
+	*/
 });
 
 define('skylark-bs-swt/scrollspy',[
@@ -9376,13 +9487,14 @@ define('skylark-bs-swt/scrollspy',[
 
   // SCROLLSPY DATA-API
   // ==================
-
+  /*
   $(window).on('load.bs.scrollspy.data-api', function () {
     $('[data-spy="scroll"]').each(function () {
       var $spy = $(this)
       Plugin.call($spy, $spy.data())
     })
   })
+  */
 
 });
 
@@ -9577,7 +9689,7 @@ define('skylark-bs-swt/search',[
 
 
 	// DATA-API
-
+	/*
 	$(document).on('mousedown.fu.search.data-api', '[data-initialize=search]', function (e) {
 		var $control = $(e.target).closest('.search');
 		if (!$control.data('fu.search')) {
@@ -9593,7 +9705,7 @@ define('skylark-bs-swt/search',[
 			$this.search($this.data());
 		});
 	});
-
+	*/
 });
 
 define('skylark-bs-swt/tab',[
@@ -9619,6 +9731,10 @@ define('skylark-bs-swt/tab',[
     // jscs:disable requireDollarBeforejQueryAssignment
     this.element = $(element)
     // jscs:enable requireDollarBeforejQueryAssignment
+    this.element.on("click.bs.tab.data-api",langx.proxy(function(e){
+      e.preventDefault()
+      this.show();
+    },this));
   }
 
   Tab.VERSION = '3.3.7'
@@ -9745,6 +9861,7 @@ define('skylark-bs-swt/tab',[
   // TAB DATA-API
   // ============
 
+  /*
   var clickHandler = function (e) {
     e.preventDefault()
     Plugin.call($(this), 'show')
@@ -9753,7 +9870,7 @@ define('skylark-bs-swt/tab',[
   $(document)
     .on('click.bs.tab.data-api', '[data-toggle="tab"]', clickHandler)
     .on('click.bs.tab.data-api', '[data-toggle="pill"]', clickHandler)
-
+  */
 });
 
 define('skylark-bs-swt/toolbar',[
@@ -9782,6 +9899,10 @@ define('skylark-bs-swt/toolbar',[
 
 			this.$container = $('<nav class="navbar"/>');
 			this.$el = $(elm).append(this.$container);
+
+			this.$container.on('mousedown.bs.dropdown.data-api', '[data-toggle="dropdown"]',function(e) {
+				$(this).dropdown();
+			}); 
 
 			this.render();
         },
@@ -10936,7 +11057,7 @@ define('skylark-bs-swt/tree',[
 
 });
 
-define('skylark-bs-swt/Window',[
+define('skylark-bs-swt/window',[
   "skylark-utils/langx",
   "skylark-utils/browser",
   "skylark-utils/eventer",
@@ -12172,6 +12293,7 @@ define('skylark-bs-swt/wizard',[
 
 	// DATA-API
 
+	/*
 	$(document).on('mouseover.fu.wizard.data-api', '[data-initialize=wizard]', function (e) {
 		var $control = $(e.target).closest('.wizard');
 		if (!$control.data('fu.wizard')) {
@@ -12187,6 +12309,7 @@ define('skylark-bs-swt/wizard',[
 			$this.wizard($this.data());
 		});
 	});
+	*/
 
 });
 
@@ -12222,7 +12345,7 @@ define('skylark-bs-swt/main',[
     "./tooltip",
     "./transition",
     "./tree",
-    "./Window",
+    "./window",
     "./wizard"
 ], function($) {
     return $;

@@ -427,6 +427,7 @@ define([
 
 	// DATA-API
 
+	/*
 	$(document).on('mouseover.fu.wizard.data-api', '[data-initialize=wizard]', function (e) {
 		var $control = $(e.target).closest('.wizard');
 		if (!$control.data('fu.wizard')) {
@@ -442,5 +443,6 @@ define([
 			$this.wizard($this.data());
 		});
 	});
+	*/
 
 });

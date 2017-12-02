@@ -34,6 +34,7 @@ define([
 		this.$dropMenu = this.$element.find('.dropdown-menu');
 		this.$input = this.$element.find('input');
 		this.$button = this.$element.find('.btn');
+		this.$button.dropdown();
 		this.$inputGroupBtn = this.$element.find('.input-group-btn');
 
 		this.$element.on('click.fu.combobox', 'a', langx.proxy(this.itemclicked, this));
@@ -362,6 +363,8 @@ define([
 
 	// DATA-API
 
+	/*
+
 	$(document).on('mousedown.fu.combobox.data-api', '[data-initialize=combobox]', function (e) {
 		var $control = $(e.target).closest('.combobox');
 		if (!$control.data('fu.combobox')) {
@@ -378,4 +381,5 @@ define([
 			}
 		});
 	});
+	*/
 });

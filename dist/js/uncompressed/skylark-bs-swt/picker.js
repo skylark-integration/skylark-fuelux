@@ -266,6 +266,7 @@ define([
 
 	// DATA-API
 
+	/*
 	$(document).on('focus.fu.picker.data-api', '[data-initialize=picker]', function (e) {
 		var $control = $(e.target).closest('.picker');
 		if (!$control.data('fu.picker')) {
@@ -281,5 +282,6 @@ define([
 			$this.picker($this.data());
 		});
 	});
+	*/
 
 });

@@ -776,6 +776,7 @@ define([
 
 
 	// DATA-API
+	/*
 
 	$(document).on('mousedown.fu.scheduler.data-api', '[data-initialize=scheduler]', function (e) {
 		var $control = $(e.target).closest('.scheduler');
@@ -792,5 +793,5 @@ define([
 			$this.scheduler($this.data());
 		});
 	});
-
+	*/
 });

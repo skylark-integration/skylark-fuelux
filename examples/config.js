@@ -1,6 +1,6 @@
 requirejs.config({
     paths: {
-        "skylarkjs" : "http://registry.skylarkjs.org/packages/skylark-utils/v0.9.3-beta/uncompressed/skylark-utils-all",
+        "skylark-utils" : "http://registry.skylarkjs.org/packages/skylark-utils/v0.9.5-beta/uncompressed/skylark-utils-all",
         "skylark-bs-swt": "../dist/js/uncompressed/skylark-bs-swt"
     },
     packages : [
@@ -8,14 +8,14 @@ requirejs.config({
     // shimオプションの設定。モジュール間の依存関係を定義します。
     shim: {
         "skylark-bs-swt": {
-            deps: ["skylarkjs"]
+            deps: ["skylark-utils"]
         }
     }
 });
  
 // require(["module/name", ...], function(params){ ... });
-require(["skylark-bs-swt"], function ($) {
+require(["skylark-bs-swt","skylark-utils"], function ($,sutils) {
     if (window.initPage) {
-        window.initPage($);
+        window.initPage($,sutils);
     }
 });

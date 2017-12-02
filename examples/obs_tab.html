@@ -173,5 +173,18 @@
 <script src="../../tab.js"></script>
 <script src="../../dropdown.js"></script>
 -->
+
+    <script>
+    function initPage($) {
+        $(function () {
+          $('[data-toggle="tab"]').each(function () {
+            var $this = $(this);
+            $this.tab();
+          });
+          $('[data-toggle="dropdown"]').dropdown();
+        });
+    }
+
+    </script>
 </body>
 </html>

@@ -32,7 +32,24 @@ define([
       this.addAriaAndCollapsedClass(this.$element, this.$trigger)
     }
 
-    if (this.options.toggle) this.toggle()
+    if (this.options.toggle) {
+      this.toggle();
+    }
+
+    this.$element.on('click.bs.collapse.data-api', '[data-toggle="collapse"]', function (e) {
+      var $this   = $(this)
+
+      if (!$this.attr('data-target')) {
+        e.preventDefault();
+      }
+
+      var $target = getTargetFromTrigger($this);
+      var data    = $target.data('bs.collapse');
+      var option  = data ? 'toggle' : $this.data();
+
+      Plugin.call($target, option);
+    })
+
   }
 
   Collapse.VERSION  = '3.3.7'
@@ -201,7 +218,7 @@ define([
 
   // COLLAPSE DATA-API
   // =================
-
+  /*
   $(document).on('click.bs.collapse.data-api', '[data-toggle="collapse"]', function (e) {
     var $this   = $(this)
 
@@ -213,5 +230,6 @@ define([
 
     Plugin.call($target, option)
   })
+*/
 
 });

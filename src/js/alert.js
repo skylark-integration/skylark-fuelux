@@ -68,10 +68,14 @@ define([
   function Plugin(option) {
     return this.each(function () {
       var $this = $(this)
-      var data  = $this.data('bs.alert')
+      var wgt  = $this.data('bs.alert')
 
-      if (!data) $this.data('bs.alert', (data = new Alert(this)))
-      if (typeof option == 'string') data[option].call($this)
+      if (!wgt) {
+        $this.data('bs.alert', (wgt = new Alert(this)));
+      }
+      if (typeof option == 'string') {
+        wgt[option].call($this);
+      }
     })
   }
 
@@ -93,6 +97,7 @@ define([
   // ALERT DATA-API
   // ==============
 
+  /*
   $(document).on('click.bs.alert.data-api', dismiss, Alert.prototype.close)
-
+  */
 });

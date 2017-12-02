@@ -70,6 +70,8 @@ define([
 		this.$wheels = this.$element.find('.datepicker-wheels');
 		this.$wheelsMonth = this.$element.find('.datepicker-wheels-month');
 		this.$wheelsYear = this.$element.find('.datepicker-wheels-year');
+		this.$dropdown = this.$element.find('[data-toggle="dropdown"]');
+		this.$dropdown.dropdown();
 
 		this.artificialScrolling = false;
 		this.formatDate = this.options.formatDate || this.formatDate;
@@ -99,6 +101,10 @@ define([
 		this.$wheelsMonth.on('click.fu.datepicker', 'ul button', langx.proxy(this.monthClicked, this));
 		this.$wheelsYear.on('click.fu.datepicker', 'ul button', langx.proxy(this.yearClicked, this));
 		this.$wheelsYear.find('ul').on('scroll.fu.datepicker', langx.proxy(this.onYearScroll, this));
+
+		this.$element.on('click.fu.datepicker.data-api', '.datepicker input', function (e) {
+			e.stopPropagation();
+		});
 
 		var init = function () {
 			if (this.checkForMomentJS()) {
@@ -792,6 +798,7 @@ define([
 		}
 	});
 
+	/*
 	//used to prevent the dropdown from closing when clicking on the input
 	$(document).on('click.fu.datepicker.data-api', '.datepicker input', function (e) {
 		e.stopPropagation();
@@ -807,5 +814,5 @@ define([
 			$this.datepicker($this.data());
 		});
 	});
-
+	*/
 });
