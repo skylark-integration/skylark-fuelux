@@ -178,7 +178,7 @@ define([
 		},
 
 		dateClicked: function (e) {
-			var $td = $(e.currentTarget).parents('td:first');
+			var $td = $(e.currentTarget).parents('td').first();
 			var date;
 
 			if ($td.hasClass('restricted')) {

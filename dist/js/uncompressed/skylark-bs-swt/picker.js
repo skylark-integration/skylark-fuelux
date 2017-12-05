@@ -148,7 +148,7 @@ define([
 			var $originEl = $(e.target);
 			var i, l;
 
-			if (e.target === el || $originEl.parents('.picker:first').get(0) === el) {
+			if (e.target === el || $originEl.parents('.picker').get(0) === el) {
 				return false;
 			} else {
 				for (i = 0, l = exceptions.length; i < l; i++) {

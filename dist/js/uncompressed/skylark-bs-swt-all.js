@@ -6827,7 +6827,7 @@ define('skylark-bs-swt/datepicker',[
 		},
 
 		dateClicked: function (e) {
-			var $td = $(e.currentTarget).parents('td:first');
+			var $td = $(e.currentTarget).parents('td').first();
 			var date;
 
 			if ($td.hasClass('restricted')) {
@@ -8458,7 +8458,7 @@ define('skylark-bs-swt/picker',[
 			var $originEl = $(e.target);
 			var i, l;
 
-			if (e.target === el || $originEl.parents('.picker:first').get(0) === el) {
+			if (e.target === el || $originEl.parents('.picker').get(0) === el) {
 				return false;
 			} else {
 				for (i = 0, l = exceptions.length; i < l; i++) {
