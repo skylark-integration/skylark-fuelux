@@ -111,6 +111,13 @@ define([
 				e.stopPropagation();
 			});
 
+			this.$element.on('click.fu.datepicker.data-api', '.datepicker .dropdown-menu', function (e) {
+				var $target = $(e.target);
+				if (!$target.is('.datepicker-date') || $target.closest('.restricted').length) {
+					e.stopPropagation();
+				}
+			});
+			
 			var init = function () {
 				if (this.checkForMomentJS()) {
 					moment = moment || window.moment;// need to pull in the global moment if they didn't do it via require
