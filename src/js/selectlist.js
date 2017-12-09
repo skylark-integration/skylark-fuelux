@@ -33,6 +33,8 @@ define([
 			this.$label = this.$element.find('.selected-label');
 			this.$dropdownMenu = this.$element.find('.dropdown-menu');
 
+			this.$button.dropdown();
+
 			this.$element.on('click.fu.selectlist', '.dropdown-menu a', langx.proxy(this.itemClicked, this));
 			this.setDefaultSelection();
 
