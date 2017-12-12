@@ -8,13 +8,15 @@
 define([
   "skylark-utils/langx",
   "skylark-utils/browser",
+  "skylark-utils/datax",
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "skylark-utils/mover",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,mover,sbswt){
+],function(langx,browser,datax,eventer,noder,geom,velm,$,mover,sbswt){
 
 
 /*----------------------------------------------------------------------*/
@@ -592,21 +594,27 @@ define([
     });
 
 
+    datax.window = function(elm,options) {
+      var wgt  = this.data(elm,'sbswt.window');
+
+      if (!wgt) {
+        this.data(elm,'sbswt.window', (wgt = new Window(elm)));
+      }
+      if (typeof option == 'string') {
+        wgt[options]();
+      } 
+   };
+
 
     $.fn.window = function(options) {
-        return this.each(function () {
-          var $this = $(this)
-          var wgt  = $this.data('sbswt.window');
-
-          if (!wgt) {
-            $this.data('sbswt.window', (wgt = new Window(this)));
-          }
-          if (typeof option == 'string') {
-            wgt[options]();
-          } 
-           
+        return this.each(function() {
+            datax.window(this,options);          
         });
     };
+
+    velm.partial("window",function(options){
+        datax.window(this.domNode,options);
+    });
 
     $('[data-window-target]').off('click');
     $('[data-window-target]').on('click', function() {
@@ -798,5 +806,5 @@ define([
         WindowManager : WindowManager
     });
 
-    return Window;  
+    return $.fn.window;
 });

@@ -180,34 +180,34 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
                 };
             }
             if (!ctor.inherit) {
-                ctor.inherit = function(props,options) {
-                    return createClass(props, this,options);
+                ctor.inherit = function(props, options) {
+                    return createClass(props, this, options);
                 };
             }
 
-            ctor.partial(props,options);
+            ctor.partial(props, options);
 
             return ctor;
         }
     })();
 
 
-   function clone( /*anything*/ src) {
+    function clone( /*anything*/ src) {
         var copy;
         if (src === undefined || src === null) {
-            copy =  src;
-        } else if (src.clone){
+            copy = src;
+        } else if (src.clone) {
             copy = src.clone();
         } else if (isArray(src)) {
             copy = [];
-            for (var i = 0;i<src.length;i++) {
+            for (var i = 0; i < src.length; i++) {
                 copy.push(clone(src[i]));
             }
-        } else if (isPlainObject(src)){
+        } else if (isPlainObject(src)) {
             copy = {};
-            for (var key in src){
+            for (var key in src) {
                 copy[key] = clone(src[key]);
-            } 
+            }
         } else {
             copy = src;
         }
@@ -230,18 +230,18 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
         };
     }
 
-    var delegate = (function(){
-            // boodman/crockford delegation w/ cornford optimization
-            function TMP(){}
-            return function(obj, props){
-                TMP.prototype = obj;
-                var tmp = new TMP();
-                TMP.prototype = null;
-                if(props){
-                    mixin(tmp, props);
-                }
-                return tmp; // Object
-            };
+    var delegate = (function() {
+        // boodman/crockford delegation w/ cornford optimization
+        function TMP() {}
+        return function(obj, props) {
+            TMP.prototype = obj;
+            var tmp = new TMP();
+            TMP.prototype = null;
+            if (props) {
+                mixin(tmp, props);
+            }
+            return tmp; // Object
+        };
     })();
 
 
@@ -315,228 +315,227 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
     Deferred.immediate = Deferred.resolve;
 
     var Evented = createClass({
-        on: function(events,selector,data,callback,ctx,/*used internally*/one) {
-	        var self = this,
-	        	_hub = this._hub || (this._hub = {});
+        on: function(events, selector, data, callback, ctx, /*used internally*/ one) {
+            var self = this,
+                _hub = this._hub || (this._hub = {});
 
-	        if (isPlainObject(events)) {
-	        	ctx = callback;
-	            each(events, function(type, fn) {
-	                self.on(type,selector, data, fn, ctx, one);
-	            });
-	            return this;
-	        }
+            if (isPlainObject(events)) {
+                ctx = callback;
+                each(events, function(type, fn) {
+                    self.on(type, selector, data, fn, ctx, one);
+                });
+                return this;
+            }
 
-	        if (!isString(selector) && !isFunction(callback)) {
-	        	ctx = callback;
-	            callback = data;
-	            data = selector;
-	            selector = undefined;
-	        }
+            if (!isString(selector) && !isFunction(callback)) {
+                ctx = callback;
+                callback = data;
+                data = selector;
+                selector = undefined;
+            }
 
-	        if (isFunction(data)) {
-	            ctx = callback;
-	            callback = data;
-	            data = null;
-	        }
+            if (isFunction(data)) {
+                ctx = callback;
+                callback = data;
+                data = null;
+            }
 
-	        if (isString(events)) {
-	            events = events.split(/\s/)
-	        }
+            if (isString(events)) {
+                events = events.split(/\s/)
+            }
 
-	        events.forEach(function(name) {
-	            (_hub[name] || (_hub[name] = [])).push({
-	                fn: callback,
-	                selector: selector,
-	                data: data,
-	                ctx: ctx,
-	                one: one
-	            });
-	        });
+            events.forEach(function(name) {
+                (_hub[name] || (_hub[name] = [])).push({
+                    fn: callback,
+                    selector: selector,
+                    data: data,
+                    ctx: ctx,
+                    one: one
+                });
+            });
 
-	        return this;
-	    },
+            return this;
+        },
 
-	    one: function(events,selector,data,callback,ctx) {
-	        return this.on(events,selector,data,callback,ctx,1);
-	    },
+        one: function(events, selector, data, callback, ctx) {
+            return this.on(events, selector, data, callback, ctx, 1);
+        },
 
-	    trigger: function(e/*,argument list*/) {
-	    	if (!this._hub) {
-	    		return this;
-	    	}
+        trigger: function(e /*,argument list*/ ) {
+            if (!this._hub) {
+                return this;
+            }
 
-	    	var self = this;
+            var self = this;
 
-	    	if (isString(e)) {
-	    		e = new CustomEvent(e);
-	    	}
+            if (isString(e)) {
+                e = new CustomEvent(e);
+            }
 
-	        var args = slice.call(arguments,1);
+            var args = slice.call(arguments, 1);
             if (isDefined(args)) {
                 args = [e].concat(args);
             } else {
                 args = [e];
             }
-	        [e.type || e.name ,"all"].forEach(function(eventName){
-		        var listeners = self._hub[eventName];
-		        if (!listeners){
-		        	return;
-		        }
+            [e.type || e.name, "all"].forEach(function(eventName) {
+                var listeners = self._hub[eventName];
+                if (!listeners) {
+                    return;
+                }
 
-		        var len = listeners.length,
-		        	reCompact = false;
+                var len = listeners.length,
+                    reCompact = false;
 
-		        for (var i = 0; i < len; i++) {
-		        	var listener = listeners[i];
-		            if (e.data) {
-		                if (listener.data) {
-		                    e.data = mixin({}, listener.data, e.data);
-		                }
-		            } else {
-		                e.data = listener.data || null;
-		            }
-		            listener.fn.apply(listener.ctx, args);
-		            if (listener.one){
-		            	listeners[i] = null;
-		            	reCompact = true;
-		            }
-		        }
+                for (var i = 0; i < len; i++) {
+                    var listener = listeners[i];
+                    if (e.data) {
+                        if (listener.data) {
+                            e.data = mixin({}, listener.data, e.data);
+                        }
+                    } else {
+                        e.data = listener.data || null;
+                    }
+                    listener.fn.apply(listener.ctx, args);
+                    if (listener.one) {
+                        listeners[i] = null;
+                        reCompact = true;
+                    }
+                }
 
-		        if (reCompact){
-		        	self._hub[eventName] = compact(listeners);
-		        }
+                if (reCompact) {
+                    self._hub[eventName] = compact(listeners);
+                }
 
-	        });
-	        return this;
-	    },
+            });
+            return this;
+        },
 
-	    listened: function(event) {
-	        var evtArr = ((this._hub || (this._events = {}))[event] || []);
-	        return evtArr.length > 0;
-	    },
+        listened: function(event) {
+            var evtArr = ((this._hub || (this._events = {}))[event] || []);
+            return evtArr.length > 0;
+        },
 
-	    listenTo: function(obj, event, callback,/*used internally*/one) {
-	        if (!obj) {
-	        	return this;
-	        }
+        listenTo: function(obj, event, callback, /*used internally*/ one) {
+            if (!obj) {
+                return this;
+            }
 
-	        // Bind callbacks on obj,
-	        if (isString(callback)) {
-	        	callback = this[callback];
-	        }
+            // Bind callbacks on obj,
+            if (isString(callback)) {
+                callback = this[callback];
+            }
 
-	        if (one){
-		        obj.one(event,callback,this);
-	        } else {
-		        obj.on(event,callback,this);
-	        }
+            if (one) {
+                obj.one(event, callback, this);
+            } else {
+                obj.on(event, callback, this);
+            }
 
-	        //keep track of them on listening.
-	        var listeningTo = this._listeningTo || (this._listeningTo = []),
-	        	listening;
+            //keep track of them on listening.
+            var listeningTo = this._listeningTo || (this._listeningTo = []),
+                listening;
 
-	        for (var i=0;i<listeningTo.length;i++) {
-	        	if (listeningTo[i].obj == obj) {
-	        		listening = listeningTo[i];
-	        		break;
-	        	}
-	        }
-	        if (!listening) {
-	        	listeningTo.push(
-	        		listening = {
-	        			obj : obj,
-	        			events : {
-	        			}
-	        	    }
-	        	);
-	        }
-	        var listeningEvents = listening.events,
-	        	listeningEvent = listeningEvents[event] = listeningEvents[event] || [];
-	        if (listeningEvent.indexOf(callback)==-1) {
-	        	listeningEvent.push(callback);
-	        }
+            for (var i = 0; i < listeningTo.length; i++) {
+                if (listeningTo[i].obj == obj) {
+                    listening = listeningTo[i];
+                    break;
+                }
+            }
+            if (!listening) {
+                listeningTo.push(
+                    listening = {
+                        obj: obj,
+                        events: {}
+                    }
+                );
+            }
+            var listeningEvents = listening.events,
+                listeningEvent = listeningEvents[event] = listeningEvents[event] || [];
+            if (listeningEvent.indexOf(callback) == -1) {
+                listeningEvent.push(callback);
+            }
 
-	        return this;
-	    },
+            return this;
+        },
 
-	    listenToOnce: function(obj, event, callback) {
-	    	return this.listenTo(obj,event,callback,1);
-	    },
+        listenToOnce: function(obj, event, callback) {
+            return this.listenTo(obj, event, callback, 1);
+        },
 
-	    off: function(events, callback) {
-	        var _hub = this._hub || (this._hub = {});
-	        if (isString(events)) {
-	            events = events.split(/\s/)
-	        }
+        off: function(events, callback) {
+            var _hub = this._hub || (this._hub = {});
+            if (isString(events)) {
+                events = events.split(/\s/)
+            }
 
-	        events.forEach(function(name) {
-	            var evts = _hub[name];
-	            var liveEvents = [];
+            events.forEach(function(name) {
+                var evts = _hub[name];
+                var liveEvents = [];
 
-	            if (evts && callback) {
-	                for (var i = 0, len = evts.length; i < len; i++) {
-	                    if (evts[i].fn !== callback && evts[i].fn._ !== callback)
-	                        liveEvents.push(evts[i]);
-	                }
-	            }
+                if (evts && callback) {
+                    for (var i = 0, len = evts.length; i < len; i++) {
+                        if (evts[i].fn !== callback && evts[i].fn._ !== callback)
+                            liveEvents.push(evts[i]);
+                    }
+                }
 
-	            if (liveEvents.length) {
-	            	_hub[name] = liveEvents;
-	            } else {
-	            	delete _hub[name];
-	            }
-	        });
+                if (liveEvents.length) {
+                    _hub[name] = liveEvents;
+                } else {
+                    delete _hub[name];
+                }
+            });
 
-	        return this;
-	    },
-	    unlistenTo : function(obj, event, callback) {
-	        var listeningTo = this._listeningTo;
-	        if (!listeningTo) {
-	        	return this;
-	        }
-	        for (var i = 0; i < listeningTo.length; i++) {
-	          var listening = listeningTo[i];
+            return this;
+        },
+        unlistenTo: function(obj, event, callback) {
+            var listeningTo = this._listeningTo;
+            if (!listeningTo) {
+                return this;
+            }
+            for (var i = 0; i < listeningTo.length; i++) {
+                var listening = listeningTo[i];
 
-	          if (obj && obj != listening.obj) {
-	        	  continue;
-	          }
+                if (obj && obj != listening.obj) {
+                    continue;
+                }
 
-	          var listeningEvents = listening.events;
-	          for (var eventName in listeningEvents) {
-	        	 if (event && event != eventName) {
-	        		 continue;
-	        	 }
+                var listeningEvents = listening.events;
+                for (var eventName in listeningEvents) {
+                    if (event && event != eventName) {
+                        continue;
+                    }
 
-	        	 listeningEvent = listeningEvents[eventName];
+                    listeningEvent = listeningEvents[eventName];
 
-	        	 for (var j=0;j<listeningEvent.length;j++) {
-	        		 if (!callback || callback == listeningEvent[i]) {
-	        			 listening.obj.off(eventName, listeningEvent[i], this);
-	        			 listeningEvent[i] = null;
-	        		 }
-	        	 }
+                    for (var j = 0; j < listeningEvent.length; j++) {
+                        if (!callback || callback == listeningEvent[i]) {
+                            listening.obj.off(eventName, listeningEvent[i], this);
+                            listeningEvent[i] = null;
+                        }
+                    }
 
-	        	 listeningEvent = listeningEvents[eventName] = compact(listeningEvent);
+                    listeningEvent = listeningEvents[eventName] = compact(listeningEvent);
 
-	        	 if (isEmptyObject(listeningEvent)) {
-	        		 listeningEvents[eventName] = null;
-	        	 }
+                    if (isEmptyObject(listeningEvent)) {
+                        listeningEvents[eventName] = null;
+                    }
 
-	          }
+                }
 
-	          if (isEmptyObject(listeningEvents)) {
-	        	  listeningTo[i] = null;
-	          }
-	        }
+                if (isEmptyObject(listeningEvents)) {
+                    listeningTo[i] = null;
+                }
+            }
 
-	        listeningTo = this._listeningTo = compact(listeningTo);
-	        if (isEmptyObject(listeningTo)) {
-	        	this._listeningTo = null;
-	        }
+            listeningTo = this._listeningTo = compact(listeningTo);
+            if (isEmptyObject(listeningTo)) {
+                this._listeningTo = null;
+            }
 
-	        return this;
-	    }
+            return this;
+        }
     });
 
     function compact(array) {
@@ -600,10 +599,10 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
     function flatten(array) {
         if (isArrayLike(array)) {
             var result = [];
-            for (var i = 0;i<array.length;i++) {
+            for (var i = 0; i < array.length; i++) {
                 var item = array[i];
                 if (isArrayLike(item)) {
-                    for (var j = 0; j<item.length;j++) {
+                    for (var j = 0; j < item.length; j++) {
                         result.push(item[j]);
                     }
                 } else {
@@ -747,9 +746,9 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
     function isEmptyObject(obj) {
         var name;
         for (name in obj) {
-        	if (obj[name] !== null) {
-        		return false;
-        	}
+            if (obj[name] !== null) {
+                return false;
+            }
         }
         return true;
     }
@@ -823,22 +822,22 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
         return str == null ? "" : String.prototype.trim.call(str);
     }
 
-    function removeItem(items,item) {
-    	if (isArray(items)) {
-        	var idx = items.indexOf(item);
-        	if (idx != -1) {
-        		items.splice(idx, 1);
-        	}
-    	} else if (isPlainObject(items)) {
-    		for (var key in items) {
-    			if (items[key] == item) {
-    				delete items[key];
-    				break;
-    			}
-    		}
-    	}
+    function removeItem(items, item) {
+        if (isArray(items)) {
+            var idx = items.indexOf(item);
+            if (idx != -1) {
+                items.splice(idx, 1);
+            }
+        } else if (isPlainObject(items)) {
+            for (var key in items) {
+                if (items[key] == item) {
+                    delete items[key];
+                    break;
+                }
+            }
+        }
 
-    	return this;
+        return this;
     }
 
     function _mixin(target, source, deep, safe) {
@@ -951,8 +950,9 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
     }
 
     var _uid = 1;
+
     function uid(obj) {
-        return obj._uid || obj.id || (obj._uid = _uid++);
+        return obj._uid || (obj._uid = _uid++);
     }
 
     function uniq(array) {
@@ -1013,7 +1013,7 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
 
         isFunction: isFunction,
 
-        isHtmlNode : isHtmlNode,
+        isHtmlNode: isHtmlNode,
 
         isObject: isObject,
 
@@ -1041,7 +1041,7 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
 
         mixin: mixin,
 
-        nextTick : nextTick,
+        nextTick: nextTick,
 
         proxy: proxy,
 
@@ -1057,7 +1057,7 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
 
         safeMixin: safeMixin,
 
-        serializeValue : function(value) {
+        serializeValue: function(value) {
             return JSON.stringify(value)
         },
 
@@ -1083,7 +1083,6 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
 
     return skylark.langx = langx;
 });
-
 define('skylark-utils/langx',[
     "skylark-langx/langx"
 ], function(langx) {
@@ -4195,12 +4194,12 @@ define('skylark-utils/fx',[
         return this;
     }
 
-    function fadeTo(elm, speed, opacity, callback) {
-        animate(elm, { opacity: opacity }, speed, callback);
+    function fadeTo(elm, speed, opacity, easing, callback) {
+        animate(elm, { opacity: opacity }, speed, easing, callback);
         return this;
     }
 
-    function fadeIn(elm, speed, callback) {
+    function fadeIn(elm, speed, easing, callback) {
         var target = styler.css(elm, "opacity");
         if (target > 0) {
             styler.css(elm, "opacity", 0);
@@ -4209,29 +4208,46 @@ define('skylark-utils/fx',[
         }
         styler.show(elm);
 
-        fadeTo(elm, speed, target, callback);
+        fadeTo(elm, speed, target, easing, callback);
 
         return this;
     }
 
-    function fadeOut(elm, speed, callback) {
+    function fadeOut(elm, speed, easing, callback) {
+        var _elm = elm,
+            complete,
+            options = {};
 
-        fadeTo(elm, speed, 0, function() {
-            styler.hide(elm);
-            if (callback) {
-                callback.call(elm);
-            }
-
-        });
-
-        return this;
-    }
-
-    function fadeToggle(elm, speed, callback) {
-        if (styler.isInvisible(elm)) {
-            fadeIn(elm, speed, callback);
+        if (langx.isPlainObject(speed)) {
+            options.easing = speed.easing;
+            options.duration = speed.duration;
+            complete = speed.complete;
         } else {
-            fadeOut(elm, speed, callback);
+            options.duration = speed;
+            if (callback) {
+                complete = callback;
+                options.easing = easing;
+            } else {
+                complete = easing;
+            }
+        }
+        options.complete = function() {
+            styler.hide(this);
+            if (complete) {
+                complete.call(this);
+            }
+        }
+
+        fadeTo(elm, options, 0);
+
+        return this;
+    }
+
+    function fadeToggle(elm, speed, ceasing,allback) {
+        if (styler.isInvisible(elm)) {
+            fadeIn(elm, speed, easing,callback);
+        } else {
+            fadeOut(elm, speed, easing,callback);
         }
         return this;
     }
@@ -5039,6 +5055,1402 @@ define('skylark-utils/query',[
 
     return skylark.query = query;
 });
+define('skylark-utils/dnd',[
+    "./skylark",
+    "./langx",
+    "./noder",
+    "./datax",
+    "./finder",
+    "./geom",
+    "./eventer",
+    "./styler"
+],function(skylark, langx,noder,datax,finder,geom,eventer,styler){
+    var on = eventer.on,
+        off = eventer.off,
+        attr = datax.attr,
+        removeAttr = datax.removeAttr,
+        offset = geom.pagePosition,
+        addClass = styler.addClass,
+        height = geom.height;
+
+
+    var DndManager = langx.Evented.inherit({
+      klassName : "DndManager",
+
+      init : function() {
+
+      },
+
+      prepare : function(draggable) {
+          var e = eventer.create("preparing",{
+             dragSource : draggable.elm,
+             handleElm : draggable.handleElm
+          });
+          draggable.trigger(e);
+          draggable.dragSource = e.dragSource;
+      },
+
+      start : function(draggable,event) {
+
+        var p = geom.pagePosition(draggable.elm);
+        this.draggingOffsetX = parseInt(event.pageX - p.left);
+        this.draggingOffsetY = parseInt(event.pageY - p.top)
+
+        var e = eventer.create("started",{
+          elm : draggable.elm,
+          dragSource : draggable.dragSource,
+          handleElm : draggable.handleElm,
+          ghost : null,
+
+          transfer : {
+          }
+        });
+
+        draggable.trigger(e);
+
+
+        this.dragging = draggable;
+
+        if (draggable.draggingClass) {
+          styler.addClass(draggable.dragSource,draggable.draggingClass);
+        }
+
+        this.draggingGhost = e.ghost;
+        if (!this.draggingGhost) {
+          this.draggingGhost = draggable.elm;
+        }
+
+        this.draggingTransfer = e.transfer;
+        if (this.draggingTransfer) {
+
+            langx.each(this.draggingTransfer,function(key,value){
+                event.dataTransfer.setData(key, value);
+            });
+        }
+
+        event.dataTransfer.setDragImage(this.draggingGhost, this.draggingOffsetX, this.draggingOffsetY);
+
+        event.dataTransfer.effectAllowed = "copyMove";
+
+        this.trigger(e);
+      },
+
+      over : function() {
+
+      },
+
+      end : function(dropped) {
+        var dragging = this.dragging;
+        if (dragging) {
+          if (dragging.draggingClass) {
+            styler.removeClass(dragging.dragSource,dragging.draggingClass);
+          }
+        }
+
+        var e = eventer.create("ended",{
+        });        
+        this.trigger(e);
+
+
+        this.dragging = null;
+        this.draggingTransfer = null;
+        this.draggingGhost = null;
+        this.draggingOffsetX = null;
+        this.draggingOffsetY = null;
+      }
+    });
+
+    var manager = new DndManager(),
+        draggingHeight,
+        placeholders = [];
+
+
+
+    var Draggable = langx.Evented.inherit({
+      klassName : "Draggable",
+
+      init : function (elm,params) {
+        var self = this;
+
+        self.elm = elm;
+        self.draggingClass = params.draggingClass || "dragging",
+        self._params = params;
+
+        ["preparing","started", "ended", "moving"].forEach(function(eventName) {
+            if (langx.isFunction(params[eventName])) {
+                self.on(eventName, params[eventName]);
+            }
+        });
+
+
+        eventer.on(elm,{
+          "mousedown" : function(e) {
+            if (params.handle) {
+              self.handleElm = finder.closest(e.target,params.handle);
+              if (!self.handleElm) {
+                return;
+              }
+            }
+            manager.prepare(self);
+            if (self.dragSource) {
+              datax.prop(self.dragSource, "draggable", true);
+            }
+          },
+
+          "mouseup" :   function(e) {
+            if (self.dragSource) {
+              datax.prop(self.dragSource, "draggable", false);
+              self.dragSource = null;
+              self.handleElm = null;
+            }
+          },
+
+          "dragstart":  function(e) {
+            datax.prop(self.dragSource, "draggable", false);
+            manager.start(self, e);
+          },
+
+          "dragend":   function(e){
+            eventer.stop(e);
+
+            if (!manager.dragging) {
+              return;
+            }
+
+            manager.end(false);
+          }
+        });
+
+      }
+
+    });
+
+
+    var Droppable = langx.Evented.inherit({
+      klassName : "Droppable",
+
+      init : function(elm,params) {
+        var self = this,
+            draggingClass = params.draggingClass || "dragging",
+            hoverClass,
+            activeClass,
+            acceptable = true;
+
+        self.elm = elm;
+        self._params = params;
+
+        ["started","entered", "leaved", "dropped","overing"].forEach(function(eventName) {
+            if (langx.isFunction(params[eventName])) {
+                self.on(eventName, params[eventName]);
+            }
+        });
+
+        eventer.on(elm,{
+          "dragover" : function(e) {
+            e.stopPropagation()
+
+            if (!acceptable) {
+              return
+            }
+
+            var e2 = eventer.create("overing",{
+                overElm : e.target,
+                transfer : manager.draggingTransfer,
+                acceptable : true
+            });
+            self.trigger(e2);
+
+            if (e2.acceptable) {
+              e.preventDefault() // allow drop
+
+              e.dataTransfer.dropEffect = "copyMove";
+            }
+
+          },
+
+          "dragenter" :   function(e) {
+            var params = self._params,
+                elm = self.elm;
+
+            var e2 = eventer.create("entered",{
+                transfer : manager.draggingTransfer
+            });
+
+            self.trigger(e2);
+
+            e.stopPropagation()
+
+            if (hoverClass && acceptable) {
+              styler.addClass(elm,hoverClass)
+            }
+          },
+
+          "dragleave":  function(e) {
+            var params = self._params,
+                elm = self.elm;
+            if (!acceptable) return false
+            
+            var e2 = eventer.create("leaved",{
+                transfer : manager.draggingTransfer
+            });
+            
+            self.trigger(e2);
+
+            e.stopPropagation()
+
+            if (hoverClass && acceptable) {
+              styler.removeClass(elm,hoverClass);
+            }
+          },
+
+          "drop":   function(e){
+            var params = self._params,
+                elm = self.elm;
+
+            eventer.stop(e); // stops the browser from redirecting.
+
+            if (!manager.dragging) return
+
+           // manager.dragging.elm.removeClass('dragging');
+
+            if (hoverClass && acceptable) {
+              styler.addClass(elm,hoverClass)
+            }
+
+            var e2 = eventer.create("dropped",{
+                transfer : manager.draggingTransfer
+            });
+
+            self.trigger(e2);
+
+            manager.end(true)
+          }
+        });
+
+        manager.on("started",function(e){
+            var e2 = eventer.create("started",{
+                transfer : manager.draggingTransfer,
+                acceptable : false
+            });
+
+            self.trigger(e2);
+
+            acceptable = e2.acceptable;
+            hoverClass = e2.hoverClass;
+            activeClass = e2.activeClass;
+
+            if (activeClass && acceptable) {
+              styler.addClass(elm,activeClass);
+            }
+
+         }).on("ended" , function(e){
+            var e2 = eventer.create("ended",{
+                transfer : manager.draggingTransfer,
+                acceptable : false
+            });
+
+            self.trigger(e2);
+
+            if (hoverClass && acceptable) {
+              styler.removeClass(elm,hoverClass);
+            }
+            if (activeClass && acceptable) {
+              styler.removeClass(elm,activeClass);
+            }
+
+            acceptable = false;
+            activeClass = null;
+            hoverClass = null;
+        });
+
+      }
+    });
+
+
+    function draggable(elm, params) {
+      return new Draggable(elm,params);
+    }
+
+    function droppable(elm, params) {
+      return new Droppable(elm,params);
+    }
+
+    function dnd(){
+      return dnd;
+    }
+
+    langx.mixin(dnd, {
+       //params ： {
+        //  target : Element or string or function
+        //  handle : Element
+        //  copy : boolean
+        //  placeHolder : "div"
+        //  hoverClass : "hover"
+        //  start : function
+        //  enter : function
+        //  over : function
+        //  leave : function
+        //  drop : function
+        //  end : function
+        //
+        //
+        //}
+        draggable   : draggable,
+
+        //params ： {
+        //  accept : string or function
+        //  placeHolder
+        //
+        //
+        //
+        //}
+        droppable : droppable,
+
+        manager : manager
+
+
+    });
+
+    return skylark.dnd = dnd;
+});
+
+define('skylark-utils/filer',[
+    "./skylark",
+    "./langx",
+    "./eventer",
+    "./styler"
+], function(skylark, langx, eventer,styler) {
+    var on = eventer.on,
+        attr = eventer.attr,
+        Deferred = langx.Deferred,
+
+        fileInput,
+        fileInputForm,
+        fileSelected,
+        maxFileSize = 1 / 0;
+
+    function dataURLtoBlob(dataurl) {
+        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], {type:mime});
+    }
+
+    function selectFile(callback) {
+        fileSelected = callback;
+        if (!fileInput) {
+            var input = fileInput = document.createElement("input");
+
+            function selectFiles(pickedFiles) {
+                for (var i = pickedFiles.length; i--;) {
+                    if (pickedFiles[i].size > maxFileSize) {
+                        pickedFiles.splice(i, 1);
+                    }
+                }
+                fileSelected(pickedFiles);
+            }
+
+            input.type = "file";
+            input.style.position = "fixed",
+                input.style.left = 0,
+                input.style.top = 0,
+                input.style.opacity = .001,
+                document.body.appendChild(input);
+
+            input.onchange = function(e) {
+                selectFiles(Array.prototype.slice.call(e.target.files));
+                // reset to "", so selecting the same file next time still trigger the change handler
+                input.value = "";
+            };
+        }
+        fileInput.click();
+    }
+
+    function upload(files, url, params) {
+        params = params || {};
+        var chunkSize = params.chunkSize || 0,
+            maxSize = params.maxSize || 0,
+            progressCallback = params.progress,
+            errorCallback = params.error,
+            completedCallback = params.completed,
+            uploadedCallback = params.uploaded;
+
+
+        function uploadOneFile(fileItem,oneFileloadedSize, fileItems) {
+            function handleProcess(nowLoadedSize) {
+                var t;
+                speed = Math.ceil(oneFileloadedSize + nowLoadedSize / ((now() - uploadStartedTime) / 1e3)), 
+                percent = Math.round((oneFileloadedSize + nowLoadedSize) / file.size * 100); 
+                if (progressCallback) {
+                    progressCallback({
+                        name: file.name,
+                        loaded: oneFileloadedSize + nowLoadedSize,
+                        total: file.size,
+                        percent: percent,
+                        bytesPerSecond: speed,
+                        global: {
+                            loaded: allLoadedSize + oneFileloadedSize + nowLoadedSize,
+                            total: totalSize
+                        }
+                    });
+                }
+            }
+            var file = fileItem.file,
+                uploadChunkSize = chunkSize || file.size,
+                chunk = file.slice(oneFileloadedSize, oneFileloadedSize + uploadChunkSize);
+
+            xhr = createXmlHttpRequest();
+            //xhr.open("POST", url + 
+            //                "?action=upload&path=" + 
+            //                encodeURIComponent(path) + 
+            //                "&name=" + encodeURIComponent(file.name) + 
+            //                "&loaded=" + oneFileloadedSize + 
+            //                "&total=" + file.size + 
+            //                "&id=" + id + 
+            //                "&csrf=" + encodeURIComponent(token) + 
+            //                "&resolution=" + 
+            //                encodeURIComponent(fileItem.type));
+            xhr.upload.onprogress = function(event) {
+                handleProcess(event.loaded - (event.total - h.size))
+            };
+            xhr.onload = function() {
+                var response, i;
+                xhr.upload.onprogress({
+                    loaded: h.size,
+                    total: h.size
+                });
+                try {
+                    response = JSON.parse(xhr.responseText);
+                } catch (e) {
+                    i = {
+                        code: -1,
+                        message: "Error response is not proper JSON\n\nResponse:\n" + xhr.responseText,
+                        data: {
+                            fileName: file.name,
+                            fileSize: file.size,
+                            maxSize: uploadMaxSize,
+                            extensions: extensions.join(", ")
+                        },
+                        extra: extra
+                    };
+                    errorFileInfos.push(i);
+                    if (errorCallback) {
+                        errorCallback(i);
+                    }
+                    return uploadFiles(fileItems)
+                }
+                if (response.error) {
+
+                    i = {
+                        code: response.error.code,
+                        message: response.error.message,
+                        data: {
+                            fileName: file.name,
+                            fileSize: file.size,
+                            maxSize: uploadMaxSize,
+                            extensions: extensions.join(", ")
+                        },
+                        extra: extra
+                    }; 
+                    errorFileInfos.push(i); 
+                    if (errorCallback) {
+                        errorCallback(i);
+                    }
+                    uploadFiles(fileItems);
+                } else {
+                    if (!response.error && oneFileloadedSize + uploadChunkSize < file.size) {
+                        uploadOneFile(fileItem, oneFileloadedSize + uploadChunkSize, fileItems);
+                    } else {
+                        if (response.result) {
+                            utils.each(response.result, function(e) {
+                                e = File.fromJSON(e);
+                                uploadFileItems.push(e);
+
+                                if (uploadedCallback) {
+                                    uploadedCallback({
+                                        file: e
+                                    });
+                                }
+                            }); 
+
+                        } 
+                        allLoadedSize += file.size;
+                        response.result && k.push(response.result);
+                        uploadFiles(fileItems);
+                    }                            
+                }     
+
+            };
+            handleProcess(0);
+            xhr.send(createFormData(h));
+        }
+
+        function uploadFiles(fileItems) {
+            var fileItem = fileItems.shift();
+            processedFilesCount++; 
+            if (fileItem && fileItem.file.error) {
+                uploadFiles(fileItem);
+            } else {
+                if (uploadingFile) {
+                    uploadOneFile(fileItem, null, 0, fileItems);
+                } else {
+
+                    if (completedCallback) {
+                        completedCallback({
+                            files: new FileCollection(uploadFileItems),
+                            bytesPerSecond: I,
+                            errors: E(D),
+                            extra: extra
+                        });
+                    }
+                }  
+            }
+        }
+
+        var self = this,
+            fileItems = [],
+            processedFilesCount = -1,
+            xhr, 
+            totalSize = 0,
+            allLoadedSize = 0,
+            k = [],
+            errorFileInfos = [],
+            startedTime = now(),
+            I = 0,
+            uploadFileItems = [];
+
+        for ( var  i = 0; i < files.length; i++) {
+            totalSize += files[i].size;
+            fileItems.push({
+                file : files[i]
+            });
+        }        
+
+        uploadFiles(fileItems);
+    }
+
+
+    var filer = function() {
+        return filer;
+    };
+
+    langx.mixin(filer , {
+        dropzone: function(elm, params) {
+            params = params || {};
+            var hoverClass = params.hoverClass || "dropzone",
+                droppedCallback = params.dropped;
+
+            var enterdCount = 0;
+            on(elm, "dragenter", function(e) {
+                if (e.dataTransfer && e.dataTransfer.types.indexOf("Files")>-1) {
+                    eventer.stop(e);
+                    enterdCount ++;
+                    styler.addClass(elm,hoverClass)
+                }
+            });
+
+            on(elm, "dragover", function(e) {
+                if (e.dataTransfer && e.dataTransfer.types.indexOf("Files")>-1) {
+                    eventer.stop(e);
+                }
+            });
+
+
+            on(elm, "dragleave", function(e) {
+                if (e.dataTransfer && e.dataTransfer.types.indexOf("Files")>-1) {
+                    enterdCount--
+                    if (enterdCount==0) {
+                        styler.removeClass(elm,hoverClass);
+                    }
+                }
+            });
+
+            on(elm, "drop", function(e) {
+                if (e.dataTransfer && e.dataTransfer.types.indexOf("Files")>-1) {
+                    styler.removeClass(elm,hoverClass)
+                    eventer.stop(e);
+                    if (droppedCallback) {
+                        droppedCallback(e.dataTransfer.files);
+                    }
+                }
+            });
+
+
+            return this;
+        },
+
+        picker: function(elm, params) {
+            params = params || {};
+
+            var pickedCallback = params.picked;
+
+            on(elm, "click", function(e) {
+                e.preventDefault();
+                selectFile(pickedCallback);
+            });
+            return this;
+        },
+
+        readFile : function(file,params) {
+            params = params || {};
+            var d = new Deferred,
+                reader = new FileReader();
+            
+            reader.onload = function(evt) {
+                d.resolve(evt.target.result);
+            };
+            reader.onerror = function(e) {
+                var code = e.target.error.code;
+                if (code === 2) {
+                    alert('please don\'t open this page using protocol fill:///');
+                } else {
+                    alert('error code: ' + code);
+                }
+            };
+            
+            if (params.asArrayBuffer){
+                reader.readAsArrayBuffer(file);
+            } else if (params.asDataUrl) {
+                reader.readAsDataURL(file);                
+            } else if (params.asText) {
+                reader.readAsText(file);
+            } else {
+                reader.readAsArrayBuffer(file);
+            }
+
+            return d.promise;
+        },
+
+        writeFile : function(data,name) {
+            if (window.navigator.msSaveBlob) { 
+               if (langx.isString(data)) {
+                   data = dataURItoBlob(data);
+               }
+               window.navigator.msSaveBlob(data, name);
+            } else {
+                var a = document.createElement('a');
+                if (data instanceof Blob) {
+                    data = langx.URL.createObjectURL(data);
+                }
+                a.href = data;
+                a.setAttribute('download', name || 'noname');
+                a.dispatchEvent(new CustomEvent('click'));
+            }              
+        }
+
+
+    });
+
+    return skylark.filer = filer;
+});
+
+define('skylark-utils/mover',[
+    "./skylark",
+    "./langx",
+    "./noder",
+    "./datax",
+    "./geom",
+    "./eventer",
+    "./styler"
+],function(skylark, langx,noder,datax,geom,eventer,styler){
+    var on = eventer.on,
+        off = eventer.off,
+        attr = datax.attr,
+        removeAttr = datax.removeAttr,
+        offset = geom.pagePosition,
+        addClass = styler.addClass,
+        height = geom.height,
+        some = Array.prototype.some,
+        map = Array.prototype.map;
+
+    function _place(/*DomNode*/ node, choices, layoutNode, aroundNodeCoords){
+        // summary:
+        //      Given a list of spots to put node, put it at the first spot where it fits,
+        //      of if it doesn't fit anywhere then the place with the least overflow
+        // choices: Array
+        //      Array of elements like: {corner: 'TL', pos: {x: 10, y: 20} }
+        //      Above example says to put the top-left corner of the node at (10,20)
+        // layoutNode: Function(node, aroundNodeCorner, nodeCorner, size)
+        //      for things like tooltip, they are displayed differently (and have different dimensions)
+        //      based on their orientation relative to the parent.   This adjusts the popup based on orientation.
+        //      It also passes in the available size for the popup, which is useful for tooltips to
+        //      tell them that their width is limited to a certain amount.   layoutNode() may return a value expressing
+        //      how much the popup had to be modified to fit into the available space.   This is used to determine
+        //      what the best placement is.
+        // aroundNodeCoords: Object
+        //      Size of aroundNode, ex: {w: 200, h: 50}
+
+        // get {x: 10, y: 10, w: 100, h:100} type obj representing position of
+        // viewport over document
+
+        var doc = noder.ownerDoc(node),
+            win = noder.ownerWindow(doc),
+            view = geom.size(win);
+
+        view.left = 0;
+        view.top = 0;
+
+        if(!node.parentNode || String(node.parentNode.tagName).toLowerCase() != "body"){
+            doc.body.appendChild(node);
+        }
+
+        var best = null;
+
+        some.apply(choices, function(choice){
+            var corner = choice.corner;
+            var pos = choice.pos;
+            var overflow = 0;
+
+            // calculate amount of space available given specified position of node
+            var spaceAvailable = {
+                w: {
+                    'L': view.left + view.width - pos.x,
+                    'R': pos.x - view.left,
+                    'M': view.width
+                }[corner.charAt(1)],
+
+                h: {
+                    'T': view.top + view.height - pos.y,
+                    'B': pos.y - view.top,
+                    'M': view.height
+                }[corner.charAt(0)]
+            };
+
+            if(layoutNode){
+                var res = layoutNode(node, choice.aroundCorner, corner, spaceAvailable, aroundNodeCoords);
+                overflow = typeof res == "undefined" ? 0 : res;
+            }
+
+            var bb = geom.size(node);
+
+            // coordinates and size of node with specified corner placed at pos,
+            // and clipped by viewport
+            var
+                startXpos = {
+                    'L': pos.x,
+                    'R': pos.x - bb.width,
+                    'M': Math.max(view.left, Math.min(view.left + view.width, pos.x + (bb.width >> 1)) - bb.width) // M orientation is more flexible
+                }[corner.charAt(1)],
+
+                startYpos = {
+                    'T': pos.y,
+                    'B': pos.y - bb.height,
+                    'M': Math.max(view.top, Math.min(view.top + view.height, pos.y + (bb.height >> 1)) - bb.height)
+                }[corner.charAt(0)],
+
+                startX = Math.max(view.left, startXpos),
+                startY = Math.max(view.top, startYpos),
+                endX = Math.min(view.left + view.width, startXpos + bb.width),
+                endY = Math.min(view.top + view.height, startYpos + bb.height),
+                width = endX - startX,
+                height = endY - startY;
+
+            overflow += (bb.width - width) + (bb.height - height);
+
+            if(best == null || overflow < best.overflow){
+                best = {
+                    corner: corner,
+                    aroundCorner: choice.aroundCorner,
+                    left: startX,
+                    top: startY,
+                    width: width,
+                    height: height,
+                    overflow: overflow,
+                    spaceAvailable: spaceAvailable
+                };
+            }
+
+            return !overflow;
+        });
+
+        // In case the best position is not the last one we checked, need to call
+        // layoutNode() again.
+        if(best.overflow && layoutNode){
+            layoutNode(node, best.aroundCorner, best.corner, best.spaceAvailable, aroundNodeCoords);
+        }
+
+
+        geom.boundingPosition(node,best);
+
+        return best;
+    }
+
+    function at(node, pos, corners, padding, layoutNode){
+        var choices = map.apply(corners, function(corner){
+            var c = {
+                corner: corner,
+                aroundCorner: reverse[corner],  // so TooltipDialog.orient() gets aroundCorner argument set
+                pos: {x: pos.x,y: pos.y}
+            };
+            if(padding){
+                c.pos.x += corner.charAt(1) == 'L' ? padding.x : -padding.x;
+                c.pos.y += corner.charAt(0) == 'T' ? padding.y : -padding.y;
+            }
+            return c;
+        });
+
+        return _place(node, choices, layoutNode);
+    }
+
+    function around(
+        /*DomNode*/     node,
+        /*DomNode|__Rectangle*/ anchor,
+        /*String[]*/    positions,
+        /*Boolean*/     leftToRight,
+        /*Function?*/   layoutNode){
+
+        // summary:
+        //      Position node adjacent or kitty-corner to anchor
+        //      such that it's fully visible in viewport.
+        // description:
+        //      Place node such that corner of node touches a corner of
+        //      aroundNode, and that node is fully visible.
+        // anchor:
+        //      Either a DOMNode or a rectangle (object with x, y, width, height).
+        // positions:
+        //      Ordered list of positions to try matching up.
+        //
+        //      - before: places drop down to the left of the anchor node/widget, or to the right in the case
+        //          of RTL scripts like Hebrew and Arabic; aligns either the top of the drop down
+        //          with the top of the anchor, or the bottom of the drop down with bottom of the anchor.
+        //      - after: places drop down to the right of the anchor node/widget, or to the left in the case
+        //          of RTL scripts like Hebrew and Arabic; aligns either the top of the drop down
+        //          with the top of the anchor, or the bottom of the drop down with bottom of the anchor.
+        //      - before-centered: centers drop down to the left of the anchor node/widget, or to the right
+        //          in the case of RTL scripts like Hebrew and Arabic
+        //      - after-centered: centers drop down to the right of the anchor node/widget, or to the left
+        //          in the case of RTL scripts like Hebrew and Arabic
+        //      - above-centered: drop down is centered above anchor node
+        //      - above: drop down goes above anchor node, left sides aligned
+        //      - above-alt: drop down goes above anchor node, right sides aligned
+        //      - below-centered: drop down is centered above anchor node
+        //      - below: drop down goes below anchor node
+        //      - below-alt: drop down goes below anchor node, right sides aligned
+        // layoutNode: Function(node, aroundNodeCorner, nodeCorner)
+        //      For things like tooltip, they are displayed differently (and have different dimensions)
+        //      based on their orientation relative to the parent.   This adjusts the popup based on orientation.
+        // leftToRight:
+        //      True if widget is LTR, false if widget is RTL.   Affects the behavior of "above" and "below"
+        //      positions slightly.
+        // example:
+        //  |   placeAroundNode(node, aroundNode, {'BL':'TL', 'TR':'BR'});
+        //      This will try to position node such that node's top-left corner is at the same position
+        //      as the bottom left corner of the aroundNode (ie, put node below
+        //      aroundNode, with left edges aligned).   If that fails it will try to put
+        //      the bottom-right corner of node where the top right corner of aroundNode is
+        //      (ie, put node above aroundNode, with right edges aligned)
+        //
+
+        // If around is a DOMNode (or DOMNode id), convert to coordinates.
+        var aroundNodePos;
+        if(typeof anchor == "string" || "offsetWidth" in anchor || "ownerSVGElement" in anchor){
+            aroundNodePos = domGeometry.position(anchor, true);
+
+            // For above and below dropdowns, subtract width of border so that popup and aroundNode borders
+            // overlap, preventing a double-border effect.  Unfortunately, difficult to measure the border
+            // width of either anchor or popup because in both cases the border may be on an inner node.
+            if(/^(above|below)/.test(positions[0])){
+                var anchorBorder = domGeometry.getBorderExtents(anchor),
+                    anchorChildBorder = anchor.firstChild ? domGeometry.getBorderExtents(anchor.firstChild) : {t:0,l:0,b:0,r:0},
+                    nodeBorder =  domGeometry.getBorderExtents(node),
+                    nodeChildBorder = node.firstChild ? domGeometry.getBorderExtents(node.firstChild) : {t:0,l:0,b:0,r:0};
+                aroundNodePos.y += Math.min(anchorBorder.t + anchorChildBorder.t, nodeBorder.t + nodeChildBorder.t);
+                aroundNodePos.h -=  Math.min(anchorBorder.t + anchorChildBorder.t, nodeBorder.t+ nodeChildBorder.t) +
+                    Math.min(anchorBorder.b + anchorChildBorder.b, nodeBorder.b + nodeChildBorder.b);
+            }
+        }else{
+            aroundNodePos = anchor;
+        }
+
+        // Compute position and size of visible part of anchor (it may be partially hidden by ancestor nodes w/scrollbars)
+        if(anchor.parentNode){
+            // ignore nodes between position:relative and position:absolute
+            var sawPosAbsolute = domStyle.getComputedStyle(anchor).position == "absolute";
+            var parent = anchor.parentNode;
+            while(parent && parent.nodeType == 1 && parent.nodeName != "BODY"){  //ignoring the body will help performance
+                var parentPos = domGeometry.position(parent, true),
+                    pcs = domStyle.getComputedStyle(parent);
+                if(/relative|absolute/.test(pcs.position)){
+                    sawPosAbsolute = false;
+                }
+                if(!sawPosAbsolute && /hidden|auto|scroll/.test(pcs.overflow)){
+                    var bottomYCoord = Math.min(aroundNodePos.y + aroundNodePos.h, parentPos.y + parentPos.h);
+                    var rightXCoord = Math.min(aroundNodePos.x + aroundNodePos.w, parentPos.x + parentPos.w);
+                    aroundNodePos.x = Math.max(aroundNodePos.x, parentPos.x);
+                    aroundNodePos.y = Math.max(aroundNodePos.y, parentPos.y);
+                    aroundNodePos.h = bottomYCoord - aroundNodePos.y;
+                    aroundNodePos.w = rightXCoord - aroundNodePos.x;
+                }
+                if(pcs.position == "absolute"){
+                    sawPosAbsolute = true;
+                }
+                parent = parent.parentNode;
+            }
+        }           
+
+        var x = aroundNodePos.x,
+            y = aroundNodePos.y,
+            width = "w" in aroundNodePos ? aroundNodePos.w : (aroundNodePos.w = aroundNodePos.width),
+            height = "h" in aroundNodePos ? aroundNodePos.h : (kernel.deprecated("place.around: dijit/place.__Rectangle: { x:"+x+", y:"+y+", height:"+aroundNodePos.height+", width:"+width+" } has been deprecated.  Please use { x:"+x+", y:"+y+", h:"+aroundNodePos.height+", w:"+width+" }", "", "2.0"), aroundNodePos.h = aroundNodePos.height);
+
+        // Convert positions arguments into choices argument for _place()
+        var choices = [];
+        function push(aroundCorner, corner){
+            choices.push({
+                aroundCorner: aroundCorner,
+                corner: corner,
+                pos: {
+                    x: {
+                        'L': x,
+                        'R': x + width,
+                        'M': x + (width >> 1)
+                    }[aroundCorner.charAt(1)],
+                    y: {
+                        'T': y,
+                        'B': y + height,
+                        'M': y + (height >> 1)
+                    }[aroundCorner.charAt(0)]
+                }
+            })
+        }
+        array.forEach(positions, function(pos){
+            var ltr =  leftToRight;
+            switch(pos){
+                case "above-centered":
+                    push("TM", "BM");
+                    break;
+                case "below-centered":
+                    push("BM", "TM");
+                    break;
+                case "after-centered":
+                    ltr = !ltr;
+                    // fall through
+                case "before-centered":
+                    push(ltr ? "ML" : "MR", ltr ? "MR" : "ML");
+                    break;
+                case "after":
+                    ltr = !ltr;
+                    // fall through
+                case "before":
+                    push(ltr ? "TL" : "TR", ltr ? "TR" : "TL");
+                    push(ltr ? "BL" : "BR", ltr ? "BR" : "BL");
+                    break;
+                case "below-alt":
+                    ltr = !ltr;
+                    // fall through
+                case "below":
+                    // first try to align left borders, next try to align right borders (or reverse for RTL mode)
+                    push(ltr ? "BL" : "BR", ltr ? "TL" : "TR");
+                    push(ltr ? "BR" : "BL", ltr ? "TR" : "TL");
+                    break;
+                case "above-alt":
+                    ltr = !ltr;
+                    // fall through
+                case "above":
+                    // first try to align left borders, next try to align right borders (or reverse for RTL mode)
+                    push(ltr ? "TL" : "TR", ltr ? "BL" : "BR");
+                    push(ltr ? "TR" : "TL", ltr ? "BR" : "BL");
+                    break;
+                default:
+                    // To assist dijit/_base/place, accept arguments of type {aroundCorner: "BL", corner: "TL"}.
+                    // Not meant to be used directly.  Remove for 2.0.
+                    push(pos.aroundCorner, pos.corner);
+            }
+        });
+
+        var position = _place(node, choices, layoutNode, {w: width, h: height});
+        position.aroundNodePos = aroundNodePos;
+
+        return position;
+    }
+
+    function movable(elm, params) {
+        function updateWithTouchData(e) {
+            var keys, i;
+
+            if (e.changedTouches) {
+                keys = "screenX screenY pageX pageY clientX clientY".split(' ');
+                for (i = 0; i < keys.length; i++) {
+                    e[keys[i]] = e.changedTouches[0][keys[i]];
+                }
+            }
+        }
+
+        params = params || {};
+        var handleEl = params.handle || elm,
+            constraints = params.constraints,
+            overlayDiv,
+            doc = params.document || document,
+            downButton,
+            start,
+            stop,
+            drag,
+            startX,
+            startY,
+            originalPos,
+            size,
+            startedCallback = params.started,
+            movingCallback = params.moving,
+            stoppedCallback = params.stopped,
+
+            start = function(e) {
+                var docSize = geom.getDocumentSize(doc),
+                    cursor;
+
+                updateWithTouchData(e);
+
+                e.preventDefault();
+                downButton = e.button;
+                //handleEl = getHandleEl();
+                startX = e.screenX;
+                startY = e.screenY;
+
+                originalPos = geom.relativePosition(elm);
+                size = geom.size(elm);
+
+                // Grab cursor from handle so we can place it on overlay
+                cursor = styler.css(handleEl, "curosr");
+
+                overlayDiv = noder.createElement("div");
+                styler.css(overlayDiv, {
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: docSize.width,
+                    height: docSize.height,
+                    zIndex: 0x7FFFFFFF,
+                    opacity: 0.0001,
+                    cursor: cursor
+                });
+                noder.append(doc.body, overlayDiv);
+
+                eventer.on(doc, "mousemove touchmove", move).on(doc, "mouseup touchend", stop);
+
+                if (startedCallback) {
+                    startedCallback(e);
+                }
+            },
+
+            move = function(e) {
+                updateWithTouchData(e);
+
+                if (e.button !== 0) {
+                    return stop(e);
+                }
+
+                e.deltaX = e.screenX - startX;
+                e.deltaY = e.screenY - startY;
+
+                var l = originalPos.left + e.deltaX,
+                    t = originalPos.top + e.deltaY;
+                if (constraints) {
+
+                    if (l < constraints.minX) {
+                        l = constraints.minX;
+                    }
+
+                    if (l > constraints.maxX) {
+                        l = constraints.maxX;
+                    }
+
+                    if (t < constraints.minY) {
+                        t = constraints.minY;
+                    }
+
+                    if (t > constraints.maxY) {
+                        t = constraints.maxY;
+                    }
+                }
+                geom.relativePosition(elm, {
+                    left: l,
+                    top: t
+                })
+
+                e.preventDefault();
+                if (movingCallback) {
+                    movingCallback(e);
+                }
+            },
+
+            stop = function(e) {
+                updateWithTouchData(e);
+
+                eventer.off(doc, "mousemove touchmove", move).off(doc, "mouseup touchend", stop);
+
+                noder.remove(overlayDiv);
+
+                if (stoppedCallback) {
+                    stoppedCallback(e);
+                }
+            };
+
+        eventer.on(handleEl, "mousedown touchstart", start);
+
+        return {
+            // destroys the dragger.
+            remove: function() {
+                eventer.off(handleEl);
+            }
+        }
+    }
+
+    function mover(){
+      return mover;
+    }
+
+    langx.mixin(mover, {
+        around : around,
+
+        at: at, 
+
+        movable: movable
+
+    });
+
+    return skylark.mover = mover;
+});
+
+define('skylark-utils/velm',[
+    "./skylark",
+    "./langx",
+    "./datax",
+    "./dnd",
+    "./eventer",
+    "./filer",
+    "./finder",
+    "./fx",
+    "./geom",
+    "./mover",
+    "./noder",
+    "./styler"
+], function(skylark, langx, datax, dnd, eventer, filer, finder, fx, geom, mover, noder, styler) {
+    var map = Array.prototype.map,
+        slice = Array.prototype.slice;
+
+    var VisualElement = langx.klass({
+        klassName: "VisualElement",
+
+        "init": function(node) {
+            if (langx.isString(node)) {
+                node = document.getElementById(node);
+            }
+            this.domNode = node;
+        }
+    });
+
+    var root = new VisualElement(document.body),
+        velm = function(node) {
+            if (node) {
+                return new VisualElement(node);
+            } else {
+                return root;
+            }
+        };
+
+    function _delegator(fn, context) {
+        return function() {
+            var self = this,
+                elem = self.domNode,
+                ret = fn.apply(context, [elem].concat(slice.call(arguments)));
+
+            if (ret) {
+                if (ret === context) {
+                    return self;
+                } else {
+                    if (ret instanceof HTMLElement) {
+                        ret = new VisualElement(ret);
+                    } else if (langx.isArrayLike(ret)) {
+                        ret = map.call(ret, function(el) {
+                            if (el instanceof HTMLElement) {
+                                return new VisualElement(ret);
+                            } else {
+                                return el;
+                            }
+                        })
+                    }
+                }
+            }
+            return ret;
+        };
+    }
+
+    langx.mixin(velm, {
+        batch: function(nodes, action, args) {
+            nodes.forEach(function(node) {
+                var elm = (node instanceof VisualElement) ? node : velm(node);
+                elm[action].apply(elm, args);
+            });
+
+            return this;
+        },
+
+        root: new VisualElement(document.body),
+
+        VisualElement: VisualElement,
+
+        partial : function(name,fn) {
+            var props = {};
+
+            props[name] = fn;
+
+            VisualElement.partial(props);
+        },
+
+        delegate: function(names, context) {
+            var props = {};
+
+            names.forEach(function(name) {
+                props[name] = _delegator(context[name], context);
+            });
+
+            VisualElement.partial(props);
+        }
+    });
+
+    // from ./datax
+    velm.delegate([
+        "attr",
+        "data",
+        "prop",
+        "removeAttr",
+        "removeData",
+        "text",
+        "val"
+    ], datax);
+
+    // from ./dnd
+    velm.delegate([
+        "draggable",
+        "droppable"
+    ], dnd);
+
+
+    // from ./eventer
+    velm.delegate([
+        "off",
+        "on",
+        "one",
+        "shortcuts",
+        "trigger"
+    ], eventer);
+
+    // from ./filer
+    velm.delegate([
+        "picker",
+        "dropzone"
+    ], filer);
+
+    // from ./finder
+    velm.delegate([
+        "ancestor",
+        "ancestors",
+        "children",
+        "descendant",
+        "find",
+        "findAll",
+        "firstChild",
+        "lastChild",
+        "matches",
+        "nextSibling",
+        "nextSiblings",
+        "parent",
+        "previousSibling",
+        "previousSiblings",
+        "siblings"
+    ], finder);
+
+    velm.find = function(selector) {
+        if (selector === "body") {
+            return this.root;
+        } else {
+            return this.root.descendant(selector);
+        }
+    };
+
+    // from ./fx
+    velm.delegate([
+        "animate",
+        "fadeIn",
+        "fadeOut",
+        "fadeTo",
+        "fadeToggle",
+        "hide",
+        "scrollToTop",
+        "show",
+        "toggle"
+    ], fx);
+
+
+    // from ./geom
+    velm.delegate([
+        "borderExtents",
+        "boundingPosition",
+        "boundingRect",
+        "clientHeight",
+        "clientSize",
+        "clientWidth",
+        "contentRect",
+        "height",
+        "marginExtents",
+        "offsetParent",
+        "paddingExtents",
+        "pagePosition",
+        "pageRect",
+        "relativePosition",
+        "relativeRect",
+        "scrollIntoView",
+        "scrollLeft",
+        "scrollTop",
+        "size",
+        "width"
+    ], geom);
+
+    // from ./mover
+    velm.delegate([
+        "movable"
+    ], dnd);
+
+
+    // from ./noder
+    velm.delegate([
+        "after",
+        "append",
+        "before",
+        "clone",
+        "contains",
+        "contents",
+        "empty",
+        "html",
+        "isChildOf",
+        "ownerDoc",
+        "prepend",
+        "remove",
+        "replace",
+        "reverse",
+        "throb",
+        "traverse",
+        "wrapper",
+        "wrapperInner",
+        "unwrap"
+    ], noder);
+
+    // from ./styler
+    velm.delegate([
+        "addClass",
+        "className",
+        "css",
+        "hasClass",
+        "hide",
+        "isInvisible",
+        "removeClass",
+        "show",
+        "toggleClass"
+    ], styler);
+    return skylark.velm = velm;
+});
+
 define('skylark-bs-swt/sbswt',[
   "skylark-utils/skylark",
   "skylark-utils/langx",
@@ -5131,9 +6543,10 @@ define('skylark-bs-swt/affix',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 /* ========================================================================
@@ -5311,9 +6724,10 @@ define('skylark-bs-swt/alert',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 /* ========================================================================
  * Bootstrap: alert.js v3.3.7
@@ -5434,9 +6848,10 @@ define('skylark-bs-swt/button',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 /* ========================================================================
  * Bootstrap: button.js v3.3.7
@@ -5599,9 +7014,10 @@ define('skylark-bs-swt/carousel',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 /* ========================================================================
  * Bootstrap: carousel.js v3.3.7
@@ -5880,9 +7296,10 @@ define('skylark-bs-swt/checkbox',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -6097,9 +7514,10 @@ define('skylark-bs-swt/collapse',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 /* ========================================================================
  * Bootstrap: collapse.js v3.3.7
@@ -6343,9 +7761,10 @@ define('skylark-bs-swt/combobox',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -6728,9 +8147,10 @@ define('skylark-bs-swt/datepicker',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -7552,9 +8972,10 @@ define('skylark-bs-swt/dropdown',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 /* ========================================================================
  * Bootstrap: dropdown.js v3.3.7
@@ -7866,8 +9287,9 @@ define('skylark-bs-swt/infinite-scroll',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query"
-],function(langx,browser,eventer,noder,geom,$){
+],function(langx,browser,eventer,noder,geom,velm,$){
 
 	/*
 	 * Fuel UX Checkbox
@@ -8039,9 +9461,10 @@ define('skylark-bs-swt/modal',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 /* ========================================================================
  * Bootstrap: modal.js v3.3.7
@@ -8396,9 +9819,10 @@ define('skylark-bs-swt/picker',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -8680,10 +10104,11 @@ define('skylark-bs-swt/pillbox',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt",
   "./dropdown-autoflip"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 	/*
 	 * Fuel UX Checkbox
@@ -9448,9 +10873,10 @@ define('skylark-bs-swt/placard',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -9795,9 +11221,10 @@ define('skylark-bs-swt/tooltip',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 /* ========================================================================
  * Bootstrap: tooltip.js v3.3.7
@@ -10330,10 +11757,11 @@ define('skylark-bs-swt/popover',[
   "skylark-utils/browser",
   "skylark-utils/langx",
   "skylark-utils/eventer",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt",
   "./tooltip" 
-],function(browser,langx,eventer,$,sbswt,tooltip){
+],function(browser,langx,eventer,velm,$,sbswt,tooltip){
 /* ========================================================================
  * Bootstrap: popover.js v3.3.7
  * http://getbootstrap.com/javascript/#popovers
@@ -10443,9 +11871,10 @@ define('skylark-bs-swt/radio',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -10663,9 +12092,10 @@ define('skylark-bs-swt/loader',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -10766,10 +12196,11 @@ define('skylark-bs-swt/repeater',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt",
   "./loader"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 	/*
 	 * Fuel UX Checkbox
@@ -12923,9 +14354,10 @@ define('skylark-bs-swt/selectlist',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -13209,9 +14641,10 @@ define('skylark-bs-swt/spinbox',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -13637,6 +15070,7 @@ define('skylark-bs-swt/scheduler',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt",
   "./combobox",
@@ -13644,7 +15078,7 @@ define('skylark-bs-swt/scheduler',[
   "./radio",
   "./selectlist",
   "./spinbox"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 	/*
 	 * Fuel UX Checkbox
@@ -14428,9 +15862,10 @@ define('skylark-bs-swt/scrollspy',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 /* ========================================================================
  * Bootstrap: scrollspy.js v3.3.7
@@ -14615,9 +16050,10 @@ define('skylark-bs-swt/search',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -14827,9 +16263,10 @@ define('skylark-bs-swt/tab',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 /* ========================================================================
  * Bootstrap: tab.js v3.3.7
@@ -15003,9 +16440,10 @@ define('skylark-bs-swt/toolbar',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 	var Toolbar = sbswt.Toolbar = sbswt.WidgetBase.inherit({
         klassName: "Toolbar",
@@ -15211,9 +16649,10 @@ define('skylark-bs-swt/transition',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 /* ========================================================================
  * Bootstrap: transition.js v3.3.7
@@ -15278,9 +16717,10 @@ define('skylark-bs-swt/tree',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -16186,482 +17626,18 @@ define('skylark-bs-swt/tree',[
 	return $.fn.tree;
 });
 
-define('skylark-utils/mover',[
-    "./skylark",
-    "./langx",
-    "./noder",
-    "./datax",
-    "./geom",
-    "./eventer",
-    "./styler"
-],function(skylark, langx,noder,datax,geom,eventer,styler){
-    var on = eventer.on,
-        off = eventer.off,
-        attr = datax.attr,
-        removeAttr = datax.removeAttr,
-        offset = geom.pagePosition,
-        addClass = styler.addClass,
-        height = geom.height,
-        some = Array.prototype.some,
-        map = Array.prototype.map;
-
-    function _place(/*DomNode*/ node, choices, layoutNode, aroundNodeCoords){
-        // summary:
-        //      Given a list of spots to put node, put it at the first spot where it fits,
-        //      of if it doesn't fit anywhere then the place with the least overflow
-        // choices: Array
-        //      Array of elements like: {corner: 'TL', pos: {x: 10, y: 20} }
-        //      Above example says to put the top-left corner of the node at (10,20)
-        // layoutNode: Function(node, aroundNodeCorner, nodeCorner, size)
-        //      for things like tooltip, they are displayed differently (and have different dimensions)
-        //      based on their orientation relative to the parent.   This adjusts the popup based on orientation.
-        //      It also passes in the available size for the popup, which is useful for tooltips to
-        //      tell them that their width is limited to a certain amount.   layoutNode() may return a value expressing
-        //      how much the popup had to be modified to fit into the available space.   This is used to determine
-        //      what the best placement is.
-        // aroundNodeCoords: Object
-        //      Size of aroundNode, ex: {w: 200, h: 50}
-
-        // get {x: 10, y: 10, w: 100, h:100} type obj representing position of
-        // viewport over document
-
-        var doc = noder.ownerDoc(node),
-            win = noder.ownerWindow(doc),
-            view = geom.size(win);
-
-        view.left = 0;
-        view.top = 0;
-
-        if(!node.parentNode || String(node.parentNode.tagName).toLowerCase() != "body"){
-            doc.body.appendChild(node);
-        }
-
-        var best = null;
-
-        some.apply(choices, function(choice){
-            var corner = choice.corner;
-            var pos = choice.pos;
-            var overflow = 0;
-
-            // calculate amount of space available given specified position of node
-            var spaceAvailable = {
-                w: {
-                    'L': view.left + view.width - pos.x,
-                    'R': pos.x - view.left,
-                    'M': view.width
-                }[corner.charAt(1)],
-
-                h: {
-                    'T': view.top + view.height - pos.y,
-                    'B': pos.y - view.top,
-                    'M': view.height
-                }[corner.charAt(0)]
-            };
-
-            if(layoutNode){
-                var res = layoutNode(node, choice.aroundCorner, corner, spaceAvailable, aroundNodeCoords);
-                overflow = typeof res == "undefined" ? 0 : res;
-            }
-
-            var bb = geom.size(node);
-
-            // coordinates and size of node with specified corner placed at pos,
-            // and clipped by viewport
-            var
-                startXpos = {
-                    'L': pos.x,
-                    'R': pos.x - bb.width,
-                    'M': Math.max(view.left, Math.min(view.left + view.width, pos.x + (bb.width >> 1)) - bb.width) // M orientation is more flexible
-                }[corner.charAt(1)],
-
-                startYpos = {
-                    'T': pos.y,
-                    'B': pos.y - bb.height,
-                    'M': Math.max(view.top, Math.min(view.top + view.height, pos.y + (bb.height >> 1)) - bb.height)
-                }[corner.charAt(0)],
-
-                startX = Math.max(view.left, startXpos),
-                startY = Math.max(view.top, startYpos),
-                endX = Math.min(view.left + view.width, startXpos + bb.width),
-                endY = Math.min(view.top + view.height, startYpos + bb.height),
-                width = endX - startX,
-                height = endY - startY;
-
-            overflow += (bb.width - width) + (bb.height - height);
-
-            if(best == null || overflow < best.overflow){
-                best = {
-                    corner: corner,
-                    aroundCorner: choice.aroundCorner,
-                    left: startX,
-                    top: startY,
-                    width: width,
-                    height: height,
-                    overflow: overflow,
-                    spaceAvailable: spaceAvailable
-                };
-            }
-
-            return !overflow;
-        });
-
-        // In case the best position is not the last one we checked, need to call
-        // layoutNode() again.
-        if(best.overflow && layoutNode){
-            layoutNode(node, best.aroundCorner, best.corner, best.spaceAvailable, aroundNodeCoords);
-        }
-
-
-        geom.boundingPosition(node,best);
-
-        return best;
-    }
-
-    function at(node, pos, corners, padding, layoutNode){
-        var choices = map.apply(corners, function(corner){
-            var c = {
-                corner: corner,
-                aroundCorner: reverse[corner],  // so TooltipDialog.orient() gets aroundCorner argument set
-                pos: {x: pos.x,y: pos.y}
-            };
-            if(padding){
-                c.pos.x += corner.charAt(1) == 'L' ? padding.x : -padding.x;
-                c.pos.y += corner.charAt(0) == 'T' ? padding.y : -padding.y;
-            }
-            return c;
-        });
-
-        return _place(node, choices, layoutNode);
-    }
-
-    function around(
-        /*DomNode*/     node,
-        /*DomNode|__Rectangle*/ anchor,
-        /*String[]*/    positions,
-        /*Boolean*/     leftToRight,
-        /*Function?*/   layoutNode){
-
-        // summary:
-        //      Position node adjacent or kitty-corner to anchor
-        //      such that it's fully visible in viewport.
-        // description:
-        //      Place node such that corner of node touches a corner of
-        //      aroundNode, and that node is fully visible.
-        // anchor:
-        //      Either a DOMNode or a rectangle (object with x, y, width, height).
-        // positions:
-        //      Ordered list of positions to try matching up.
-        //
-        //      - before: places drop down to the left of the anchor node/widget, or to the right in the case
-        //          of RTL scripts like Hebrew and Arabic; aligns either the top of the drop down
-        //          with the top of the anchor, or the bottom of the drop down with bottom of the anchor.
-        //      - after: places drop down to the right of the anchor node/widget, or to the left in the case
-        //          of RTL scripts like Hebrew and Arabic; aligns either the top of the drop down
-        //          with the top of the anchor, or the bottom of the drop down with bottom of the anchor.
-        //      - before-centered: centers drop down to the left of the anchor node/widget, or to the right
-        //          in the case of RTL scripts like Hebrew and Arabic
-        //      - after-centered: centers drop down to the right of the anchor node/widget, or to the left
-        //          in the case of RTL scripts like Hebrew and Arabic
-        //      - above-centered: drop down is centered above anchor node
-        //      - above: drop down goes above anchor node, left sides aligned
-        //      - above-alt: drop down goes above anchor node, right sides aligned
-        //      - below-centered: drop down is centered above anchor node
-        //      - below: drop down goes below anchor node
-        //      - below-alt: drop down goes below anchor node, right sides aligned
-        // layoutNode: Function(node, aroundNodeCorner, nodeCorner)
-        //      For things like tooltip, they are displayed differently (and have different dimensions)
-        //      based on their orientation relative to the parent.   This adjusts the popup based on orientation.
-        // leftToRight:
-        //      True if widget is LTR, false if widget is RTL.   Affects the behavior of "above" and "below"
-        //      positions slightly.
-        // example:
-        //  |   placeAroundNode(node, aroundNode, {'BL':'TL', 'TR':'BR'});
-        //      This will try to position node such that node's top-left corner is at the same position
-        //      as the bottom left corner of the aroundNode (ie, put node below
-        //      aroundNode, with left edges aligned).   If that fails it will try to put
-        //      the bottom-right corner of node where the top right corner of aroundNode is
-        //      (ie, put node above aroundNode, with right edges aligned)
-        //
-
-        // If around is a DOMNode (or DOMNode id), convert to coordinates.
-        var aroundNodePos;
-        if(typeof anchor == "string" || "offsetWidth" in anchor || "ownerSVGElement" in anchor){
-            aroundNodePos = domGeometry.position(anchor, true);
-
-            // For above and below dropdowns, subtract width of border so that popup and aroundNode borders
-            // overlap, preventing a double-border effect.  Unfortunately, difficult to measure the border
-            // width of either anchor or popup because in both cases the border may be on an inner node.
-            if(/^(above|below)/.test(positions[0])){
-                var anchorBorder = domGeometry.getBorderExtents(anchor),
-                    anchorChildBorder = anchor.firstChild ? domGeometry.getBorderExtents(anchor.firstChild) : {t:0,l:0,b:0,r:0},
-                    nodeBorder =  domGeometry.getBorderExtents(node),
-                    nodeChildBorder = node.firstChild ? domGeometry.getBorderExtents(node.firstChild) : {t:0,l:0,b:0,r:0};
-                aroundNodePos.y += Math.min(anchorBorder.t + anchorChildBorder.t, nodeBorder.t + nodeChildBorder.t);
-                aroundNodePos.h -=  Math.min(anchorBorder.t + anchorChildBorder.t, nodeBorder.t+ nodeChildBorder.t) +
-                    Math.min(anchorBorder.b + anchorChildBorder.b, nodeBorder.b + nodeChildBorder.b);
-            }
-        }else{
-            aroundNodePos = anchor;
-        }
-
-        // Compute position and size of visible part of anchor (it may be partially hidden by ancestor nodes w/scrollbars)
-        if(anchor.parentNode){
-            // ignore nodes between position:relative and position:absolute
-            var sawPosAbsolute = domStyle.getComputedStyle(anchor).position == "absolute";
-            var parent = anchor.parentNode;
-            while(parent && parent.nodeType == 1 && parent.nodeName != "BODY"){  //ignoring the body will help performance
-                var parentPos = domGeometry.position(parent, true),
-                    pcs = domStyle.getComputedStyle(parent);
-                if(/relative|absolute/.test(pcs.position)){
-                    sawPosAbsolute = false;
-                }
-                if(!sawPosAbsolute && /hidden|auto|scroll/.test(pcs.overflow)){
-                    var bottomYCoord = Math.min(aroundNodePos.y + aroundNodePos.h, parentPos.y + parentPos.h);
-                    var rightXCoord = Math.min(aroundNodePos.x + aroundNodePos.w, parentPos.x + parentPos.w);
-                    aroundNodePos.x = Math.max(aroundNodePos.x, parentPos.x);
-                    aroundNodePos.y = Math.max(aroundNodePos.y, parentPos.y);
-                    aroundNodePos.h = bottomYCoord - aroundNodePos.y;
-                    aroundNodePos.w = rightXCoord - aroundNodePos.x;
-                }
-                if(pcs.position == "absolute"){
-                    sawPosAbsolute = true;
-                }
-                parent = parent.parentNode;
-            }
-        }           
-
-        var x = aroundNodePos.x,
-            y = aroundNodePos.y,
-            width = "w" in aroundNodePos ? aroundNodePos.w : (aroundNodePos.w = aroundNodePos.width),
-            height = "h" in aroundNodePos ? aroundNodePos.h : (kernel.deprecated("place.around: dijit/place.__Rectangle: { x:"+x+", y:"+y+", height:"+aroundNodePos.height+", width:"+width+" } has been deprecated.  Please use { x:"+x+", y:"+y+", h:"+aroundNodePos.height+", w:"+width+" }", "", "2.0"), aroundNodePos.h = aroundNodePos.height);
-
-        // Convert positions arguments into choices argument for _place()
-        var choices = [];
-        function push(aroundCorner, corner){
-            choices.push({
-                aroundCorner: aroundCorner,
-                corner: corner,
-                pos: {
-                    x: {
-                        'L': x,
-                        'R': x + width,
-                        'M': x + (width >> 1)
-                    }[aroundCorner.charAt(1)],
-                    y: {
-                        'T': y,
-                        'B': y + height,
-                        'M': y + (height >> 1)
-                    }[aroundCorner.charAt(0)]
-                }
-            })
-        }
-        array.forEach(positions, function(pos){
-            var ltr =  leftToRight;
-            switch(pos){
-                case "above-centered":
-                    push("TM", "BM");
-                    break;
-                case "below-centered":
-                    push("BM", "TM");
-                    break;
-                case "after-centered":
-                    ltr = !ltr;
-                    // fall through
-                case "before-centered":
-                    push(ltr ? "ML" : "MR", ltr ? "MR" : "ML");
-                    break;
-                case "after":
-                    ltr = !ltr;
-                    // fall through
-                case "before":
-                    push(ltr ? "TL" : "TR", ltr ? "TR" : "TL");
-                    push(ltr ? "BL" : "BR", ltr ? "BR" : "BL");
-                    break;
-                case "below-alt":
-                    ltr = !ltr;
-                    // fall through
-                case "below":
-                    // first try to align left borders, next try to align right borders (or reverse for RTL mode)
-                    push(ltr ? "BL" : "BR", ltr ? "TL" : "TR");
-                    push(ltr ? "BR" : "BL", ltr ? "TR" : "TL");
-                    break;
-                case "above-alt":
-                    ltr = !ltr;
-                    // fall through
-                case "above":
-                    // first try to align left borders, next try to align right borders (or reverse for RTL mode)
-                    push(ltr ? "TL" : "TR", ltr ? "BL" : "BR");
-                    push(ltr ? "TR" : "TL", ltr ? "BR" : "BL");
-                    break;
-                default:
-                    // To assist dijit/_base/place, accept arguments of type {aroundCorner: "BL", corner: "TL"}.
-                    // Not meant to be used directly.  Remove for 2.0.
-                    push(pos.aroundCorner, pos.corner);
-            }
-        });
-
-        var position = _place(node, choices, layoutNode, {w: width, h: height});
-        position.aroundNodePos = aroundNodePos;
-
-        return position;
-    }
-
-    function movable(elm, params) {
-        function updateWithTouchData(e) {
-            var keys, i;
-
-            if (e.changedTouches) {
-                keys = "screenX screenY pageX pageY clientX clientY".split(' ');
-                for (i = 0; i < keys.length; i++) {
-                    e[keys[i]] = e.changedTouches[0][keys[i]];
-                }
-            }
-        }
-
-        params = params || {};
-        var handleEl = params.handle || elm,
-            constraints = params.constraints,
-            overlayDiv,
-            doc = params.document || document,
-            downButton,
-            start,
-            stop,
-            drag,
-            startX,
-            startY,
-            originalPos,
-            size,
-            startedCallback = params.started,
-            movingCallback = params.moving,
-            stoppedCallback = params.stopped,
-
-            start = function(e) {
-                var docSize = geom.getDocumentSize(doc),
-                    cursor;
-
-                updateWithTouchData(e);
-
-                e.preventDefault();
-                downButton = e.button;
-                //handleEl = getHandleEl();
-                startX = e.screenX;
-                startY = e.screenY;
-
-                originalPos = geom.relativePosition(elm);
-                size = geom.size(elm);
-
-                // Grab cursor from handle so we can place it on overlay
-                cursor = styler.css(handleEl, "curosr");
-
-                overlayDiv = noder.createElement("div");
-                styler.css(overlayDiv, {
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: docSize.width,
-                    height: docSize.height,
-                    zIndex: 0x7FFFFFFF,
-                    opacity: 0.0001,
-                    cursor: cursor
-                });
-                noder.append(doc.body, overlayDiv);
-
-                eventer.on(doc, "mousemove touchmove", move).on(doc, "mouseup touchend", stop);
-
-                if (startedCallback) {
-                    startedCallback(e);
-                }
-            },
-
-            move = function(e) {
-                updateWithTouchData(e);
-
-                if (e.button !== 0) {
-                    return stop(e);
-                }
-
-                e.deltaX = e.screenX - startX;
-                e.deltaY = e.screenY - startY;
-
-                var l = originalPos.left + e.deltaX,
-                    t = originalPos.top + e.deltaY;
-                if (constraints) {
-
-                    if (l < constraints.minX) {
-                        l = constraints.minX;
-                    }
-
-                    if (l > constraints.maxX) {
-                        l = constraints.maxX;
-                    }
-
-                    if (t < constraints.minY) {
-                        t = constraints.minY;
-                    }
-
-                    if (t > constraints.maxY) {
-                        t = constraints.maxY;
-                    }
-                }
-                geom.relativePosition(elm, {
-                    left: l,
-                    top: t
-                })
-
-                e.preventDefault();
-                if (movingCallback) {
-                    movingCallback(e);
-                }
-            },
-
-            stop = function(e) {
-                updateWithTouchData(e);
-
-                eventer.off(doc, "mousemove touchmove", move).off(doc, "mouseup touchend", stop);
-
-                noder.remove(overlayDiv);
-
-                if (stoppedCallback) {
-                    stoppedCallback(e);
-                }
-            };
-
-        eventer.on(handleEl, "mousedown touchstart", start);
-
-        return {
-            // destroys the dragger.
-            remove: function() {
-                eventer.off(handleEl);
-            }
-        }
-    }
-
-    function mover(){
-      return mover;
-    }
-
-    langx.mixin(mover, {
-        around : around,
-
-        at: at, 
-
-        movable: movable
-
-    });
-
-    return skylark.mover = mover;
-});
-
 define('skylark-bs-swt/window',[
   "skylark-utils/langx",
   "skylark-utils/browser",
+  "skylark-utils/datax",
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "skylark-utils/mover",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,mover,sbswt){
+],function(langx,browser,datax,eventer,noder,geom,velm,$,mover,sbswt){
 
 
 /*----------------------------------------------------------------------*/
@@ -17239,21 +18215,27 @@ define('skylark-bs-swt/window',[
     });
 
 
+    datax.window = function(elm,options) {
+      var wgt  = this.data(elm,'sbswt.window');
+
+      if (!wgt) {
+        this.data(elm,'sbswt.window', (wgt = new Window(elm)));
+      }
+      if (typeof option == 'string') {
+        wgt[options]();
+      } 
+   };
+
 
     $.fn.window = function(options) {
-        return this.each(function () {
-          var $this = $(this)
-          var wgt  = $this.data('sbswt.window');
-
-          if (!wgt) {
-            $this.data('sbswt.window', (wgt = new Window(this)));
-          }
-          if (typeof option == 'string') {
-            wgt[options]();
-          } 
-           
+        return this.each(function() {
+            datax.window(this,options);          
         });
     };
+
+    velm.partial("window",function(options){
+        datax.window(this.domNode,options);
+    });
 
     $('[data-window-target]').off('click');
     $('[data-window-target]').on('click', function() {
@@ -17445,18 +18427,18 @@ define('skylark-bs-swt/window',[
         WindowManager : WindowManager
     });
 
-    return Window;  
+    return $.fn.window;
 });
-
 define('skylark-bs-swt/wizard',[
   "skylark-utils/langx",
   "skylark-utils/browser",
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 	/*
 	 * Fuel UX Checkbox

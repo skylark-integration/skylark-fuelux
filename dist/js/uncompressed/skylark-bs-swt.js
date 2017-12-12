@@ -175,9 +175,10 @@ define('skylark-bs-swt/affix',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 /* ========================================================================
@@ -355,9 +356,10 @@ define('skylark-bs-swt/alert',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 /* ========================================================================
  * Bootstrap: alert.js v3.3.7
@@ -478,9 +480,10 @@ define('skylark-bs-swt/button',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 /* ========================================================================
  * Bootstrap: button.js v3.3.7
@@ -643,9 +646,10 @@ define('skylark-bs-swt/carousel',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 /* ========================================================================
  * Bootstrap: carousel.js v3.3.7
@@ -924,9 +928,10 @@ define('skylark-bs-swt/checkbox',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -1141,9 +1146,10 @@ define('skylark-bs-swt/collapse',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 /* ========================================================================
  * Bootstrap: collapse.js v3.3.7
@@ -1387,9 +1393,10 @@ define('skylark-bs-swt/combobox',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -1772,9 +1779,10 @@ define('skylark-bs-swt/datepicker',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -2596,9 +2604,10 @@ define('skylark-bs-swt/dropdown',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 /* ========================================================================
  * Bootstrap: dropdown.js v3.3.7
@@ -2910,8 +2919,9 @@ define('skylark-bs-swt/infinite-scroll',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query"
-],function(langx,browser,eventer,noder,geom,$){
+],function(langx,browser,eventer,noder,geom,velm,$){
 
 	/*
 	 * Fuel UX Checkbox
@@ -3083,9 +3093,10 @@ define('skylark-bs-swt/modal',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 /* ========================================================================
  * Bootstrap: modal.js v3.3.7
@@ -3440,9 +3451,10 @@ define('skylark-bs-swt/picker',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -3724,10 +3736,11 @@ define('skylark-bs-swt/pillbox',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt",
   "./dropdown-autoflip"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 	/*
 	 * Fuel UX Checkbox
@@ -4492,9 +4505,10 @@ define('skylark-bs-swt/placard',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -4839,9 +4853,10 @@ define('skylark-bs-swt/tooltip',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 /* ========================================================================
  * Bootstrap: tooltip.js v3.3.7
@@ -5374,10 +5389,11 @@ define('skylark-bs-swt/popover',[
   "skylark-utils/browser",
   "skylark-utils/langx",
   "skylark-utils/eventer",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt",
   "./tooltip" 
-],function(browser,langx,eventer,$,sbswt,tooltip){
+],function(browser,langx,eventer,velm,$,sbswt,tooltip){
 /* ========================================================================
  * Bootstrap: popover.js v3.3.7
  * http://getbootstrap.com/javascript/#popovers
@@ -5487,9 +5503,10 @@ define('skylark-bs-swt/radio',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -5707,9 +5724,10 @@ define('skylark-bs-swt/loader',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -5810,10 +5828,11 @@ define('skylark-bs-swt/repeater',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt",
   "./loader"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 	/*
 	 * Fuel UX Checkbox
@@ -7967,9 +7986,10 @@ define('skylark-bs-swt/selectlist',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -8253,9 +8273,10 @@ define('skylark-bs-swt/spinbox',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -8681,6 +8702,7 @@ define('skylark-bs-swt/scheduler',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt",
   "./combobox",
@@ -8688,7 +8710,7 @@ define('skylark-bs-swt/scheduler',[
   "./radio",
   "./selectlist",
   "./spinbox"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 	/*
 	 * Fuel UX Checkbox
@@ -9472,9 +9494,10 @@ define('skylark-bs-swt/scrollspy',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 /* ========================================================================
  * Bootstrap: scrollspy.js v3.3.7
@@ -9659,9 +9682,10 @@ define('skylark-bs-swt/search',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -9871,9 +9895,10 @@ define('skylark-bs-swt/tab',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 /* ========================================================================
  * Bootstrap: tab.js v3.3.7
@@ -10047,9 +10072,10 @@ define('skylark-bs-swt/toolbar',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 	var Toolbar = sbswt.Toolbar = sbswt.WidgetBase.inherit({
         klassName: "Toolbar",
@@ -10255,9 +10281,10 @@ define('skylark-bs-swt/transition',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 /* ========================================================================
  * Bootstrap: transition.js v3.3.7
@@ -10322,9 +10349,10 @@ define('skylark-bs-swt/tree',[
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 
 	/*
@@ -11233,13 +11261,15 @@ define('skylark-bs-swt/tree',[
 define('skylark-bs-swt/window',[
   "skylark-utils/langx",
   "skylark-utils/browser",
+  "skylark-utils/datax",
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "skylark-utils/mover",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,mover,sbswt){
+],function(langx,browser,datax,eventer,noder,geom,velm,$,mover,sbswt){
 
 
 /*----------------------------------------------------------------------*/
@@ -11817,21 +11847,27 @@ define('skylark-bs-swt/window',[
     });
 
 
+    datax.window = function(elm,options) {
+      var wgt  = this.data(elm,'sbswt.window');
+
+      if (!wgt) {
+        this.data(elm,'sbswt.window', (wgt = new Window(elm)));
+      }
+      if (typeof option == 'string') {
+        wgt[options]();
+      } 
+   };
+
 
     $.fn.window = function(options) {
-        return this.each(function () {
-          var $this = $(this)
-          var wgt  = $this.data('sbswt.window');
-
-          if (!wgt) {
-            $this.data('sbswt.window', (wgt = new Window(this)));
-          }
-          if (typeof option == 'string') {
-            wgt[options]();
-          } 
-           
+        return this.each(function() {
+            datax.window(this,options);          
         });
     };
+
+    velm.partial("window",function(options){
+        datax.window(this.domNode,options);
+    });
 
     $('[data-window-target]').off('click');
     $('[data-window-target]').on('click', function() {
@@ -12023,18 +12059,18 @@ define('skylark-bs-swt/window',[
         WindowManager : WindowManager
     });
 
-    return Window;  
+    return $.fn.window;
 });
-
 define('skylark-bs-swt/wizard',[
   "skylark-utils/langx",
   "skylark-utils/browser",
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 	/*
 	 * Fuel UX Checkbox

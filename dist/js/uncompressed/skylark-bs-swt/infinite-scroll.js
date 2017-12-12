@@ -11,8 +11,9 @@ define([
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query"
-],function(langx,browser,eventer,noder,geom,$){
+],function(langx,browser,eventer,noder,geom,velm,$){
 
 	/*
 	 * Fuel UX Checkbox

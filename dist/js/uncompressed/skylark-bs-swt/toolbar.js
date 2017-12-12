@@ -11,9 +11,10 @@ define([
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 	var Toolbar = sbswt.Toolbar = sbswt.WidgetBase.inherit({
         klassName: "Toolbar",

@@ -11,10 +11,11 @@ define([
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
+  "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt",
   "./loader"
-],function(langx,browser,eventer,noder,geom,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
 	/*
 	 * Fuel UX Checkbox
