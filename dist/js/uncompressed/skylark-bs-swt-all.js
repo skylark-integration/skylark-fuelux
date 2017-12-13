@@ -180,34 +180,34 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
                 };
             }
             if (!ctor.inherit) {
-                ctor.inherit = function(props, options) {
-                    return createClass(props, this, options);
+                ctor.inherit = function(props,options) {
+                    return createClass(props, this,options);
                 };
             }
 
-            ctor.partial(props, options);
+            ctor.partial(props,options);
 
             return ctor;
         }
     })();
 
 
-    function clone( /*anything*/ src) {
+   function clone( /*anything*/ src) {
         var copy;
         if (src === undefined || src === null) {
-            copy = src;
-        } else if (src.clone) {
+            copy =  src;
+        } else if (src.clone){
             copy = src.clone();
         } else if (isArray(src)) {
             copy = [];
-            for (var i = 0; i < src.length; i++) {
+            for (var i = 0;i<src.length;i++) {
                 copy.push(clone(src[i]));
             }
-        } else if (isPlainObject(src)) {
+        } else if (isPlainObject(src)){
             copy = {};
-            for (var key in src) {
+            for (var key in src){
                 copy[key] = clone(src[key]);
-            }
+            } 
         } else {
             copy = src;
         }
@@ -230,18 +230,18 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
         };
     }
 
-    var delegate = (function() {
-        // boodman/crockford delegation w/ cornford optimization
-        function TMP() {}
-        return function(obj, props) {
-            TMP.prototype = obj;
-            var tmp = new TMP();
-            TMP.prototype = null;
-            if (props) {
-                mixin(tmp, props);
-            }
-            return tmp; // Object
-        };
+    var delegate = (function(){
+            // boodman/crockford delegation w/ cornford optimization
+            function TMP(){}
+            return function(obj, props){
+                TMP.prototype = obj;
+                var tmp = new TMP();
+                TMP.prototype = null;
+                if(props){
+                    mixin(tmp, props);
+                }
+                return tmp; // Object
+            };
     })();
 
 
@@ -315,227 +315,228 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
     Deferred.immediate = Deferred.resolve;
 
     var Evented = createClass({
-        on: function(events, selector, data, callback, ctx, /*used internally*/ one) {
-            var self = this,
-                _hub = this._hub || (this._hub = {});
+        on: function(events,selector,data,callback,ctx,/*used internally*/one) {
+	        var self = this,
+	        	_hub = this._hub || (this._hub = {});
 
-            if (isPlainObject(events)) {
-                ctx = callback;
-                each(events, function(type, fn) {
-                    self.on(type, selector, data, fn, ctx, one);
-                });
-                return this;
-            }
+	        if (isPlainObject(events)) {
+	        	ctx = callback;
+	            each(events, function(type, fn) {
+	                self.on(type,selector, data, fn, ctx, one);
+	            });
+	            return this;
+	        }
 
-            if (!isString(selector) && !isFunction(callback)) {
-                ctx = callback;
-                callback = data;
-                data = selector;
-                selector = undefined;
-            }
+	        if (!isString(selector) && !isFunction(callback)) {
+	        	ctx = callback;
+	            callback = data;
+	            data = selector;
+	            selector = undefined;
+	        }
 
-            if (isFunction(data)) {
-                ctx = callback;
-                callback = data;
-                data = null;
-            }
+	        if (isFunction(data)) {
+	            ctx = callback;
+	            callback = data;
+	            data = null;
+	        }
 
-            if (isString(events)) {
-                events = events.split(/\s/)
-            }
+	        if (isString(events)) {
+	            events = events.split(/\s/)
+	        }
 
-            events.forEach(function(name) {
-                (_hub[name] || (_hub[name] = [])).push({
-                    fn: callback,
-                    selector: selector,
-                    data: data,
-                    ctx: ctx,
-                    one: one
-                });
-            });
+	        events.forEach(function(name) {
+	            (_hub[name] || (_hub[name] = [])).push({
+	                fn: callback,
+	                selector: selector,
+	                data: data,
+	                ctx: ctx,
+	                one: one
+	            });
+	        });
 
-            return this;
-        },
+	        return this;
+	    },
 
-        one: function(events, selector, data, callback, ctx) {
-            return this.on(events, selector, data, callback, ctx, 1);
-        },
+	    one: function(events,selector,data,callback,ctx) {
+	        return this.on(events,selector,data,callback,ctx,1);
+	    },
 
-        trigger: function(e /*,argument list*/ ) {
-            if (!this._hub) {
-                return this;
-            }
+	    trigger: function(e/*,argument list*/) {
+	    	if (!this._hub) {
+	    		return this;
+	    	}
 
-            var self = this;
+	    	var self = this;
 
-            if (isString(e)) {
-                e = new CustomEvent(e);
-            }
+	    	if (isString(e)) {
+	    		e = new CustomEvent(e);
+	    	}
 
-            var args = slice.call(arguments, 1);
+	        var args = slice.call(arguments,1);
             if (isDefined(args)) {
                 args = [e].concat(args);
             } else {
                 args = [e];
             }
-            [e.type || e.name, "all"].forEach(function(eventName) {
-                var listeners = self._hub[eventName];
-                if (!listeners) {
-                    return;
-                }
+	        [e.type || e.name ,"all"].forEach(function(eventName){
+		        var listeners = self._hub[eventName];
+		        if (!listeners){
+		        	return;
+		        }
 
-                var len = listeners.length,
-                    reCompact = false;
+		        var len = listeners.length,
+		        	reCompact = false;
 
-                for (var i = 0; i < len; i++) {
-                    var listener = listeners[i];
-                    if (e.data) {
-                        if (listener.data) {
-                            e.data = mixin({}, listener.data, e.data);
-                        }
-                    } else {
-                        e.data = listener.data || null;
-                    }
-                    listener.fn.apply(listener.ctx, args);
-                    if (listener.one) {
-                        listeners[i] = null;
-                        reCompact = true;
-                    }
-                }
+		        for (var i = 0; i < len; i++) {
+		        	var listener = listeners[i];
+		            if (e.data) {
+		                if (listener.data) {
+		                    e.data = mixin({}, listener.data, e.data);
+		                }
+		            } else {
+		                e.data = listener.data || null;
+		            }
+		            listener.fn.apply(listener.ctx, args);
+		            if (listener.one){
+		            	listeners[i] = null;
+		            	reCompact = true;
+		            }
+		        }
 
-                if (reCompact) {
-                    self._hub[eventName] = compact(listeners);
-                }
+		        if (reCompact){
+		        	self._hub[eventName] = compact(listeners);
+		        }
 
-            });
-            return this;
-        },
+	        });
+	        return this;
+	    },
 
-        listened: function(event) {
-            var evtArr = ((this._hub || (this._events = {}))[event] || []);
-            return evtArr.length > 0;
-        },
+	    listened: function(event) {
+	        var evtArr = ((this._hub || (this._events = {}))[event] || []);
+	        return evtArr.length > 0;
+	    },
 
-        listenTo: function(obj, event, callback, /*used internally*/ one) {
-            if (!obj) {
-                return this;
-            }
+	    listenTo: function(obj, event, callback,/*used internally*/one) {
+	        if (!obj) {
+	        	return this;
+	        }
 
-            // Bind callbacks on obj,
-            if (isString(callback)) {
-                callback = this[callback];
-            }
+	        // Bind callbacks on obj,
+	        if (isString(callback)) {
+	        	callback = this[callback];
+	        }
 
-            if (one) {
-                obj.one(event, callback, this);
-            } else {
-                obj.on(event, callback, this);
-            }
+	        if (one){
+		        obj.one(event,callback,this);
+	        } else {
+		        obj.on(event,callback,this);
+	        }
 
-            //keep track of them on listening.
-            var listeningTo = this._listeningTo || (this._listeningTo = []),
-                listening;
+	        //keep track of them on listening.
+	        var listeningTo = this._listeningTo || (this._listeningTo = []),
+	        	listening;
 
-            for (var i = 0; i < listeningTo.length; i++) {
-                if (listeningTo[i].obj == obj) {
-                    listening = listeningTo[i];
-                    break;
-                }
-            }
-            if (!listening) {
-                listeningTo.push(
-                    listening = {
-                        obj: obj,
-                        events: {}
-                    }
-                );
-            }
-            var listeningEvents = listening.events,
-                listeningEvent = listeningEvents[event] = listeningEvents[event] || [];
-            if (listeningEvent.indexOf(callback) == -1) {
-                listeningEvent.push(callback);
-            }
+	        for (var i=0;i<listeningTo.length;i++) {
+	        	if (listeningTo[i].obj == obj) {
+	        		listening = listeningTo[i];
+	        		break;
+	        	}
+	        }
+	        if (!listening) {
+	        	listeningTo.push(
+	        		listening = {
+	        			obj : obj,
+	        			events : {
+	        			}
+	        	    }
+	        	);
+	        }
+	        var listeningEvents = listening.events,
+	        	listeningEvent = listeningEvents[event] = listeningEvents[event] || [];
+	        if (listeningEvent.indexOf(callback)==-1) {
+	        	listeningEvent.push(callback);
+	        }
 
-            return this;
-        },
+	        return this;
+	    },
 
-        listenToOnce: function(obj, event, callback) {
-            return this.listenTo(obj, event, callback, 1);
-        },
+	    listenToOnce: function(obj, event, callback) {
+	    	return this.listenTo(obj,event,callback,1);
+	    },
 
-        off: function(events, callback) {
-            var _hub = this._hub || (this._hub = {});
-            if (isString(events)) {
-                events = events.split(/\s/)
-            }
+	    off: function(events, callback) {
+	        var _hub = this._hub || (this._hub = {});
+	        if (isString(events)) {
+	            events = events.split(/\s/)
+	        }
 
-            events.forEach(function(name) {
-                var evts = _hub[name];
-                var liveEvents = [];
+	        events.forEach(function(name) {
+	            var evts = _hub[name];
+	            var liveEvents = [];
 
-                if (evts && callback) {
-                    for (var i = 0, len = evts.length; i < len; i++) {
-                        if (evts[i].fn !== callback && evts[i].fn._ !== callback)
-                            liveEvents.push(evts[i]);
-                    }
-                }
+	            if (evts && callback) {
+	                for (var i = 0, len = evts.length; i < len; i++) {
+	                    if (evts[i].fn !== callback && evts[i].fn._ !== callback)
+	                        liveEvents.push(evts[i]);
+	                }
+	            }
 
-                if (liveEvents.length) {
-                    _hub[name] = liveEvents;
-                } else {
-                    delete _hub[name];
-                }
-            });
+	            if (liveEvents.length) {
+	            	_hub[name] = liveEvents;
+	            } else {
+	            	delete _hub[name];
+	            }
+	        });
 
-            return this;
-        },
-        unlistenTo: function(obj, event, callback) {
-            var listeningTo = this._listeningTo;
-            if (!listeningTo) {
-                return this;
-            }
-            for (var i = 0; i < listeningTo.length; i++) {
-                var listening = listeningTo[i];
+	        return this;
+	    },
+	    unlistenTo : function(obj, event, callback) {
+	        var listeningTo = this._listeningTo;
+	        if (!listeningTo) {
+	        	return this;
+	        }
+	        for (var i = 0; i < listeningTo.length; i++) {
+	          var listening = listeningTo[i];
 
-                if (obj && obj != listening.obj) {
-                    continue;
-                }
+	          if (obj && obj != listening.obj) {
+	        	  continue;
+	          }
 
-                var listeningEvents = listening.events;
-                for (var eventName in listeningEvents) {
-                    if (event && event != eventName) {
-                        continue;
-                    }
+	          var listeningEvents = listening.events;
+	          for (var eventName in listeningEvents) {
+	        	 if (event && event != eventName) {
+	        		 continue;
+	        	 }
 
-                    listeningEvent = listeningEvents[eventName];
+	        	 listeningEvent = listeningEvents[eventName];
 
-                    for (var j = 0; j < listeningEvent.length; j++) {
-                        if (!callback || callback == listeningEvent[i]) {
-                            listening.obj.off(eventName, listeningEvent[i], this);
-                            listeningEvent[i] = null;
-                        }
-                    }
+	        	 for (var j=0;j<listeningEvent.length;j++) {
+	        		 if (!callback || callback == listeningEvent[i]) {
+	        			 listening.obj.off(eventName, listeningEvent[i], this);
+	        			 listeningEvent[i] = null;
+	        		 }
+	        	 }
 
-                    listeningEvent = listeningEvents[eventName] = compact(listeningEvent);
+	        	 listeningEvent = listeningEvents[eventName] = compact(listeningEvent);
 
-                    if (isEmptyObject(listeningEvent)) {
-                        listeningEvents[eventName] = null;
-                    }
+	        	 if (isEmptyObject(listeningEvent)) {
+	        		 listeningEvents[eventName] = null;
+	        	 }
 
-                }
+	          }
 
-                if (isEmptyObject(listeningEvents)) {
-                    listeningTo[i] = null;
-                }
-            }
+	          if (isEmptyObject(listeningEvents)) {
+	        	  listeningTo[i] = null;
+	          }
+	        }
 
-            listeningTo = this._listeningTo = compact(listeningTo);
-            if (isEmptyObject(listeningTo)) {
-                this._listeningTo = null;
-            }
+	        listeningTo = this._listeningTo = compact(listeningTo);
+	        if (isEmptyObject(listeningTo)) {
+	        	this._listeningTo = null;
+	        }
 
-            return this;
-        }
+	        return this;
+	    }
     });
 
     function compact(array) {
@@ -599,10 +600,10 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
     function flatten(array) {
         if (isArrayLike(array)) {
             var result = [];
-            for (var i = 0; i < array.length; i++) {
+            for (var i = 0;i<array.length;i++) {
                 var item = array[i];
                 if (isArrayLike(item)) {
-                    for (var j = 0; j < item.length; j++) {
+                    for (var j = 0; j<item.length;j++) {
                         result.push(item[j]);
                     }
                 } else {
@@ -685,7 +686,7 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
     }
 
     function isArray(object) {
-        return object && object.constructor === Array;
+        return object instanceof Array;
     }
 
     function isArrayLike(obj) {
@@ -746,9 +747,9 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
     function isEmptyObject(obj) {
         var name;
         for (name in obj) {
-            if (obj[name] !== null) {
-                return false;
-            }
+        	if (obj[name] !== null) {
+        		return false;
+        	}
         }
         return true;
     }
@@ -822,22 +823,22 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
         return str == null ? "" : String.prototype.trim.call(str);
     }
 
-    function removeItem(items, item) {
-        if (isArray(items)) {
-            var idx = items.indexOf(item);
-            if (idx != -1) {
-                items.splice(idx, 1);
-            }
-        } else if (isPlainObject(items)) {
-            for (var key in items) {
-                if (items[key] == item) {
-                    delete items[key];
-                    break;
-                }
-            }
-        }
+    function removeItem(items,item) {
+    	if (isArray(items)) {
+        	var idx = items.indexOf(item);
+        	if (idx != -1) {
+        		items.splice(idx, 1);
+        	}
+    	} else if (isPlainObject(items)) {
+    		for (var key in items) {
+    			if (items[key] == item) {
+    				delete items[key];
+    				break;
+    			}
+    		}
+    	}
 
-        return this;
+    	return this;
     }
 
     function _mixin(target, source, deep, safe) {
@@ -950,9 +951,8 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
     }
 
     var _uid = 1;
-
     function uid(obj) {
-        return obj._uid || (obj._uid = _uid++);
+        return obj._uid || obj.id || (obj._uid = _uid++);
     }
 
     function uniq(array) {
@@ -1013,7 +1013,7 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
 
         isFunction: isFunction,
 
-        isHtmlNode: isHtmlNode,
+        isHtmlNode : isHtmlNode,
 
         isObject: isObject,
 
@@ -1041,7 +1041,7 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
 
         mixin: mixin,
 
-        nextTick: nextTick,
+        nextTick : nextTick,
 
         proxy: proxy,
 
@@ -1057,7 +1057,7 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
 
         safeMixin: safeMixin,
 
-        serializeValue: function(value) {
+        serializeValue : function(value) {
             return JSON.stringify(value)
         },
 
@@ -1083,6 +1083,7 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
 
     return skylark.langx = langx;
 });
+
 define('skylark-utils/langx',[
     "skylark-langx/langx"
 ], function(langx) {
@@ -1393,7 +1394,6 @@ define('skylark-utils/noder',[
 
     function createFragment(html) {
         // A special case optimization for a single tag
-        html = langx.trim(html);
         if (singleTagRE.test(html)) {
             return [createElement(RegExp.$1)];
         }
@@ -2043,14 +2043,11 @@ define('skylark-utils/finder',[
 
     local.pseudos = {
         // custom pseudos
-        'checkbox': function(elm){
-            return elm.type === "checkbox";
-        },
-        'checked': function(elm) {
+        checked: function(elm) {
             return !!elm.checked;
         },
 
-        'contains': function(elm, idx, nodes, text) {
+        contains: function(elm, idx, nodes, text) {
             if ($(this).text().indexOf(text) > -1) return this
         },
 
@@ -2062,7 +2059,7 @@ define('skylark-utils/finder',[
             return !elm.disabled;
         },
 
-        'eq': function(elm, idx, nodes, value) {
+        eq: function(elm, idx, nodes, value) {
             return (idx == value);
         },
 
@@ -2070,55 +2067,47 @@ define('skylark-utils/finder',[
             return document.activeElement === elm && (elm.href || elm.type || elm.tabindex);
         },
 
-        'first': function(elm, idx) {
+        first: function(elm, idx) {
             return (idx === 0);
         },
 
-        'gt': function(elm, idx, nodes, value) {
+        gt: function(elm, idx, nodes, value) {
             return (idx > value);
         },
 
-        'has': function(elm, idx, nodes, sel) {
+        has: function(elm, idx, nodes, sel) {
             return local.querySelector(elm, sel).length > 0;
         },
 
 
-        'hidden': function(elm) {
+        hidden: function(elm) {
             return !local.pseudos["visible"](elm);
         },
 
-        'last': function(elm, idx, nodes) {
+        last: function(elm, idx, nodes) {
             return (idx === nodes.length - 1);
         },
 
-        'lt': function(elm, idx, nodes, value) {
+        lt: function(elm, idx, nodes, value) {
             return (idx < value);
         },
 
-        'not': function(elm, idx, nodes, sel) {
+        not: function(elm, idx, nodes, sel) {
             return local.match(elm, sel);
         },
 
-        'parent': function(elm) {
+        parent: function(elm) {
             return !!elm.parentNode;
         },
 
-        'radio': function(elm){
-            return elm.type === "radio";
-        },
-
-        'selected': function(elm) {
+        selected: function(elm) {
             return !!elm.selected;
         },
 
-        'visible': function(elm) {
+        visible: function(elm) {
             return elm.offsetWidth && elm.offsetWidth
         }
     };
-
-    ["first","eq","last"].forEach(function(item){
-        local.pseudos[item].isArrayFilter = true;
-    });
 
     local.divide = function(cond) {
         var nativeSelector = "",
@@ -2175,59 +2164,51 @@ define('skylark-utils/finder',[
 
     };
 
-    local.check = function(node, cond, idx, nodes,arrayFilte) {
+    local.check = function(node, cond, idx, nodes) {
         var tag,
             id,
             classes,
             attributes,
-            pseudos,
+            pseudos;
 
-            i, part, cls, pseudo;
-
-        if (!arrayFilte) {
-            if (tag = cond.tag) {
-                var nodeName = node.nodeName.toUpperCase();
-                if (tag == '*') {
-                    if (nodeName < '@') return false; // Fix for comment nodes and closed nodes
-                } else {
-                    if (nodeName != (tag || "").toUpperCase()) return false;
-                }
+        if (tag = cond.tag) {
+            var nodeName = node.nodeName.toUpperCase();
+            if (tag == '*') {
+                if (nodeName < '@') return false; // Fix for comment nodes and closed nodes
+            } else {
+                if (nodeName != (tag || "").toUpperCase()) return false;
             }
-
-            if (id = cond.id) {
-                if (node.getAttribute('id') != id) {
-                    return false;
-                }
-            }
-
-
-            if (classes = cond.classes) {
-                for (i = classes.length; i--;) {
-                    cls = node.getAttribute('class');
-                    if (!(cls && classes[i].regexp.test(cls))) return false;
-                }
-            }
-
-            if (attributes) {
-                for (i = attributes.length; i--;) {
-                    part = attributes[i];
-                    if (part.operator ? !part.test(node.getAttribute(part.key)) : !node.hasAttribute(part.key)) return false;
-                }
-
-            }
-
         }
+
+        if (id = cond.id) {
+            if (node.getAttribute('id') != id) {
+                return false;
+            }
+        }
+
+        var i, part, cls, pseudo;
+
+        if (classes = cond.classes) {
+            for (i = classes.length; i--;) {
+                cls = node.getAttribute('class');
+                if (!(cls && classes[i].regexp.test(cls))) return false;
+            }
+        }
+
+        if (attributes)
+            for (i = attributes.length; i--;) {
+                part = attributes[i];
+                if (part.operator ? !part.test(node.getAttribute(part.key)) : !node.hasAttribute(part.key)) return false;
+            }
         if (pseudos = cond.pseudos) {
             for (i = pseudos.length; i--;) {
                 part = pseudos[i];
                 if (pseudo = this.pseudos[part.key]) {
-                    if ((arrayFilte && pseudo.isArrayFilter) || (!arrayFilte && !pseudo.isArrayFilter)) {
-                        if (!pseudo(node, idx, nodes, part.value)) {
-                            return false;
-                        }
+                    if (!pseudo(node, idx, nodes, part.value)) {
+                        return false;
                     }
                 } else {
-                    if (!arrayFilte && !nativeMatchesSelector.call(node, part.key)) {
+                    if (!nativeMatchesSelector.call(node, part.key)) {
                         return false;
                     }
                 }
@@ -2238,14 +2219,7 @@ define('skylark-utils/finder',[
 
     local.match = function(node, selector) {
 
-        var parsed ;
-
-        if (langx.isString(selector)) {
-            parsed = local.Slick.parse(selector);
-        } else {
-            parsed = selector;            
-        }
-        
+        var parsed = local.Slick.parse(selector);
         if (!parsed) {
             return true;
         }
@@ -2253,13 +2227,12 @@ define('skylark-utils/finder',[
         // simple (single) selectors
         var expressions = parsed.expressions,
             simpleExpCounter = 0,
-            i,
-            currentExpression;
+            i;
         for (i = 0;
             (currentExpression = expressions[i]); i++) {
             if (currentExpression.length == 1) {
                 var exp = currentExpression[0];
-                if (this.check(node,exp)) {
+                if (this.check(node, exp)) {
                     return true;
                 }
                 simpleExpCounter++;
@@ -2279,39 +2252,6 @@ define('skylark-utils/finder',[
         }
         return false;
     };
-
-
-    local.filter = function(nodes, selector) {
-        var parsed = local.Slick.parse(selector);
-
-
-        // simple (single) selectors
-        var expressions = parsed.expressions,
-            i,
-            currentExpression,
-            ret = [];
-        for (i = 0;
-            (currentExpression = expressions[i]); i++) {
-            if (currentExpression.length == 1) {
-                var exp = currentExpression[0];
-
-                var matchs = filter.call(nodes, function(node, idx) {
-                    return local.check(node, exp, idx, nodes,false);
-                });    
-
-                matchs = filter.call(matchs, function(node, idx) {
-                    return local.check(node, exp, idx, matchs,true);
-                });    
-
-                ret = langx.uniq(ret.concat(matchs));
-            } else {
-                throw new Error("not supported selector:" + selector);
-            }
-        }
-
-        return ret;
- 
-    };    
 
     local.combine = function(elm, bit) {
         var op = bit.combinator,
@@ -2380,14 +2320,8 @@ define('skylark-utils/finder',[
                         nodes = filter.call(nodes, function(item, idx) {
                             return local.check(item, {
                                 pseudos: [divided.customPseudos[i]]
-                            }, idx, nodes,false)
+                            }, idx, nodes)
                         });
-
-                        nodes = filter.call(nodes, function(item, idx) {
-                            return local.check(item, {
-                                pseudos: [divided.customPseudos[i]]
-                            }, idx, nodes,true)
-                        });                        
                     }
                 }
                 break;
@@ -2451,7 +2385,9 @@ define('skylark-utils/finder',[
         var ret = [],
             rootIsSelector = root && langx.isString(root);
         while (node = node.parentNode) {
+            if (matches(node, selector)) {
                 ret.push(node);
+            }
             if (root) {
                 if (rootIsSelector) {
                     if (matches(node,root)) {
@@ -2462,10 +2398,6 @@ define('skylark-utils/finder',[
                 }
             } 
 
-        }
-
-        if (selector) {
-            ret = local.filter(ret,selector);
         }
         return ret;
     }
@@ -2481,11 +2413,11 @@ define('skylark-utils/finder',[
         for (var i = 0; i < childNodes.length; i++) {
             var node = childNodes[i];
             if (node.nodeType == 1) {
-                ret.push(node);
+                if (!selector || matches(node, selector)) {
+                    ret.push(node);
+                }
+
             }
-        }
-        if (selector) {
-            ret = local.filter(ret,selector);
         }
         return ret;
     }
@@ -2869,13 +2801,6 @@ define('skylark-utils/datax',[
         return this;
     }
 
-    function removeProp(elm, name) {
-        name.split(' ').forEach(function(prop) {
-            delete elm[prop];
-        });
-        return this;
-    }
-
     function text(elm, txt) {
         if (txt === undefined) {
             return elm.textContent;
@@ -2918,8 +2843,6 @@ define('skylark-utils/datax',[
         removeAttr: removeAttr,
 
         removeData: removeData,
-
-        removeProp: removeProp,
 
         text: text,
 
@@ -4194,12 +4117,12 @@ define('skylark-utils/fx',[
         return this;
     }
 
-    function fadeTo(elm, speed, opacity, easing, callback) {
-        animate(elm, { opacity: opacity }, speed, easing, callback);
+    function fadeTo(elm, speed, opacity, callback) {
+        animate(elm, { opacity: opacity }, speed, callback);
         return this;
     }
 
-    function fadeIn(elm, speed, easing, callback) {
+    function fadeIn(elm, speed, callback) {
         var target = styler.css(elm, "opacity");
         if (target > 0) {
             styler.css(elm, "opacity", 0);
@@ -4208,46 +4131,29 @@ define('skylark-utils/fx',[
         }
         styler.show(elm);
 
-        fadeTo(elm, speed, target, easing, callback);
+        fadeTo(elm, speed, target, callback);
 
         return this;
     }
 
-    function fadeOut(elm, speed, easing, callback) {
-        var _elm = elm,
-            complete,
-            options = {};
+    function fadeOut(elm, speed, callback) {
 
-        if (langx.isPlainObject(speed)) {
-            options.easing = speed.easing;
-            options.duration = speed.duration;
-            complete = speed.complete;
-        } else {
-            options.duration = speed;
+        fadeTo(elm, speed, 0, function() {
+            styler.hide(elm);
             if (callback) {
-                complete = callback;
-                options.easing = easing;
-            } else {
-                complete = easing;
+                callback.call(elm);
             }
-        }
-        options.complete = function() {
-            styler.hide(this);
-            if (complete) {
-                complete.call(this);
-            }
-        }
 
-        fadeTo(elm, options, 0);
+        });
 
         return this;
     }
 
-    function fadeToggle(elm, speed, ceasing,allback) {
+    function fadeToggle(elm, speed, callback) {
         if (styler.isInvisible(elm)) {
-            fadeIn(elm, speed, easing,callback);
+            fadeIn(elm, speed, callback);
         } else {
-            fadeOut(elm, speed, easing,callback);
+            fadeOut(elm, speed, callback);
         }
         return this;
     }
@@ -4587,7 +4493,7 @@ define('skylark-utils/query',[
             },
 
             add: function(selector, context) {
-                return $(uniq(this.toArray().concat($(selector, context).toArray())));
+                return $(uniq(this.concat($(selector, context))))
             },
 
             is: function(selector) {
@@ -4753,8 +4659,6 @@ define('skylark-utils/query',[
             removeAttr: wrapper_every_act(datax.removeAttr, datax),
 
             prop: wrapper_name_value(datax.prop, datax, datax.prop),
-
-            removeProp: wrapper_every_act(datax.removeProp, datax),
 
             data: wrapper_name_value(datax.data, datax, datax.data),
 
@@ -6290,14 +6194,6 @@ define('skylark-utils/velm',[
 
         VisualElement: VisualElement,
 
-        partial : function(name,fn) {
-            var props = {};
-
-            props[name] = fn;
-
-            VisualElement.partial(props);
-        },
-
         delegate: function(names, context) {
             var props = {};
 
@@ -7009,287 +6905,291 @@ define('skylark-bs-swt/button',[
 });
 
 define('skylark-bs-swt/carousel',[
-  "skylark-utils/langx",
-  "skylark-utils/browser",
-  "skylark-utils/eventer",
-  "skylark-utils/noder",
-  "skylark-utils/geom",
-  "skylark-utils/velm",
-  "skylark-utils/query",
-  "./sbswt"
-],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
+    "skylark-utils/langx",
+    "skylark-utils/browser",
+    "skylark-utils/eventer",
+    "skylark-utils/noder",
+    "skylark-utils/geom",
+    "skylark-utils/velm",
+    "skylark-utils/query",
+    "./sbswt"
+], function(langx, browser, eventer, noder, geom, velm, $, sbswt) {
 
-/* ========================================================================
- * Bootstrap: carousel.js v3.3.7
- * http://getbootstrap.com/javascript/#carousel
- * ========================================================================
- * Copyright 2011-2016 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
- * ======================================================================== */
+    /* ========================================================================
+     * Bootstrap: carousel.js v3.3.7
+     * http://getbootstrap.com/javascript/#carousel
+     * ========================================================================
+     * Copyright 2011-2016 Twitter, Inc.
+     * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+     * ======================================================================== */
 
-  'use strict';
+    'use strict';
 
-  // CAROUSEL CLASS DEFINITION
-  // =========================
+    // CAROUSEL CLASS DEFINITION
+    // =========================
 
-  var Carousel = sbswt.Carousel = sbswt.WidgetBase.inherit({
-    klassName: "Carousel",
+    var Carousel = sbswt.Carousel = sbswt.WidgetBase.inherit({
+        klassName: "Carousel",
 
-    init : function(element,options) {
-    this.$element    = $(element)
-    this.$indicators = this.$element.find('.carousel-indicators')
-    this.options     = options
-    this.paused      = null
-    this.sliding     = null
-    this.interval    = null
-    this.$active     = null
-    this.$items      = null
+        init: function(element, options) {
+            this.$element = $(element)
+            this.$indicators = this.$element.find('.carousel-indicators')
+            this.options = options
+            this.paused = null
+            this.sliding = null
+            this.interval = null
+            this.$active = null
+            this.$items = null
 
-    this.options.keyboard && this.$element.on('keydown.bs.carousel', langx.proxy(this.keydown, this))
+            this.options.keyboard && this.$element.on('keydown.bs.carousel', langx.proxy(this.keydown, this))
 
-    this.options.pause == 'hover' && !('ontouchstart' in document.documentElement) && this.$element
-      .on('mouseenter.bs.carousel', langx.proxy(this.pause, this))
-      .on('mouseleave.bs.carousel', langx.proxy(this.cycle, this));
+            this.options.pause == 'hover' && !('ontouchstart' in document.documentElement) && this.$element
+                .on('mouseenter.bs.carousel', langx.proxy(this.pause, this))
+                .on('mouseleave.bs.carousel', langx.proxy(this.cycle, this));
 
-    this.$element.on("click.bs.carousel.data-api","[data-slide],[data-slide-to]",function(e){
-        var href
-        var $this   = $(this)
-        var $target = $($this.attr('data-target') || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '')) // strip for ie7
-        if (!$target.hasClass('carousel')) return
-        var options = langx.mixin({}, $target.data(), $this.data());
-        var slideIndex = $this.attr('data-slide-to')
-        if (slideIndex) options.interval = false
+            this.$element.on("click.bs.carousel.data-api", "[data-slide],[data-slide-to]", function(e) {
+                var href
+                var $this = $(this)
+                var $target = $($this.attr('data-target') || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '')) // strip for ie7
+                if (!$target.hasClass('carousel')) return
+                var options = langx.mixin({}, $target.data(), $this.data());
+                var slideIndex = $this.attr('data-slide-to')
+                if (slideIndex) options.interval = false
 
-        Plugin.call($target, options);
+                Plugin.call($target, options);
 
-        if (slideIndex) {
-          $target.data('bs.carousel').to(slideIndex);
+                if (slideIndex) {
+                    $target.data('bs.carousel').to(slideIndex);
+                }
+
+                e.preventDefault();
+
+            });
+        }
+    });
+
+    // var Carousel = function (element, options) {
+    // }
+
+    Carousel.VERSION = '3.3.7'
+
+    Carousel.TRANSITION_DURATION = 600
+
+    Carousel.DEFAULTS = {
+        interval: 5000,
+        pause: 'hover',
+        wrap: true,
+        keyboard: true
+    }
+
+    Carousel.prototype.keydown = function(e) {
+        if (/input|textarea/i.test(e.target.tagName)) return
+        switch (e.which) {
+            case 37:
+                this.prev();
+                break
+            case 39:
+                this.next();
+                break
+            default:
+                return
         }
 
-        e.preventDefault();
-
-    });      
-    }
-  });  
-
-  var Carousel = function (element, options) {
-  }
-
-  Carousel.VERSION  = '3.3.7'
-
-  Carousel.TRANSITION_DURATION = 600
-
-  Carousel.DEFAULTS = {
-    interval: 5000,
-    pause: 'hover',
-    wrap: true,
-    keyboard: true
-  }
-
-  Carousel.prototype.keydown = function (e) {
-    if (/input|textarea/i.test(e.target.tagName)) return
-    switch (e.which) {
-      case 37: this.prev(); break
-      case 39: this.next(); break
-      default: return
+        e.preventDefault()
     }
 
-    e.preventDefault()
-  }
+    Carousel.prototype.cycle = function(e) {
+        e || (this.paused = false)
 
-  Carousel.prototype.cycle = function (e) {
-    e || (this.paused = false)
+        this.interval && clearInterval(this.interval)
 
-    this.interval && clearInterval(this.interval)
+        this.options.interval &&
+            !this.paused &&
+            (this.interval = setInterval(langx.proxy(this.next, this), this.options.interval))
 
-    this.options.interval
-      && !this.paused
-      && (this.interval = setInterval(langx.proxy(this.next, this), this.options.interval))
-
-    return this
-  }
-
-  Carousel.prototype.getItemIndex = function (item) {
-    this.$items = item.parent().children('.item')
-    return this.$items.index(item || this.$active)
-  }
-
-  Carousel.prototype.getItemForDirection = function (direction, active) {
-    var activeIndex = this.getItemIndex(active)
-    var willWrap = (direction == 'prev' && activeIndex === 0)
-                || (direction == 'next' && activeIndex == (this.$items.length - 1))
-    if (willWrap && !this.options.wrap) return active
-    var delta = direction == 'prev' ? -1 : 1
-    var itemIndex = (activeIndex + delta) % this.$items.length
-    return this.$items.eq(itemIndex)
-  }
-
-  Carousel.prototype.to = function (pos) {
-    var that        = this
-    var activeIndex = this.getItemIndex(this.$active = this.$element.find('.item.active'))
-
-    if (pos > (this.$items.length - 1) || pos < 0) return
-
-    if (this.sliding)       return this.$element.one('slid.bs.carousel', function () { that.to(pos) }) // yes, "slid"
-    if (activeIndex == pos) return this.pause().cycle()
-
-    return this.slide(pos > activeIndex ? 'next' : 'prev', this.$items.eq(pos))
-  }
-
-  Carousel.prototype.pause = function (e) {
-    e || (this.paused = true)
-
-    if (this.$element.find('.next, .prev').length && browser.support.transition) {
-      this.$element.trigger(browser.support.transition.end)
-      this.cycle(true)
+        return this
     }
 
-    this.interval = clearInterval(this.interval)
-
-    return this
-  }
-
-  Carousel.prototype.next = function () {
-    if (this.sliding) return
-    return this.slide('next')
-  }
-
-  Carousel.prototype.prev = function () {
-    if (this.sliding) return
-    return this.slide('prev')
-  }
-
-  Carousel.prototype.slide = function (type, next) {
-    var $active   = this.$element.find('.item.active')
-    var $next     = next || this.getItemForDirection(type, $active)
-    var isCycling = this.interval
-    var direction = type == 'next' ? 'left' : 'right'
-    var that      = this
-
-    if ($next.hasClass('active')) return (this.sliding = false)
-
-    var relatedTarget = $next[0]
-    var slideEvent = eventer.create('slide.bs.carousel', {
-      relatedTarget: relatedTarget,
-      direction: direction
-    })
-    this.$element.trigger(slideEvent)
-    if (slideEvent.isDefaultPrevented()) return
-
-    this.sliding = true
-
-    isCycling && this.pause()
-
-    if (this.$indicators.length) {
-      this.$indicators.find('.active').removeClass('active')
-      var $nextIndicator = $(this.$indicators.children()[this.getItemIndex($next)])
-      $nextIndicator && $nextIndicator.addClass('active')
+    Carousel.prototype.getItemIndex = function(item) {
+        this.$items = item.parent().children('.item')
+        return this.$items.index(item || this.$active)
     }
 
-    var slidEvent = eventer.create('slid.bs.carousel', { relatedTarget: relatedTarget, direction: direction }) // yes, "slid"
-    if (browser.support.transition && this.$element.hasClass('slide')) {
-      $next.addClass(type)
-      $next[0].offsetWidth // force reflow
-      $active.addClass(direction)
-      $next.addClass(direction)
-      $active
-        .one('bsTransitionEnd', function () {
-          $next.removeClass([type, direction].join(' ')).addClass('active')
-          $active.removeClass(['active', direction].join(' '))
-          that.sliding = false
-          setTimeout(function () {
-            that.$element.trigger(slidEvent)
-          }, 0)
+    Carousel.prototype.getItemForDirection = function(direction, active) {
+        var activeIndex = this.getItemIndex(active)
+        var willWrap = (direction == 'prev' && activeIndex === 0) ||
+            (direction == 'next' && activeIndex == (this.$items.length - 1))
+        if (willWrap && !this.options.wrap) return active
+        var delta = direction == 'prev' ? -1 : 1
+        var itemIndex = (activeIndex + delta) % this.$items.length
+        return this.$items.eq(itemIndex)
+    }
+
+    Carousel.prototype.to = function(pos) {
+        var that = this
+        var activeIndex = this.getItemIndex(this.$active = this.$element.find('.item.active'))
+
+        if (pos > (this.$items.length - 1) || pos < 0) return
+
+        if (this.sliding) return this.$element.one('slid.bs.carousel', function() { that.to(pos) }) // yes, "slid"
+        if (activeIndex == pos) return this.pause().cycle()
+
+        return this.slide(pos > activeIndex ? 'next' : 'prev', this.$items.eq(pos))
+    }
+
+    Carousel.prototype.pause = function(e) {
+        e || (this.paused = true)
+
+        if (this.$element.find('.next, .prev').length && browser.support.transition) {
+            this.$element.trigger(browser.support.transition.end)
+            this.cycle(true)
+        }
+
+        this.interval = clearInterval(this.interval)
+
+        return this
+    }
+
+    Carousel.prototype.next = function() {
+        if (this.sliding) return
+        return this.slide('next')
+    }
+
+    Carousel.prototype.prev = function() {
+        if (this.sliding) return
+        return this.slide('prev')
+    }
+
+    Carousel.prototype.slide = function(type, next) {
+        var $active = this.$element.find('.item.active')
+        var $next = next || this.getItemForDirection(type, $active)
+        var isCycling = this.interval
+        var direction = type == 'next' ? 'left' : 'right'
+        var that = this
+
+        if ($next.hasClass('active')) return (this.sliding = false)
+
+        var relatedTarget = $next[0]
+        var slideEvent = eventer.create('slide.bs.carousel', {
+            relatedTarget: relatedTarget,
+            direction: direction
         })
-        .emulateTransitionEnd(Carousel.TRANSITION_DURATION)
-    } else {
-      $active.removeClass('active')
-      $next.addClass('active')
-      this.sliding = false
-      this.$element.trigger(slidEvent)
+        this.$element.trigger(slideEvent)
+        if (slideEvent.isDefaultPrevented()) return
+
+        this.sliding = true
+
+        isCycling && this.pause()
+
+        if (this.$indicators.length) {
+            this.$indicators.find('.active').removeClass('active')
+            var $nextIndicator = $(this.$indicators.children()[this.getItemIndex($next)])
+            $nextIndicator && $nextIndicator.addClass('active')
+        }
+
+        var slidEvent = eventer.create('slid.bs.carousel', { relatedTarget: relatedTarget, direction: direction }) // yes, "slid"
+        if (browser.support.transition && this.$element.hasClass('slide')) {
+            $next.addClass(type)
+            $next[0].offsetWidth // force reflow
+            $active.addClass(direction)
+            $next.addClass(direction)
+            $active
+                .one('bsTransitionEnd', function() {
+                    $next.removeClass([type, direction].join(' ')).addClass('active')
+                    $active.removeClass(['active', direction].join(' '))
+                    that.sliding = false
+                    setTimeout(function() {
+                        that.$element.trigger(slidEvent)
+                    }, 0)
+                })
+                .emulateTransitionEnd(Carousel.TRANSITION_DURATION)
+        } else {
+            $active.removeClass('active')
+            $next.addClass('active')
+            this.sliding = false
+            this.$element.trigger(slidEvent)
+        }
+
+        isCycling && this.cycle()
+
+        return this
     }
 
-    isCycling && this.cycle()
 
-    return this
-  }
+    // CAROUSEL PLUGIN DEFINITION
+    // ==========================
+
+    function Plugin(option) {
+        return this.each(function() {
+            var $this = $(this)
+            var wgt = $this.data('bs.carousel')
+            var options = langx.mixin({}, Carousel.DEFAULTS, $this.data(), typeof option == 'object' && option)
+            var action = typeof option == 'string' ? option : options.slide
+
+            if (!wgt) {
+                $this.data('bs.carousel', (wgt = new Carousel(this, options)));
+            }
+            if (typeof option == 'number') {
+                wgt.to(option);
+            } else if (action) {
+                wgt[action]()
+            } else if (options.interval) {
+                wgt.pause().cycle();
+            }
+        })
+    }
+
+    var old = $.fn.carousel
+
+    $.fn.carousel = Plugin
+    $.fn.carousel.Constructor = Carousel
 
 
-  // CAROUSEL PLUGIN DEFINITION
-  // ==========================
+    // CAROUSEL NO CONFLICT
+    // ====================
 
-  function Plugin(option) {
-    return this.each(function () {
+    $.fn.carousel.noConflict = function() {
+        $.fn.carousel = old
+        return this
+    }
+
+
+    // CAROUSEL DATA-API
+    // =================
+    /*
+    var clickHandler = function (e) {
+      var href
       var $this   = $(this)
-      var wgt    = $this.data('bs.carousel')
-      var options = langx.mixin({}, Carousel.DEFAULTS, $this.data(), typeof option == 'object' && option)
-      var action  = typeof option == 'string' ? option : options.slide
+      var $target = $($this.attr('data-target') || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '')) // strip for ie7
+      if (!$target.hasClass('carousel')) return
+      var options = langx.mixin({}, $target.data(), $this.data())
+      var slideIndex = $this.attr('data-slide-to')
+      if (slideIndex) options.interval = false
 
-      if (!wgt) {
-        $this.data('bs.carousel', (wgt = new Carousel(this, options)));
+      Plugin.call($target, options)
+
+      if (slideIndex) {
+        $target.data('bs.carousel').to(slideIndex)
       }
-      if (typeof option == 'number') {
-        wgt.to(option);
-      } else if (action) {
-        wgt[action]()
-      }else if (options.interval) {
-        wgt.pause().cycle();
-      }  
-    })
-  }
 
-  var old = $.fn.carousel
-
-  $.fn.carousel             = Plugin
-  $.fn.carousel.Constructor = Carousel
-
-
-  // CAROUSEL NO CONFLICT
-  // ====================
-
-  $.fn.carousel.noConflict = function () {
-    $.fn.carousel = old
-    return this
-  }
-
-
-  // CAROUSEL DATA-API
-  // =================
-  /*
-  var clickHandler = function (e) {
-    var href
-    var $this   = $(this)
-    var $target = $($this.attr('data-target') || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '')) // strip for ie7
-    if (!$target.hasClass('carousel')) return
-    var options = langx.mixin({}, $target.data(), $this.data())
-    var slideIndex = $this.attr('data-slide-to')
-    if (slideIndex) options.interval = false
-
-    Plugin.call($target, options)
-
-    if (slideIndex) {
-      $target.data('bs.carousel').to(slideIndex)
+      e.preventDefault()
     }
 
-    e.preventDefault()
-  }
+    $(document)
+      .on('click.bs.carousel.data-api', '[data-slide]', clickHandler)
+      .on('click.bs.carousel.data-api', '[data-slide-to]', clickHandler)
 
-  $(document)
-    .on('click.bs.carousel.data-api', '[data-slide]', clickHandler)
-    .on('click.bs.carousel.data-api', '[data-slide-to]', clickHandler)
-
-  $(window).on('load', function () {
-    $('[data-ride="carousel"]').each(function () {
-      var $carousel = $(this)
-      Plugin.call($carousel, $carousel.data())
+    $(window).on('load', function () {
+      $('[data-ride="carousel"]').each(function () {
+        var $carousel = $(this)
+        Plugin.call($carousel, $carousel.data())
+      })
     })
-  })
-  */
+    */
 
-  return $.fn.carousel;
+    return $.fn.carousel;
 
 });
-
 define('skylark-bs-swt/checkbox',[
   "skylark-utils/langx",
   "skylark-utils/browser",
