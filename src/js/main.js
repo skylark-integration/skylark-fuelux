@@ -31,7 +31,8 @@ define([
     "./transition",
     "./tree",
     "./window",
-    "./wizard"
+    "./wizard",
+    "./lightbox"
 ], function($) {
     return $;
-})
+});
