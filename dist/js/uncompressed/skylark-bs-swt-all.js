@@ -64,13 +64,7 @@
 
   factory(define,require);
 
-  if (isAmd) {
-    define([
-      "skylark-bs-swt/main"
-    ],function(sbswt){
-      return sbswt;
-    });
-  } else {    
+  if (!isAmd) { 
     if (isCmd) {
       exports = require("skylark-bs-swt/main");
     } else {
@@ -100,6 +94,121 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
         indexOf = Array.prototype.indexOf,
         slice = Array.prototype.slice,
         filter = Array.prototype.filter;
+
+
+    var undefined, nextId = 0;
+    function advise(dispatcher, type, advice, receiveArguments){
+        var previous = dispatcher[type];
+        var around = type == "around";
+        var signal;
+        if(around){
+            var advised = advice(function(){
+                return previous.advice(this, arguments);
+            });
+            signal = {
+                remove: function(){
+                    if(advised){
+                        advised = dispatcher = advice = null;
+                    }
+                },
+                advice: function(target, args){
+                    return advised ?
+                        advised.apply(target, args) :  // called the advised function
+                        previous.advice(target, args); // cancelled, skip to next one
+                }
+            };
+        }else{
+            // create the remove handler
+            signal = {
+                remove: function(){
+                    if(signal.advice){
+                        var previous = signal.previous;
+                        var next = signal.next;
+                        if(!next && !previous){
+                            delete dispatcher[type];
+                        }else{
+                            if(previous){
+                                previous.next = next;
+                            }else{
+                                dispatcher[type] = next;
+                            }
+                            if(next){
+                                next.previous = previous;
+                            }
+                        }
+
+                        // remove the advice to signal that this signal has been removed
+                        dispatcher = advice = signal.advice = null;
+                    }
+                },
+                id: nextId++,
+                advice: advice,
+                receiveArguments: receiveArguments
+            };
+        }
+        if(previous && !around){
+            if(type == "after"){
+                // add the listener to the end of the list
+                // note that we had to change this loop a little bit to workaround a bizarre IE10 JIT bug
+                while(previous.next && (previous = previous.next)){}
+                previous.next = signal;
+                signal.previous = previous;
+            }else if(type == "before"){
+                // add to beginning
+                dispatcher[type] = signal;
+                signal.next = previous;
+                previous.previous = signal;
+            }
+        }else{
+            // around or first one just replaces
+            dispatcher[type] = signal;
+        }
+        return signal;
+    }
+    function aspect(type){
+        return function(target, methodName, advice, receiveArguments){
+            var existing = target[methodName], dispatcher;
+            if(!existing || existing.target != target){
+                // no dispatcher in place
+                target[methodName] = dispatcher = function(){
+                    var executionId = nextId;
+                    // before advice
+                    var args = arguments;
+                    var before = dispatcher.before;
+                    while(before){
+                        args = before.advice.apply(this, args) || args;
+                        before = before.next;
+                    }
+                    // around advice
+                    if(dispatcher.around){
+                        var results = dispatcher.around.advice(this, args);
+                    }
+                    // after advice
+                    var after = dispatcher.after;
+                    while(after && after.id < executionId){
+                        if(after.receiveArguments){
+                            var newResults = after.advice.apply(this, args);
+                            // change the return value only if a new value was returned
+                            results = newResults === undefined ? results : newResults;
+                        }else{
+                            results = after.advice.call(this, results, args);
+                        }
+                        after = after.next;
+                    }
+                    return results;
+                };
+                if(existing){
+                    dispatcher.around = {advice: function(target, args){
+                        return existing.apply(target, args);
+                    }};
+                }
+                dispatcher.target = target;
+            }
+            var results = advise((dispatcher || existing), type, advice, receiveArguments);
+            advice = null;
+            return results;
+        };
+    }
 
 
     var createClass = (function() {
@@ -180,34 +289,34 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
                 };
             }
             if (!ctor.inherit) {
-                ctor.inherit = function(props,options) {
-                    return createClass(props, this,options);
+                ctor.inherit = function(props, options) {
+                    return createClass(props, this, options);
                 };
             }
 
-            ctor.partial(props,options);
+            ctor.partial(props, options);
 
             return ctor;
         }
     })();
 
 
-   function clone( /*anything*/ src) {
+    function clone( /*anything*/ src) {
         var copy;
         if (src === undefined || src === null) {
-            copy =  src;
-        } else if (src.clone){
+            copy = src;
+        } else if (src.clone) {
             copy = src.clone();
         } else if (isArray(src)) {
             copy = [];
-            for (var i = 0;i<src.length;i++) {
+            for (var i = 0; i < src.length; i++) {
                 copy.push(clone(src[i]));
             }
-        } else if (isPlainObject(src)){
+        } else if (isPlainObject(src)) {
             copy = {};
-            for (var key in src){
+            for (var key in src) {
                 copy[key] = clone(src[key]);
-            } 
+            }
         } else {
             copy = src;
         }
@@ -230,18 +339,18 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
         };
     }
 
-    var delegate = (function(){
-            // boodman/crockford delegation w/ cornford optimization
-            function TMP(){}
-            return function(obj, props){
-                TMP.prototype = obj;
-                var tmp = new TMP();
-                TMP.prototype = null;
-                if(props){
-                    mixin(tmp, props);
-                }
-                return tmp; // Object
-            };
+    var delegate = (function() {
+        // boodman/crockford delegation w/ cornford optimization
+        function TMP() {}
+        return function(obj, props) {
+            TMP.prototype = obj;
+            var tmp = new TMP();
+            TMP.prototype = null;
+            if (props) {
+                mixin(tmp, props);
+            }
+            return tmp; // Object
+        };
     })();
 
 
@@ -315,228 +424,227 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
     Deferred.immediate = Deferred.resolve;
 
     var Evented = createClass({
-        on: function(events,selector,data,callback,ctx,/*used internally*/one) {
-	        var self = this,
-	        	_hub = this._hub || (this._hub = {});
+        on: function(events, selector, data, callback, ctx, /*used internally*/ one) {
+            var self = this,
+                _hub = this._hub || (this._hub = {});
 
-	        if (isPlainObject(events)) {
-	        	ctx = callback;
-	            each(events, function(type, fn) {
-	                self.on(type,selector, data, fn, ctx, one);
-	            });
-	            return this;
-	        }
+            if (isPlainObject(events)) {
+                ctx = callback;
+                each(events, function(type, fn) {
+                    self.on(type, selector, data, fn, ctx, one);
+                });
+                return this;
+            }
 
-	        if (!isString(selector) && !isFunction(callback)) {
-	        	ctx = callback;
-	            callback = data;
-	            data = selector;
-	            selector = undefined;
-	        }
+            if (!isString(selector) && !isFunction(callback)) {
+                ctx = callback;
+                callback = data;
+                data = selector;
+                selector = undefined;
+            }
 
-	        if (isFunction(data)) {
-	            ctx = callback;
-	            callback = data;
-	            data = null;
-	        }
+            if (isFunction(data)) {
+                ctx = callback;
+                callback = data;
+                data = null;
+            }
 
-	        if (isString(events)) {
-	            events = events.split(/\s/)
-	        }
+            if (isString(events)) {
+                events = events.split(/\s/)
+            }
 
-	        events.forEach(function(name) {
-	            (_hub[name] || (_hub[name] = [])).push({
-	                fn: callback,
-	                selector: selector,
-	                data: data,
-	                ctx: ctx,
-	                one: one
-	            });
-	        });
+            events.forEach(function(name) {
+                (_hub[name] || (_hub[name] = [])).push({
+                    fn: callback,
+                    selector: selector,
+                    data: data,
+                    ctx: ctx,
+                    one: one
+                });
+            });
 
-	        return this;
-	    },
+            return this;
+        },
 
-	    one: function(events,selector,data,callback,ctx) {
-	        return this.on(events,selector,data,callback,ctx,1);
-	    },
+        one: function(events, selector, data, callback, ctx) {
+            return this.on(events, selector, data, callback, ctx, 1);
+        },
 
-	    trigger: function(e/*,argument list*/) {
-	    	if (!this._hub) {
-	    		return this;
-	    	}
+        trigger: function(e /*,argument list*/ ) {
+            if (!this._hub) {
+                return this;
+            }
 
-	    	var self = this;
+            var self = this;
 
-	    	if (isString(e)) {
-	    		e = new CustomEvent(e);
-	    	}
+            if (isString(e)) {
+                e = new CustomEvent(e);
+            }
 
-	        var args = slice.call(arguments,1);
+            var args = slice.call(arguments, 1);
             if (isDefined(args)) {
                 args = [e].concat(args);
             } else {
                 args = [e];
             }
-	        [e.type || e.name ,"all"].forEach(function(eventName){
-		        var listeners = self._hub[eventName];
-		        if (!listeners){
-		        	return;
-		        }
+            [e.type || e.name, "all"].forEach(function(eventName) {
+                var listeners = self._hub[eventName];
+                if (!listeners) {
+                    return;
+                }
 
-		        var len = listeners.length,
-		        	reCompact = false;
+                var len = listeners.length,
+                    reCompact = false;
 
-		        for (var i = 0; i < len; i++) {
-		        	var listener = listeners[i];
-		            if (e.data) {
-		                if (listener.data) {
-		                    e.data = mixin({}, listener.data, e.data);
-		                }
-		            } else {
-		                e.data = listener.data || null;
-		            }
-		            listener.fn.apply(listener.ctx, args);
-		            if (listener.one){
-		            	listeners[i] = null;
-		            	reCompact = true;
-		            }
-		        }
+                for (var i = 0; i < len; i++) {
+                    var listener = listeners[i];
+                    if (e.data) {
+                        if (listener.data) {
+                            e.data = mixin({}, listener.data, e.data);
+                        }
+                    } else {
+                        e.data = listener.data || null;
+                    }
+                    listener.fn.apply(listener.ctx, args);
+                    if (listener.one) {
+                        listeners[i] = null;
+                        reCompact = true;
+                    }
+                }
 
-		        if (reCompact){
-		        	self._hub[eventName] = compact(listeners);
-		        }
+                if (reCompact) {
+                    self._hub[eventName] = compact(listeners);
+                }
 
-	        });
-	        return this;
-	    },
+            });
+            return this;
+        },
 
-	    listened: function(event) {
-	        var evtArr = ((this._hub || (this._events = {}))[event] || []);
-	        return evtArr.length > 0;
-	    },
+        listened: function(event) {
+            var evtArr = ((this._hub || (this._events = {}))[event] || []);
+            return evtArr.length > 0;
+        },
 
-	    listenTo: function(obj, event, callback,/*used internally*/one) {
-	        if (!obj) {
-	        	return this;
-	        }
+        listenTo: function(obj, event, callback, /*used internally*/ one) {
+            if (!obj) {
+                return this;
+            }
 
-	        // Bind callbacks on obj,
-	        if (isString(callback)) {
-	        	callback = this[callback];
-	        }
+            // Bind callbacks on obj,
+            if (isString(callback)) {
+                callback = this[callback];
+            }
 
-	        if (one){
-		        obj.one(event,callback,this);
-	        } else {
-		        obj.on(event,callback,this);
-	        }
+            if (one) {
+                obj.one(event, callback, this);
+            } else {
+                obj.on(event, callback, this);
+            }
 
-	        //keep track of them on listening.
-	        var listeningTo = this._listeningTo || (this._listeningTo = []),
-	        	listening;
+            //keep track of them on listening.
+            var listeningTo = this._listeningTo || (this._listeningTo = []),
+                listening;
 
-	        for (var i=0;i<listeningTo.length;i++) {
-	        	if (listeningTo[i].obj == obj) {
-	        		listening = listeningTo[i];
-	        		break;
-	        	}
-	        }
-	        if (!listening) {
-	        	listeningTo.push(
-	        		listening = {
-	        			obj : obj,
-	        			events : {
-	        			}
-	        	    }
-	        	);
-	        }
-	        var listeningEvents = listening.events,
-	        	listeningEvent = listeningEvents[event] = listeningEvents[event] || [];
-	        if (listeningEvent.indexOf(callback)==-1) {
-	        	listeningEvent.push(callback);
-	        }
+            for (var i = 0; i < listeningTo.length; i++) {
+                if (listeningTo[i].obj == obj) {
+                    listening = listeningTo[i];
+                    break;
+                }
+            }
+            if (!listening) {
+                listeningTo.push(
+                    listening = {
+                        obj: obj,
+                        events: {}
+                    }
+                );
+            }
+            var listeningEvents = listening.events,
+                listeningEvent = listeningEvents[event] = listeningEvents[event] || [];
+            if (listeningEvent.indexOf(callback) == -1) {
+                listeningEvent.push(callback);
+            }
 
-	        return this;
-	    },
+            return this;
+        },
 
-	    listenToOnce: function(obj, event, callback) {
-	    	return this.listenTo(obj,event,callback,1);
-	    },
+        listenToOnce: function(obj, event, callback) {
+            return this.listenTo(obj, event, callback, 1);
+        },
 
-	    off: function(events, callback) {
-	        var _hub = this._hub || (this._hub = {});
-	        if (isString(events)) {
-	            events = events.split(/\s/)
-	        }
+        off: function(events, callback) {
+            var _hub = this._hub || (this._hub = {});
+            if (isString(events)) {
+                events = events.split(/\s/)
+            }
 
-	        events.forEach(function(name) {
-	            var evts = _hub[name];
-	            var liveEvents = [];
+            events.forEach(function(name) {
+                var evts = _hub[name];
+                var liveEvents = [];
 
-	            if (evts && callback) {
-	                for (var i = 0, len = evts.length; i < len; i++) {
-	                    if (evts[i].fn !== callback && evts[i].fn._ !== callback)
-	                        liveEvents.push(evts[i]);
-	                }
-	            }
+                if (evts && callback) {
+                    for (var i = 0, len = evts.length; i < len; i++) {
+                        if (evts[i].fn !== callback && evts[i].fn._ !== callback)
+                            liveEvents.push(evts[i]);
+                    }
+                }
 
-	            if (liveEvents.length) {
-	            	_hub[name] = liveEvents;
-	            } else {
-	            	delete _hub[name];
-	            }
-	        });
+                if (liveEvents.length) {
+                    _hub[name] = liveEvents;
+                } else {
+                    delete _hub[name];
+                }
+            });
 
-	        return this;
-	    },
-	    unlistenTo : function(obj, event, callback) {
-	        var listeningTo = this._listeningTo;
-	        if (!listeningTo) {
-	        	return this;
-	        }
-	        for (var i = 0; i < listeningTo.length; i++) {
-	          var listening = listeningTo[i];
+            return this;
+        },
+        unlistenTo: function(obj, event, callback) {
+            var listeningTo = this._listeningTo;
+            if (!listeningTo) {
+                return this;
+            }
+            for (var i = 0; i < listeningTo.length; i++) {
+                var listening = listeningTo[i];
 
-	          if (obj && obj != listening.obj) {
-	        	  continue;
-	          }
+                if (obj && obj != listening.obj) {
+                    continue;
+                }
 
-	          var listeningEvents = listening.events;
-	          for (var eventName in listeningEvents) {
-	        	 if (event && event != eventName) {
-	        		 continue;
-	        	 }
+                var listeningEvents = listening.events;
+                for (var eventName in listeningEvents) {
+                    if (event && event != eventName) {
+                        continue;
+                    }
 
-	        	 listeningEvent = listeningEvents[eventName];
+                    listeningEvent = listeningEvents[eventName];
 
-	        	 for (var j=0;j<listeningEvent.length;j++) {
-	        		 if (!callback || callback == listeningEvent[i]) {
-	        			 listening.obj.off(eventName, listeningEvent[i], this);
-	        			 listeningEvent[i] = null;
-	        		 }
-	        	 }
+                    for (var j = 0; j < listeningEvent.length; j++) {
+                        if (!callback || callback == listeningEvent[i]) {
+                            listening.obj.off(eventName, listeningEvent[i], this);
+                            listeningEvent[i] = null;
+                        }
+                    }
 
-	        	 listeningEvent = listeningEvents[eventName] = compact(listeningEvent);
+                    listeningEvent = listeningEvents[eventName] = compact(listeningEvent);
 
-	        	 if (isEmptyObject(listeningEvent)) {
-	        		 listeningEvents[eventName] = null;
-	        	 }
+                    if (isEmptyObject(listeningEvent)) {
+                        listeningEvents[eventName] = null;
+                    }
 
-	          }
+                }
 
-	          if (isEmptyObject(listeningEvents)) {
-	        	  listeningTo[i] = null;
-	          }
-	        }
+                if (isEmptyObject(listeningEvents)) {
+                    listeningTo[i] = null;
+                }
+            }
 
-	        listeningTo = this._listeningTo = compact(listeningTo);
-	        if (isEmptyObject(listeningTo)) {
-	        	this._listeningTo = null;
-	        }
+            listeningTo = this._listeningTo = compact(listeningTo);
+            if (isEmptyObject(listeningTo)) {
+                this._listeningTo = null;
+            }
 
-	        return this;
-	    }
+            return this;
+        }
     });
 
     function compact(array) {
@@ -600,10 +708,10 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
     function flatten(array) {
         if (isArrayLike(array)) {
             var result = [];
-            for (var i = 0;i<array.length;i++) {
+            for (var i = 0; i < array.length; i++) {
                 var item = array[i];
                 if (isArrayLike(item)) {
-                    for (var j = 0; j<item.length;j++) {
+                    for (var j = 0; j < item.length; j++) {
                         result.push(item[j]);
                     }
                 } else {
@@ -686,11 +794,11 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
     }
 
     function isArray(object) {
-        return object instanceof Array;
+        return object && object.constructor === Array;
     }
 
     function isArrayLike(obj) {
-        return !isString(obj) && !(obj.nodeName && obj.nodeName == "#text") && typeof obj.length == 'number';
+        return !isString(obj) && !isHtmlNode(obj) && typeof obj.length == 'number';
     }
 
     function isBoolean(obj) {
@@ -747,9 +855,9 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
     function isEmptyObject(obj) {
         var name;
         for (name in obj) {
-        	if (obj[name] !== null) {
-        		return false;
-        	}
+            if (obj[name] !== null) {
+                return false;
+            }
         }
         return true;
     }
@@ -823,22 +931,22 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
         return str == null ? "" : String.prototype.trim.call(str);
     }
 
-    function removeItem(items,item) {
-    	if (isArray(items)) {
-        	var idx = items.indexOf(item);
-        	if (idx != -1) {
-        		items.splice(idx, 1);
-        	}
-    	} else if (isPlainObject(items)) {
-    		for (var key in items) {
-    			if (items[key] == item) {
-    				delete items[key];
-    				break;
-    			}
-    		}
-    	}
+    function removeItem(items, item) {
+        if (isArray(items)) {
+            var idx = items.indexOf(item);
+            if (idx != -1) {
+                items.splice(idx, 1);
+            }
+        } else if (isPlainObject(items)) {
+            for (var key in items) {
+                if (items[key] == item) {
+                    delete items[key];
+                    break;
+                }
+            }
+        }
 
-    	return this;
+        return this;
     }
 
     function _mixin(target, source, deep, safe) {
@@ -951,8 +1059,9 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
     }
 
     var _uid = 1;
+
     function uid(obj) {
-        return obj._uid || obj.id || (obj._uid = _uid++);
+        return obj._uid || (obj._uid = _uid++);
     }
 
     function uniq(array) {
@@ -966,6 +1075,12 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
     }
 
     mixin(langx, {
+        after: aspect("after"),
+
+        around: aspect("around"),
+
+        before: aspect("before"),
+
         camelCase: function(str) {
             return str.replace(/-([\da-z])/g, function(a) {
                 return a.toUpperCase().replace('-', '');
@@ -1013,7 +1128,7 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
 
         isFunction: isFunction,
 
-        isHtmlNode : isHtmlNode,
+        isHtmlNode: isHtmlNode,
 
         isObject: isObject,
 
@@ -1041,7 +1156,7 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
 
         mixin: mixin,
 
-        nextTick : nextTick,
+        nextTick: nextTick,
 
         proxy: proxy,
 
@@ -1057,7 +1172,7 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
 
         safeMixin: safeMixin,
 
-        serializeValue : function(value) {
+        serializeValue: function(value) {
             return JSON.stringify(value)
         },
 
@@ -1083,7 +1198,6 @@ define('skylark-langx/langx',["./skylark"], function(skylark) {
 
     return skylark.langx = langx;
 });
-
 define('skylark-utils/langx',[
     "skylark-langx/langx"
 ], function(langx) {
@@ -1384,16 +1498,20 @@ define('skylark-utils/noder',[
         }
     }
 
-    function createElement(tag, props) {
+    function createElement(tag, props,parent) {
         var node = document.createElement(tag);
         if (props) {
             langx.mixin(node, props);
+        }
+        if (parent) {
+            append(parent,node);
         }
         return node;
     }
 
     function createFragment(html) {
         // A special case optimization for a single tag
+        html = langx.trim(html);
         if (singleTagRE.test(html)) {
             return [createElement(RegExp.$1)];
         }
@@ -1433,7 +1551,10 @@ define('skylark-utils/noder',[
         return this;
     }
 
-    function isChildOf(node, parent) {
+    function isChildOf(node, parent,directly) {
+        if (directly) {
+            return node.parentNode === parent;
+        }
         if (document.documentElement.contains) {
             return parent.contains(node);
         }
@@ -2043,11 +2164,14 @@ define('skylark-utils/finder',[
 
     local.pseudos = {
         // custom pseudos
-        checked: function(elm) {
+        'checkbox': function(elm){
+            return elm.type === "checkbox";
+        },
+        'checked': function(elm) {
             return !!elm.checked;
         },
 
-        contains: function(elm, idx, nodes, text) {
+        'contains': function(elm, idx, nodes, text) {
             if ($(this).text().indexOf(text) > -1) return this
         },
 
@@ -2059,7 +2183,7 @@ define('skylark-utils/finder',[
             return !elm.disabled;
         },
 
-        eq: function(elm, idx, nodes, value) {
+        'eq': function(elm, idx, nodes, value) {
             return (idx == value);
         },
 
@@ -2067,47 +2191,55 @@ define('skylark-utils/finder',[
             return document.activeElement === elm && (elm.href || elm.type || elm.tabindex);
         },
 
-        first: function(elm, idx) {
+        'first': function(elm, idx) {
             return (idx === 0);
         },
 
-        gt: function(elm, idx, nodes, value) {
+        'gt': function(elm, idx, nodes, value) {
             return (idx > value);
         },
 
-        has: function(elm, idx, nodes, sel) {
+        'has': function(elm, idx, nodes, sel) {
             return local.querySelector(elm, sel).length > 0;
         },
 
 
-        hidden: function(elm) {
+        'hidden': function(elm) {
             return !local.pseudos["visible"](elm);
         },
 
-        last: function(elm, idx, nodes) {
+        'last': function(elm, idx, nodes) {
             return (idx === nodes.length - 1);
         },
 
-        lt: function(elm, idx, nodes, value) {
+        'lt': function(elm, idx, nodes, value) {
             return (idx < value);
         },
 
-        not: function(elm, idx, nodes, sel) {
+        'not': function(elm, idx, nodes, sel) {
             return local.match(elm, sel);
         },
 
-        parent: function(elm) {
+        'parent': function(elm) {
             return !!elm.parentNode;
         },
 
-        selected: function(elm) {
+        'radio': function(elm){
+            return elm.type === "radio";
+        },
+
+        'selected': function(elm) {
             return !!elm.selected;
         },
 
-        visible: function(elm) {
+        'visible': function(elm) {
             return elm.offsetWidth && elm.offsetWidth
         }
     };
+
+    ["first","eq","last"].forEach(function(item){
+        local.pseudos[item].isArrayFilter = true;
+    });
 
     local.divide = function(cond) {
         var nativeSelector = "",
@@ -2164,51 +2296,59 @@ define('skylark-utils/finder',[
 
     };
 
-    local.check = function(node, cond, idx, nodes) {
+    local.check = function(node, cond, idx, nodes,arrayFilte) {
         var tag,
             id,
             classes,
             attributes,
-            pseudos;
+            pseudos,
 
-        if (tag = cond.tag) {
-            var nodeName = node.nodeName.toUpperCase();
-            if (tag == '*') {
-                if (nodeName < '@') return false; // Fix for comment nodes and closed nodes
-            } else {
-                if (nodeName != (tag || "").toUpperCase()) return false;
+            i, part, cls, pseudo;
+
+        if (!arrayFilte) {
+            if (tag = cond.tag) {
+                var nodeName = node.nodeName.toUpperCase();
+                if (tag == '*') {
+                    if (nodeName < '@') return false; // Fix for comment nodes and closed nodes
+                } else {
+                    if (nodeName != (tag || "").toUpperCase()) return false;
+                }
             }
+
+            if (id = cond.id) {
+                if (node.getAttribute('id') != id) {
+                    return false;
+                }
+            }
+
+
+            if (classes = cond.classes) {
+                for (i = classes.length; i--;) {
+                    cls = node.getAttribute('class');
+                    if (!(cls && classes[i].regexp.test(cls))) return false;
+                }
+            }
+
+            if (attributes) {
+                for (i = attributes.length; i--;) {
+                    part = attributes[i];
+                    if (part.operator ? !part.test(node.getAttribute(part.key)) : !node.hasAttribute(part.key)) return false;
+                }
+
+            }
+
         }
-
-        if (id = cond.id) {
-            if (node.getAttribute('id') != id) {
-                return false;
-            }
-        }
-
-        var i, part, cls, pseudo;
-
-        if (classes = cond.classes) {
-            for (i = classes.length; i--;) {
-                cls = node.getAttribute('class');
-                if (!(cls && classes[i].regexp.test(cls))) return false;
-            }
-        }
-
-        if (attributes)
-            for (i = attributes.length; i--;) {
-                part = attributes[i];
-                if (part.operator ? !part.test(node.getAttribute(part.key)) : !node.hasAttribute(part.key)) return false;
-            }
         if (pseudos = cond.pseudos) {
             for (i = pseudos.length; i--;) {
                 part = pseudos[i];
                 if (pseudo = this.pseudos[part.key]) {
-                    if (!pseudo(node, idx, nodes, part.value)) {
-                        return false;
+                    if ((arrayFilte && pseudo.isArrayFilter) || (!arrayFilte && !pseudo.isArrayFilter)) {
+                        if (!pseudo(node, idx, nodes, part.value)) {
+                            return false;
+                        }
                     }
                 } else {
-                    if (!nativeMatchesSelector.call(node, part.key)) {
+                    if (!arrayFilte && !nativeMatchesSelector.call(node, part.key)) {
                         return false;
                     }
                 }
@@ -2219,7 +2359,14 @@ define('skylark-utils/finder',[
 
     local.match = function(node, selector) {
 
-        var parsed = local.Slick.parse(selector);
+        var parsed ;
+
+        if (langx.isString(selector)) {
+            parsed = local.Slick.parse(selector);
+        } else {
+            parsed = selector;            
+        }
+        
         if (!parsed) {
             return true;
         }
@@ -2227,12 +2374,13 @@ define('skylark-utils/finder',[
         // simple (single) selectors
         var expressions = parsed.expressions,
             simpleExpCounter = 0,
-            i;
+            i,
+            currentExpression;
         for (i = 0;
             (currentExpression = expressions[i]); i++) {
             if (currentExpression.length == 1) {
                 var exp = currentExpression[0];
-                if (this.check(node, exp)) {
+                if (this.check(node,exp)) {
                     return true;
                 }
                 simpleExpCounter++;
@@ -2252,6 +2400,49 @@ define('skylark-utils/finder',[
         }
         return false;
     };
+
+
+    local.filterSingle = function(nodes, exp){
+        var matchs = filter.call(nodes, function(node, idx) {
+            return local.check(node, exp, idx, nodes,false);
+        });    
+
+        matchs = filter.call(matchs, function(node, idx) {
+            return local.check(node, exp, idx, matchs,true);
+        }); 
+        return matchs;
+    };
+
+    local.filter = function(nodes, selector) {
+        var parsed;
+
+        if (langx.isString(selector)) {
+            parsed = local.Slick.parse(selector);
+        } else {
+            return local.filterSingle(nodes,selector);           
+        }
+
+        // simple (single) selectors
+        var expressions = parsed.expressions,
+            i,
+            currentExpression,
+            ret = [];
+        for (i = 0;
+            (currentExpression = expressions[i]); i++) {
+            if (currentExpression.length == 1) {
+                var exp = currentExpression[0];
+
+                var matchs = local.filterSingle(nodes,exp);  
+
+                ret = langx.uniq(ret.concat(matchs));
+            } else {
+                throw new Error("not supported selector:" + selector);
+            }
+        }
+
+        return ret;
+ 
+    };    
 
     local.combine = function(elm, bit) {
         var op = bit.combinator,
@@ -2320,8 +2511,14 @@ define('skylark-utils/finder',[
                         nodes = filter.call(nodes, function(item, idx) {
                             return local.check(item, {
                                 pseudos: [divided.customPseudos[i]]
-                            }, idx, nodes)
+                            }, idx, nodes,false)
                         });
+
+                        nodes = filter.call(nodes, function(item, idx) {
+                            return local.check(item, {
+                                pseudos: [divided.customPseudos[i]]
+                            }, idx, nodes,true)
+                        });                        
                     }
                 }
                 break;
@@ -2385,9 +2582,7 @@ define('skylark-utils/finder',[
         var ret = [],
             rootIsSelector = root && langx.isString(root);
         while (node = node.parentNode) {
-            if (matches(node, selector)) {
                 ret.push(node);
-            }
             if (root) {
                 if (rootIsSelector) {
                     if (matches(node,root)) {
@@ -2398,6 +2593,10 @@ define('skylark-utils/finder',[
                 }
             } 
 
+        }
+
+        if (selector) {
+            ret = local.filter(ret,selector);
         }
         return ret;
     }
@@ -2413,11 +2612,11 @@ define('skylark-utils/finder',[
         for (var i = 0; i < childNodes.length; i++) {
             var node = childNodes[i];
             if (node.nodeType == 1) {
-                if (!selector || matches(node, selector)) {
-                    ret.push(node);
-                }
-
+                ret.push(node);
             }
+        }
+        if (selector) {
+            ret = local.filter(ret,selector);
         }
         return ret;
     }
@@ -2455,12 +2654,24 @@ define('skylark-utils/finder',[
         }
     }
 
-    function find(selector) {
-        return descendant(document.body, selector);
+    function find(elm,selector) {
+        if (!selector) {
+            selector = elm;
+            elm = document.body;
+        }
+        if (matches(elm,selector)) {
+            return elm;
+        } else {
+            return descendant(elm, selector);
+        }
     }
 
-    function findAll(selector) {
-        return descendants(document.body, selector);
+    function findAll(elm,selector) {
+        if (!selector) {
+            selector = elm;
+            elm = document.body;
+        }
+        return descendants(elm, selector);
     }
 
     function firstChild(elm, selector, first) {
@@ -2801,6 +3012,13 @@ define('skylark-utils/datax',[
         return this;
     }
 
+    function removeProp(elm, name) {
+        name.split(' ').forEach(function(prop) {
+            delete elm[prop];
+        });
+        return this;
+    }
+
     function text(elm, txt) {
         if (txt === undefined) {
             return elm.textContent;
@@ -2843,6 +3061,8 @@ define('skylark-utils/datax',[
         removeAttr: removeAttr,
 
         removeData: removeData,
+
+        removeProp: removeProp,
 
         text: text,
 
@@ -4117,12 +4337,12 @@ define('skylark-utils/fx',[
         return this;
     }
 
-    function fadeTo(elm, speed, opacity, callback) {
-        animate(elm, { opacity: opacity }, speed, callback);
+    function fadeTo(elm, speed, opacity, easing, callback) {
+        animate(elm, { opacity: opacity }, speed, easing, callback);
         return this;
     }
 
-    function fadeIn(elm, speed, callback) {
+    function fadeIn(elm, speed, easing, callback) {
         var target = styler.css(elm, "opacity");
         if (target > 0) {
             styler.css(elm, "opacity", 0);
@@ -4131,29 +4351,46 @@ define('skylark-utils/fx',[
         }
         styler.show(elm);
 
-        fadeTo(elm, speed, target, callback);
+        fadeTo(elm, speed, target, easing, callback);
 
         return this;
     }
 
-    function fadeOut(elm, speed, callback) {
+    function fadeOut(elm, speed, easing, callback) {
+        var _elm = elm,
+            complete,
+            options = {};
 
-        fadeTo(elm, speed, 0, function() {
-            styler.hide(elm);
-            if (callback) {
-                callback.call(elm);
-            }
-
-        });
-
-        return this;
-    }
-
-    function fadeToggle(elm, speed, callback) {
-        if (styler.isInvisible(elm)) {
-            fadeIn(elm, speed, callback);
+        if (langx.isPlainObject(speed)) {
+            options.easing = speed.easing;
+            options.duration = speed.duration;
+            complete = speed.complete;
         } else {
-            fadeOut(elm, speed, callback);
+            options.duration = speed;
+            if (callback) {
+                complete = callback;
+                options.easing = easing;
+            } else {
+                complete = easing;
+            }
+        }
+        options.complete = function() {
+            styler.hide(this);
+            if (complete) {
+                complete.call(this);
+            }
+        }
+
+        fadeTo(elm, options, 0);
+
+        return this;
+    }
+
+    function fadeToggle(elm, speed, ceasing,allback) {
+        if (styler.isInvisible(elm)) {
+            fadeIn(elm, speed, easing,callback);
+        } else {
+            fadeOut(elm, speed, easing,callback);
         }
         return this;
     }
@@ -4493,7 +4730,7 @@ define('skylark-utils/query',[
             },
 
             add: function(selector, context) {
-                return $(uniq(this.concat($(selector, context))))
+                return $(uniq(this.toArray().concat($(selector, context).toArray())));
             },
 
             is: function(selector) {
@@ -4659,6 +4896,8 @@ define('skylark-utils/query',[
             removeAttr: wrapper_every_act(datax.removeAttr, datax),
 
             prop: wrapper_name_value(datax.prop, datax, datax.prop),
+
+            removeProp: wrapper_every_act(datax.removeProp, datax),
 
             data: wrapper_name_value(datax.data, datax, datax.data),
 
@@ -6193,6 +6432,14 @@ define('skylark-utils/velm',[
         root: new VisualElement(document.body),
 
         VisualElement: VisualElement,
+
+        partial : function(name,fn) {
+            var props = {};
+
+            props[name] = fn;
+
+            VisualElement.partial(props);
+        },
 
         delegate: function(names, context) {
             var props = {};
@@ -9356,362 +9603,372 @@ define('skylark-bs-swt/infinite-scroll',[
 });
 
 define('skylark-bs-swt/modal',[
-    "skylark-utils/langx",
-    "skylark-utils/browser",
-    "skylark-utils/eventer",
-    "skylark-utils/noder",
-    "skylark-utils/geom",
-    "skylark-utils/velm",
-    "skylark-utils/query",
-    "./sbswt"
-], function(langx, browser, eventer, noder, geom, velm, $, sbswt) {
-
-    /* ========================================================================
-     * Bootstrap: modal.js v3.3.7
-     * http://getbootstrap.com/javascript/#modals
-     * ========================================================================
-     * Copyright 2011-2016 Twitter, Inc.
-     * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
-     * ======================================================================== */
-
-    'use strict';
-
-    // MODAL CLASS DEFINITION
-    // ======================
-
-    var Modal = sbswt.Modal = sbswt.WidgetBase.inherit({
-        klassName: "Modal",
-
-        init: function(element, options) {
-            this.options = options
-            this.$body = $(document.body)
-            this.$element = $(element)
-            this.$dialog = this.$element.find('.modal-dialog')
-            this.$backdrop = null
-            this.isShown = null
-            this.originalBodyPad = null
-            this.scrollbarWidth = 0
-            this.ignoreBackdropClick = false
-
-            if (this.options.remote) {
-                this.$element
-                    .find('.modal-content')
-                    .load(this.options.remote, langx.proxy(function() {
-                        this.$element.trigger('loaded.bs.modal')
-                    }, this))
-            }
-        },
-
-        toggle: function(_relatedTarget) {
-            return this.isShown ? this.hide() : this.show(_relatedTarget)
-        },
-
-        show: function(_relatedTarget) {
-            var that = this
-            var e = eventer.create('show.bs.modal', { relatedTarget: _relatedTarget })
-
-            this.$element.trigger(e)
-
-            if (this.isShown || e.isDefaultPrevented()) return
-
-            this.isShown = true
-
-            this.checkScrollbar()
-            this.setScrollbar()
-            this.$body.addClass('modal-open')
-
-            this.escape()
-            this.resize()
-
-            this.$element.on('click.dismiss.bs.modal', '[data-dismiss="modal"]', langx.proxy(this.hide, this))
-
-            this.$dialog.on('mousedown.dismiss.bs.modal', function() {
-                that.$element.one('mouseup.dismiss.bs.modal', function(e) {
-                    if ($(e.target).is(that.$element)) that.ignoreBackdropClick = true
-                })
-            })
-
-            this.backdrop(function() {
-                var transition = browser.support.transition && that.$element.hasClass('fade')
-
-                if (!that.$element.parent().length) {
-                    that.$element.appendTo(that.$body) // don't move modals dom position
-                }
-
-                that.$element
-                    .show()
-                    .scrollTop(0)
-
-                that.adjustDialog()
-
-                if (transition) {
-                    that.$element[0].offsetWidth // force reflow
-                }
-
-                that.$element.addClass('in')
-
-                that.enforceFocus()
-
-                var e = eventer.create('shown.bs.modal', { relatedTarget: _relatedTarget })
-
-                transition ?
-                    that.$dialog // wait for modal to slide in
-                    .one('bsTransitionEnd', function() {
-                        that.$element.trigger('focus').trigger(e)
-                    })
-                    .emulateTransitionEnd(Modal.TRANSITION_DURATION) :
-                    that.$element.trigger('focus').trigger(e)
-            })
-        },
-
-        hide: function(e) {
-            if (e) e.preventDefault()
-
-            e = eventer.create('hide.bs.modal')
-
-            this.$element.trigger(e)
-
-            if (!this.isShown || e.isDefaultPrevented()) return
-
-            this.isShown = false
-
-            this.escape()
-            this.resize()
-
-            $(document).off('focusin.bs.modal')
-
-            this.$element
-                .removeClass('in')
-                .off('click.dismiss.bs.modal')
-                .off('mouseup.dismiss.bs.modal')
-
-            this.$dialog.off('mousedown.dismiss.bs.modal')
-
-            browser.support.transition && this.$element.hasClass('fade') ?
-                this.$element
-                .one('bsTransitionEnd', langx.proxy(this.hideModal, this))
-                .emulateTransitionEnd(Modal.TRANSITION_DURATION) :
-                this.hideModal()
-        },
-
-        enforceFocus: function() {
-            $(document)
-                .off('focusin.bs.modal') // guard against infinite focus loop
-                .on('focusin.bs.modal', langx.proxy(function(e) {
-                    if (document !== e.target &&
-                        this.$element[0] !== e.target &&
-                        !this.$element.has(e.target).length) {
-                        this.$element.trigger('focus')
-                    }
-                }, this))
-        },
-
-        escape: function() {
-            if (this.isShown && this.options.keyboard) {
-                this.$element.on('keydown.dismiss.bs.modal', langx.proxy(function(e) {
-                    e.which == 27 && this.hide()
-                }, this))
-            } else if (!this.isShown) {
-                this.$element.off('keydown.dismiss.bs.modal')
-            }
-        },
-
-        resize: function() {
-            if (this.isShown) {
-                $(window).on('resize.bs.modal', langx.proxy(this.handleUpdate, this))
-            } else {
-                $(window).off('resize.bs.modal')
-            }
-        },
-
-        hideModal: function() {
-            var that = this
-            this.$element.hide()
-            this.backdrop(function() {
-                that.$body.removeClass('modal-open')
-                that.resetAdjustments()
-                that.resetScrollbar()
-                that.$element.trigger('hidden.bs.modal')
-            })
-        },
-
-        removeBackdrop: function() {
-            this.$backdrop && this.$backdrop.remove()
-            this.$backdrop = null
-        },
-
-        backdrop: function(callback) {
-            var that = this
-            var animate = this.$element.hasClass('fade') ? 'fade' : ''
-
-            if (this.isShown && this.options.backdrop) {
-                var doAnimate = browser.support.transition && animate
-
-                this.$backdrop = $(document.createElement('div'))
-                    .addClass('modal-backdrop ' + animate)
-                    .appendTo(this.$body)
-
-                if (!this.options.disableElClickHide) this.$element.on('click.dismiss.bs.modal', langx.proxy(function(e) {
-                    if (this.ignoreBackdropClick) {
-                        this.ignoreBackdropClick = false
-                        return
-                    }
-                    if (e.target !== e.currentTarget) return
-                    this.options.backdrop == 'static' ?
-                        this.$element[0].focus() :
-                        this.hide()
-                }, this))
-
-                if (doAnimate) this.$backdrop[0].offsetWidth // force reflow
-
-                this.$backdrop.addClass('in')
-
-                if (!callback) return
-
-                doAnimate ?
-                    this.$backdrop
-                    .one('bsTransitionEnd', callback)
-                    .emulateTransitionEnd(Modal.BACKDROP_TRANSITION_DURATION) :
-                    callback()
-
-            } else if (!this.isShown && this.$backdrop) {
-                this.$backdrop.removeClass('in')
-
-                var callbackRemove = function() {
-                    that.removeBackdrop()
-                    callback && callback()
-                }
-                browser.support.transition && this.$element.hasClass('fade') ?
-                    this.$backdrop
-                    .one('bsTransitionEnd', callbackRemove)
-                    .emulateTransitionEnd(Modal.BACKDROP_TRANSITION_DURATION) :
-                    callbackRemove()
-
-            } else if (callback) {
-                callback()
-            }
-        },
-
-        // these following methods are used to handle overflowing modals
-
-        handleUpdate: function() {
-            this.adjustDialog()
-        },
-
-        adjustDialog: function() {
-            var modalIsOverflowing = this.$element[0].scrollHeight > document.documentElement.clientHeight
-
-            this.$element.css({
-                paddingLeft: !this.bodyIsOverflowing && modalIsOverflowing ? this.scrollbarWidth : '',
-                paddingRight: this.bodyIsOverflowing && !modalIsOverflowing ? this.scrollbarWidth : ''
-            })
-        },
-
-        resetAdjustments: function() {
-            this.$element.css({
-                paddingLeft: '',
-                paddingRight: ''
-            })
-        },
-
-        checkScrollbar: function() {
-            var fullWindowWidth = window.innerWidth
-            if (!fullWindowWidth) { // workaround for missing window.innerWidth in IE8
-                var documentElementRect = document.documentElement.getBoundingClientRect()
-                fullWindowWidth = documentElementRect.right - Math.abs(documentElementRect.left)
-            }
-            this.bodyIsOverflowing = document.body.clientWidth < fullWindowWidth
-            this.scrollbarWidth = this.measureScrollbar()
-        },
-
-        setScrollbar: function() {
-            var bodyPad = parseInt((this.$body.css('padding-right') || 0), 10)
-            this.originalBodyPad = document.body.style.paddingRight || ''
-            if (this.bodyIsOverflowing) this.$body.css('padding-right', bodyPad + this.scrollbarWidth)
-        },
-
-        resetScrollbar: function() {
-            this.$body.css('padding-right', this.originalBodyPad)
-        },
-
-        measureScrollbar: function() { // thx walsh
-            var scrollDiv = document.createElement('div')
-            scrollDiv.className = 'modal-scrollbar-measure'
-            this.$body.append(scrollDiv)
-            var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth
-            this.$body[0].removeChild(scrollDiv)
-            return scrollbarWidth
-        }
-
-    });
-
-
-    Modal.VERSION = '3.3.7'
-
-    Modal.TRANSITION_DURATION = 300
-    Modal.BACKDROP_TRANSITION_DURATION = 150
-
-    Modal.DEFAULTS = {
-        backdrop: true,
-        keyboard: true,
-        show: true
-    }
-
-
-
-    // MODAL PLUGIN DEFINITION
-    // =======================
-
-    function Plugin(option, _relatedTarget) {
-        return this.each(function() {
-            var $this = $(this)
-            var data = $this.data('bs.modal')
-            var options = langx.mixin({}, Modal.DEFAULTS, $this.data(), typeof option == 'object' && option)
-
-            if (!data) $this.data('bs.modal', (data = new Modal(this, options)))
-            if (typeof option == 'string') data[option](_relatedTarget)
-            else if (options.show) data.show(_relatedTarget)
-        })
-    }
-
-    var old = $.fn.modal
-
-    $.fn.modal = Plugin;
-    $.fn.modal.Constructor = Modal;
-
-
-    // MODAL NO CONFLICT
-    // =================
-
-    $.fn.modal.noConflict = function() {
-        $.fn.modal = old
-        return this
-    }
-
-
-    // MODAL DATA-API
-    // ==============
-    /*
-    $(document).on('click.bs.modal.data-api', '[data-toggle="modal"]', function (e) {
-      var $this   = $(this)
-      var href    = $this.attr('href')
-      var $target = $($this.attr('data-target') || (href && href.replace(/.*(?=#[^\s]+$)/, ''))) // strip for ie7
-      var option  = $target.data('bs.modal') ? 'toggle' : langx.mixin({ remote: !/#/.test(href) && href }, $target.data(), $this.data())
-
-      if ($this.is('a')) e.preventDefault()
-
-      $target.one('show.bs.modal', function (showEvent) {
-        if (showEvent.isDefaultPrevented()) return // only register focus restorer if modal will actually get shown
-        $target.one('hidden.bs.modal', function () {
-          $this.is(':visible') && $this.trigger('focus')
+  "skylark-utils/langx",
+  "skylark-utils/browser",
+  "skylark-utils/eventer",
+  "skylark-utils/noder",
+  "skylark-utils/geom",
+  "skylark-utils/velm",
+  "skylark-utils/query",
+  "./sbswt"
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
+
+/* ========================================================================
+ * Bootstrap: modal.js v3.3.7
+ * http://getbootstrap.com/javascript/#modals
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+  'use strict';
+
+  // MODAL CLASS DEFINITION
+  // ======================
+
+  var Modal = sbswt.Modal = sbswt.WidgetBase.inherit({
+    klassName: "Modal",
+
+    init : function(element,options) {
+      this.options             = options;
+      this.$container               = $(options.container || document.body)
+      this.$element            = $(element)
+      this.$dialog             = this.$element.find('.modal-dialog')
+      if (!this.$container.is("body")) {
+        this.$element.css("position","absolute");
+      }
+      //this.$container.append(this.$element);
+      this.$backdrop           = null
+      this.isShown             = null
+      this.originalBodyPad     = null
+      this.scrollbarWidth      = 0
+      this.ignoreBackdropClick = false
+
+      if (this.options.remote) {
+        this.$element
+          .find('.modal-content')
+          .load(this.options.remote, langx.proxy(function () {
+            this.$element.trigger('loaded.bs.modal')
+          }, this))
+      }
+    },
+
+    toggle : function (_relatedTarget) {
+      return this.isShown ? this.hide() : this.show(_relatedTarget)
+    },
+
+    show : function (_relatedTarget) {
+      var that = this
+      var e    = eventer.create('show.bs.modal', { relatedTarget: _relatedTarget })
+
+      this.$element.trigger(e)
+
+      if (this.isShown || e.isDefaultPrevented()) return
+
+      this.isShown = true
+
+      this.checkScrollbar()
+      this.setScrollbar()
+      this.$container.addClass('modal-open')
+
+      this.escape()
+      this.resize()
+
+      this.$element.on('click.dismiss.bs.modal', '[data-dismiss="modal"]', langx.proxy(this.hide, this))
+
+      this.$dialog.on('mousedown.dismiss.bs.modal', function () {
+        that.$element.one('mouseup.dismiss.bs.modal', function (e) {
+          if ($(e.target).is(that.$element)) that.ignoreBackdropClick = true
         })
       })
-      Plugin.call($target, option, this)
-    })
-    */
 
-    return $.fn.modal;
+      this.backdrop(function () {
+        var transition = browser.support.transition && that.$element.hasClass('fade')
+
+        if (!noder.isChildOf(that.$element[0],that.$container[0])) {
+          that.$element.appendTo(that.$container) // don't move modals dom position
+        }
+
+        that.$element
+          .show()
+          .scrollTop(0)
+
+        that.adjustDialog()
+
+        if (transition) {
+          that.$element[0].offsetWidth // force reflow
+        }
+
+        that.$element.addClass('in')
+
+        that.enforceFocus()
+
+        var e = eventer.create('shown.bs.modal', { relatedTarget: _relatedTarget })
+
+        transition ?
+          that.$dialog // wait for modal to slide in
+            .one('bsTransitionEnd', function () {
+              that.$element.trigger('focus').trigger(e)
+            })
+            .emulateTransitionEnd(Modal.TRANSITION_DURATION) :
+          that.$element.trigger('focus').trigger(e)
+      })
+    },
+
+    hide : function (e) {
+      if (e) e.preventDefault()
+
+      e = eventer.create('hide.bs.modal')
+
+      this.$element.trigger(e)
+
+      if (!this.isShown || e.isDefaultPrevented()) return
+
+      this.isShown = false
+
+      this.escape()
+      this.resize()
+
+      $(document).off('focusin.bs.modal')
+
+      this.$element
+        .removeClass('in')
+        .off('click.dismiss.bs.modal')
+        .off('mouseup.dismiss.bs.modal')
+
+      this.$dialog.off('mousedown.dismiss.bs.modal')
+
+      browser.support.transition && this.$element.hasClass('fade') ?
+        this.$element
+          .one('bsTransitionEnd', langx.proxy(this.hideModal, this))
+          .emulateTransitionEnd(Modal.TRANSITION_DURATION) :
+        this.hideModal()
+    },
+
+    enforceFocus : function () {
+      $(document)
+        .off('focusin.bs.modal') // guard against infinite focus loop
+        .on('focusin.bs.modal', langx.proxy(function (e) {
+          if (document !== e.target &&
+              this.$element[0] !== e.target &&
+              !this.$element.has(e.target).length) {
+            this.$element.trigger('focus')
+          }
+        }, this))
+    },
+
+    escape : function () {
+      if (this.isShown && this.options.keyboard) {
+        this.$element.on('keydown.dismiss.bs.modal', langx.proxy(function (e) {
+          e.which == 27 && this.hide()
+        }, this))
+      } else if (!this.isShown) {
+        this.$element.off('keydown.dismiss.bs.modal')
+      }
+    },
+
+    resize : function () {
+      if (this.isShown) {
+        $(window).on('resize.bs.modal', langx.proxy(this.handleUpdate, this))
+      } else {
+        $(window).off('resize.bs.modal')
+      }
+    },
+
+    hideModal : function () {
+      var that = this
+      this.$element.hide()
+      this.backdrop(function () {
+        that.$container.removeClass('modal-open')
+        that.resetAdjustments()
+        that.resetScrollbar()
+        that.$element.trigger('hidden.bs.modal')
+      })
+    },
+
+    removeBackdrop : function () {
+      this.$backdrop && this.$backdrop.remove()
+      this.$backdrop = null
+    },
+
+    backdrop : function (callback) {
+      var that = this
+      var animate = this.$element.hasClass('fade') ? 'fade' : ''
+
+      if (this.isShown && this.options.backdrop) {
+        var doAnimate = browser.support.transition && animate
+
+        this.$backdrop = $(document.createElement('div'))
+          .addClass('modal-backdrop ' + animate)
+          .appendTo(this.$container)
+
+        if (!this.$container.is("body")) {
+          this.$backdrop.css("position","absolute");
+        }
+
+
+        this.$element.on('click.dismiss.bs.modal', langx.proxy(function (e) {
+          if (this.ignoreBackdropClick) {
+            this.ignoreBackdropClick = false
+            return
+          }
+          if (e.target !== e.currentTarget) return
+          this.options.backdrop == 'static'
+            ? this.$element[0].focus()
+            : this.hide()
+        }, this))
+
+        if (doAnimate) this.$backdrop[0].offsetWidth // force reflow
+
+        this.$backdrop.addClass('in')
+
+        if (!callback) return
+
+        doAnimate ?
+          this.$backdrop
+            .one('bsTransitionEnd', callback)
+            .emulateTransitionEnd(Modal.BACKDROP_TRANSITION_DURATION) :
+          callback()
+
+      } else if (!this.isShown && this.$backdrop) {
+        this.$backdrop.removeClass('in')
+
+        var callbackRemove = function () {
+          that.removeBackdrop()
+          callback && callback()
+        }
+        browser.support.transition && this.$element.hasClass('fade') ?
+          this.$backdrop
+            .one('bsTransitionEnd', callbackRemove)
+            .emulateTransitionEnd(Modal.BACKDROP_TRANSITION_DURATION) :
+          callbackRemove()
+
+      } else if (callback) {
+        callback()
+      }
+    },
+
+    // these following methods are used to handle overflowing modals
+
+    handleUpdate : function () {
+      this.adjustDialog()
+    },
+
+    adjustDialog : function () {
+      var modalIsOverflowing = this.$element[0].scrollHeight > document.documentElement.clientHeight
+
+      this.$element.css({
+        paddingLeft:  !this.bodyIsOverflowing && modalIsOverflowing ? this.scrollbarWidth : '',
+        paddingRight: this.bodyIsOverflowing && !modalIsOverflowing ? this.scrollbarWidth : ''
+      })
+    },
+
+    resetAdjustments : function () {
+      this.$element.css({
+        paddingLeft: '',
+        paddingRight: ''
+      })
+    },
+
+    checkScrollbar : function () {
+      var fullWindowWidth = window.innerWidth
+      if (!fullWindowWidth) { // workaround for missing window.innerWidth in IE8
+        var documentElementRect = document.documentElement.getBoundingClientRect()
+        fullWindowWidth = documentElementRect.right - Math.abs(documentElementRect.left)
+      }
+      this.bodyIsOverflowing = document.body.clientWidth < fullWindowWidth
+      this.scrollbarWidth = this.measureScrollbar()
+    },
+
+    setScrollbar : function () {
+      var bodyPad = parseInt((this.$container.css('padding-right') || 0), 10)
+      this.originalBodyPad = document.body.style.paddingRight || ''
+      if (this.bodyIsOverflowing) this.$container.css('padding-right', bodyPad + this.scrollbarWidth)
+    },
+
+    resetScrollbar : function () {
+      this.$container.css('padding-right', this.originalBodyPad)
+    },
+
+    measureScrollbar : function () { // thx walsh
+      var scrollDiv = document.createElement('div')
+      scrollDiv.className = 'modal-scrollbar-measure'
+      this.$container.append(scrollDiv)
+      var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth
+      this.$container[0].removeChild(scrollDiv)
+      return scrollbarWidth
+    }
+
+  });  
+
+
+  Modal.VERSION  = '3.3.7'
+
+  Modal.TRANSITION_DURATION = 300
+  Modal.BACKDROP_TRANSITION_DURATION = 150
+
+  Modal.DEFAULTS = {
+    backdrop: true,
+    keyboard: true,
+    show: true
+  }
+
+
+
+  // MODAL PLUGIN DEFINITION
+  // =======================
+
+  function Plugin(option, _relatedTarget) {
+    return this.each(function () {
+      var $this   = $(this)
+      var data    = $this.data('bs.modal')
+      var options = langx.mixin({}, Modal.DEFAULTS, $this.data(), typeof option == 'object' && option)
+
+      if (!data) $this.data('bs.modal', (data = new Modal(this, options)))
+      if (typeof option == 'string') data[option](_relatedTarget)
+      else if (options.show) data.show(_relatedTarget)
+    })
+  }
+
+  var old = $.fn.modal
+
+  $.fn.modal             = Plugin;
+  $.fn.modal.Constructor = Modal;
+
+
+  // MODAL NO CONFLICT
+  // =================
+
+  $.fn.modal.noConflict = function () {
+    $.fn.modal = old
+    return this
+  }
+
+
+  // MODAL DATA-API
+  // ==============
+  /*
+  $(document).on('click.bs.modal.data-api', '[data-toggle="modal"]', function (e) {
+    var $this   = $(this)
+    var href    = $this.attr('href')
+    var $target = $($this.attr('data-target') || (href && href.replace(/.*(?=#[^\s]+$)/, ''))) // strip for ie7
+    var option  = $target.data('bs.modal') ? 'toggle' : langx.mixin({ remote: !/#/.test(href) && href }, $target.data(), $this.data())
+
+    if ($this.is('a')) e.preventDefault()
+
+    $target.one('show.bs.modal', function (showEvent) {
+      if (showEvent.isDefaultPrevented()) return // only register focus restorer if modal will actually get shown
+      $target.one('hidden.bs.modal', function () {
+        $this.is(':visible') && $this.trigger('focus')
+      })
+    })
+    Plugin.call($target, option, this)
+  })
+  */
+
+  return $.fn.modal;
 });
+
 define('skylark-bs-swt/picker',[
   "skylark-utils/langx",
   "skylark-utils/browser",

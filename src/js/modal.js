@@ -26,10 +26,14 @@ define([
     klassName: "Modal",
 
     init : function(element,options) {
-      this.options             = options
-      this.$body               = $(document.body)
+      this.options             = options;
+      this.$container               = $(options.container || document.body)
       this.$element            = $(element)
       this.$dialog             = this.$element.find('.modal-dialog')
+      if (!this.$container.is("body")) {
+        this.$element.css("position","absolute");
+      }
+      //this.$container.append(this.$element);
       this.$backdrop           = null
       this.isShown             = null
       this.originalBodyPad     = null
@@ -61,7 +65,7 @@ define([
 
       this.checkScrollbar()
       this.setScrollbar()
-      this.$body.addClass('modal-open')
+      this.$container.addClass('modal-open')
 
       this.escape()
       this.resize()
@@ -77,8 +81,8 @@ define([
       this.backdrop(function () {
         var transition = browser.support.transition && that.$element.hasClass('fade')
 
-        if (!that.$element.parent().length) {
-          that.$element.appendTo(that.$body) // don't move modals dom position
+        if (!noder.isChildOf(that.$element[0],that.$container[0])) {
+          that.$element.appendTo(that.$container) // don't move modals dom position
         }
 
         that.$element
@@ -171,7 +175,7 @@ define([
       var that = this
       this.$element.hide()
       this.backdrop(function () {
-        that.$body.removeClass('modal-open')
+        that.$container.removeClass('modal-open')
         that.resetAdjustments()
         that.resetScrollbar()
         that.$element.trigger('hidden.bs.modal')
@@ -192,7 +196,12 @@ define([
 
         this.$backdrop = $(document.createElement('div'))
           .addClass('modal-backdrop ' + animate)
-          .appendTo(this.$body)
+          .appendTo(this.$container)
+
+        if (!this.$container.is("body")) {
+          this.$backdrop.css("position","absolute");
+        }
+
 
         this.$element.on('click.dismiss.bs.modal', langx.proxy(function (e) {
           if (this.ignoreBackdropClick) {
@@ -268,21 +277,21 @@ define([
     },
 
     setScrollbar : function () {
-      var bodyPad = parseInt((this.$body.css('padding-right') || 0), 10)
+      var bodyPad = parseInt((this.$container.css('padding-right') || 0), 10)
       this.originalBodyPad = document.body.style.paddingRight || ''
-      if (this.bodyIsOverflowing) this.$body.css('padding-right', bodyPad + this.scrollbarWidth)
+      if (this.bodyIsOverflowing) this.$container.css('padding-right', bodyPad + this.scrollbarWidth)
     },
 
     resetScrollbar : function () {
-      this.$body.css('padding-right', this.originalBodyPad)
+      this.$container.css('padding-right', this.originalBodyPad)
     },
 
     measureScrollbar : function () { // thx walsh
       var scrollDiv = document.createElement('div')
       scrollDiv.className = 'modal-scrollbar-measure'
-      this.$body.append(scrollDiv)
+      this.$container.append(scrollDiv)
       var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth
-      this.$body[0].removeChild(scrollDiv)
+      this.$container[0].removeChild(scrollDiv)
       return scrollbarWidth
     }
 

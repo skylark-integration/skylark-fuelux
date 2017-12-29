@@ -127,7 +127,7 @@
     </div>
   </div>
 
-  <div id="myModal2" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
+  <div id="myModal2" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2" data-container="#container1">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -162,6 +162,8 @@
     Tall body content to force the page to have a scrollbar.
   </div>
 
+</div>
+<div id="container1" style="position:relative;height:400px;background:blue">
 </div>
 
 <!-- JavaScript Includes -->
@@ -205,6 +207,7 @@
                 $this.is(':visible') && $this.trigger('focus')
               })
             })
+            option.backdrop = 'static';
             $target.modal(option);
           });
 
