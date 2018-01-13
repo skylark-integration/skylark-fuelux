@@ -2232,6 +2232,10 @@ define('skylark-utils/finder',[
             return !!elm.selected;
         },
 
+        'text': function(elm){
+            return elm.type === "text";
+        },
+
         'visible': function(elm) {
             return elm.offsetWidth && elm.offsetWidth
         }
@@ -4319,7 +4323,7 @@ define('skylark-utils/fx',[
         var interval = setInterval(function() {
             i++;
 
-            if(i<=freq) elm.scrollTop = (scrollTo - scrollFrom) / freq * i + scrollFrom;
+            if (i <= freq) elm.scrollTop = (scrollTo - scrollFrom) / freq * i + scrollFrom;
 
             if (i >= freq + 1) {
                 clearInterval(interval);
@@ -4375,9 +4379,9 @@ define('skylark-utils/fx',[
             }
         }
         options.complete = function() {
-            styler.hide(this);
+            styler.hide(elm);
             if (complete) {
-                complete.call(this);
+                complete.call(elm);
             }
         }
 
@@ -4386,11 +4390,11 @@ define('skylark-utils/fx',[
         return this;
     }
 
-    function fadeToggle(elm, speed, ceasing,allback) {
+    function fadeToggle(elm, speed, ceasing, allback) {
         if (styler.isInvisible(elm)) {
-            fadeIn(elm, speed, easing,callback);
+            fadeIn(elm, speed, easing, callback);
         } else {
-            fadeOut(elm, speed, easing,callback);
+            fadeOut(elm, speed, easing, callback);
         }
         return this;
     }
@@ -4421,7 +4425,6 @@ define('skylark-utils/fx',[
 
     return skylark.fx = fx;
 });
-
 define('skylark-utils/query',[
     "./skylark",
     "./langx",
@@ -4487,7 +4490,9 @@ define('skylark-utils/query',[
             var self = this,
                 params = slice.call(arguments);
             var result = this.map(function(idx, elem) {
-                return func.apply(context, last ? [elem] : [elem, selector]);
+                if (elem.nodeType == 1) {
+                    return func.apply(context, last ? [elem] : [elem, selector]);
+                }
             });
             if (last && selector) {
                 return result.filter(selector);
@@ -4506,7 +4511,9 @@ define('skylark-utils/query',[
                 util = undefined;
             }
             var result = this.map(function(idx, elem) {
-                return func.apply(context, last ? [elem,util] : [elem, selector,util]);
+                if (elem.nodeType == 1) {
+                    return func.apply(context, last ? [elem,util] : [elem, selector,util]);
+                }
             });
             if (last && selector) {
                 return result.filter(selector);
@@ -4559,7 +4566,7 @@ define('skylark-utils/query',[
                 forEach.call(self, function(elem, idx) {
                     var newValue;
                     if (oldValueFunc) {
-                        newValue = funcArg(elem, value, idx, oldValueFunc(elem));
+                        newValue = funcArg(elem, value, idx, oldValueFunc(elem,name));
                     } else {
                         newValue = value
                     }
@@ -4654,6 +4661,7 @@ define('skylark-utils/query',[
 
 
             if (nodes) {
+
                 push.apply(self, nodes);
 
                 if (props) {
@@ -4694,9 +4702,9 @@ define('skylark-utils/query',[
             // from their array counterparts
 
             map: function(fn) {
-                return $(langx.map(this, function(el, i) {
+                return $(uniq(langx.map(this, function(el, i) {
                     return fn.call(el, i, el)
-                }))
+                })));
             },
 
             slice: function() { 
@@ -4775,6 +4783,8 @@ define('skylark-utils/query',[
 
             find: wrapper_selector(finder.descendants, finder),
 
+            closest: wrapper_selector(finder.closest, finder),
+/*
             closest: function(selector, context) {
                 var node = this[0],
                     collection = false
@@ -4783,6 +4793,7 @@ define('skylark-utils/query',[
                     node = node !== context && !isDocument(node) && node.parentNode
                 return $(node)
             },
+*/
 
 
             parents: wrapper_selector(finder.ancestors, finder),
@@ -4795,8 +4806,6 @@ define('skylark-utils/query',[
             children: wrapper_selector(finder.children, finder),
 
             contents: wrapper_map(noder.contents, noder),
-
-            siblings: wrapper_selector(finder.siblings, finder),
 
             empty: wrapper_every_act(noder.empty, noder),
 
@@ -4883,9 +4892,15 @@ define('skylark-utils/query',[
                 return $(this.pluck('previousElementSibling')).filter(selector || '*')
             },
 
+            prevAll: wrapper_selector(finder.previousSibling, finder),
+
             next: function(selector) {
                 return $(this.pluck('nextElementSibling')).filter(selector || '*')
             },
+
+            nextAll: wrapper_selector(finder.nextSiblings, finder),
+
+            siblings: wrapper_selector(finder.siblings, finder),
 
             html: wrapper_value(noder.html, noder, noder.html),
 
