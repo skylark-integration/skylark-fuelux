@@ -196,7 +196,7 @@ define([
 					}, this))
 				.on("click.jstree", ".jstree-anchor", $.proxy(function (e) {
 						if(this._data.contextmenu.visible && (!last_ts || (+new Date()) - last_ts > 250)) { // work around safari & macOS ctrl+click
-							$.vakata.context.hide();
+							menu.hide();
 						}
 						last_ts = 0;
 					}, this))
@@ -213,7 +213,7 @@ define([
 				.on('touchmove.vakata.jstree', function (e) {
 						if(cto && e.originalEvent && e.originalEvent.changedTouches && e.originalEvent.changedTouches[0] && (Math.abs(ex - e.originalEvent.changedTouches[0].clientX) > 10 || Math.abs(ey - e.originalEvent.changedTouches[0].clientY) > 10)) {
 							clearTimeout(cto);
-							$.vakata.context.hide();
+							menu.hide();
 						}
 					})
 				.on('touchend.vakata.jstree', function (e) {
@@ -250,7 +250,7 @@ define([
 		};
 		this.teardown = function () {
 			if(this._data.contextmenu.visible) {
-				$.vakata.context.hide();
+				menu.hide();
 			}
 			parent.teardown.call(this);
 		};
@@ -312,7 +312,7 @@ define([
 				a.addClass('jstree-context');
 			}, this));
 			this._data.contextmenu.visible = true;
-			$.vakata.context.show(a, { 'x' : x, 'y' : y }, i);
+			menu.show(a, { 'x' : x, 'y' : y }, i);
 			/**
 			 * triggered when the contextmenu is shown for a node
 			 * @event
@@ -326,7 +326,6 @@ define([
 		};
 	};
 
-	$.vakata.context = menu;
 	// $.jstree.defaults.plugins.push("contextmenu");
 
 	return $;

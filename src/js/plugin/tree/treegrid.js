@@ -6,9 +6,10 @@ define([
   "skylark-utils/geom",
   "skylark-utils/velm",
   "skylark-utils/query",
+  "../../menu",
   "../../tree",
   "../../sbswt"
-],function(langx,browser,eventer,noder,geom,velm,$,jstree,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,menu,jstree,sbswt){
     var BLANKRE = /^\s*$/g,
         IDREGEX = /[\\:&!^|()\[\]<>@*'+~#";,= \/${}%]/g,
         escapeId = function(id) {
@@ -1235,7 +1236,7 @@ define([
                     return function(e) {
                         if (gs.gridcontextmenu) {
                             e.preventDefault();
-                            $.vakata.context.show(this, {
+                            menu.show(this, {
                                 'x': e.pageX,
                                 'y': e.pageY
                             }, gs.gridcontextmenu(_this, tree, node, val, col, t, e.target));

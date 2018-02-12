@@ -10771,12 +10771,12 @@ define('skylark-bs-swt/menu',[
 				if(!val) { return true; }
 				vakata_context.items.push(val);
 				if(!sep && val.separator_before) {
-					str += "<"+"li class='vakata-context-separator'><"+"a href='#' " + ($.vakata.context.settings.icons ? '' : 'style="margin-left:0px;"') + ">&#160;<"+"/a><"+"/li>";
+					str += "<"+"li class='vakata-context-separator'><"+"a href='#' " + (menu.settings.icons ? '' : 'style="margin-left:0px;"') + ">&#160;<"+"/a><"+"/li>";
 				}
 				sep = false;
 				str += "<"+"li class='" + (val._class || "") + (val._disabled === true || ($.isFunction(val._disabled) && val._disabled({ "item" : val, "reference" : vakata_context.reference, "element" : vakata_context.element })) ? " vakata-contextmenu-disabled " : "") + "' "+(val.shortcut?" data-shortcut='"+val.shortcut+"' ":'')+">";
 				str += "<"+"a href='#' rel='" + (vakata_context.items.length - 1) + "' " + (val.title ? "title='" + val.title + "'" : "") + ">";
-				if($.vakata.context.settings.icons) {
+				if(menu.settings.icons) {
 					str += "<"+"i ";
 					if(val.icon) {
 						if(val.icon.indexOf("/") !== -1 || val.icon.indexOf(".") !== -1) { str += " style='background:url(\"" + val.icon + "\") center center no-repeat' "; }
@@ -10786,12 +10786,12 @@ define('skylark-bs-swt/menu',[
 				}
 				str += ($.isFunction(val.label) ? val.label({ "item" : i, "reference" : vakata_context.reference, "element" : vakata_context.element }) : val.label) + (val.shortcut?' <span class="vakata-contextmenu-shortcut vakata-contextmenu-shortcut-'+val.shortcut+'">'+ (val.shortcut_label || '') +'</span>':'') + "<"+"/a>";
 				if(val.submenu) {
-					tmp = $.vakata.context._parse(val.submenu, true);
+					tmp = menu._parse(val.submenu, true);
 					if(tmp) { str += tmp; }
 				}
 				str += "<"+"/li>";
 				if(val.separator_after) {
-					str += "<"+"li class='vakata-context-separator'><"+"a href='#' " + ($.vakata.context.settings.icons ? '' : 'style="margin-left:0px;"') + ">&#160;<"+"/a><"+"/li>";
+					str += "<"+"li class='vakata-context-separator'><"+"a href='#' " + (menu.settings.icons ? '' : 'style="margin-left:0px;"') + ">&#160;<"+"/a><"+"/li>";
 					sep = true;
 				}
 			});
@@ -10806,7 +10806,7 @@ define('skylark-bs-swt/menu',[
 			 * @param {jQuery} element the DOM element of the menu itself
 			 * @param {Object} position the x & y coordinates of the menu
 			 */
-			if(!is_callback) { vakata_context.html = str; $.vakata.context._trigger("parse"); }
+			if(!is_callback) { vakata_context.html = str; menu._trigger("parse"); }
 			return str.length > 10 ? str : false;
 		},
 		_show_submenu : function (o) {
@@ -10871,7 +10871,7 @@ define('skylark-bs-swt/menu',[
 			if(!!reference && !data && $(reference).data('vakata_contextmenu')) {
 				data = $(reference).data('vakata_contextmenu');
 			}
-			if($.vakata.context._parse(data)) {
+			if(menu._parse(data)) {
 				vakata_context.element.html(vakata_context.html);
 			}
 			if(vakata_context.items.length) {
@@ -10951,7 +10951,7 @@ define('skylark-bs-swt/menu',[
 				$(this)
 					.siblings().find("ul").hide().end().end()
 					.parentsUntil(".vakata-context", "li").addBack().addClass("vakata-context-hover");
-				$.vakata.context._show_submenu(this);
+				menu._show_submenu(this);
 			})
 			// тестово - дали не натоварва?
 			.on("mouseleave", "li", function (e) {
@@ -10960,19 +10960,19 @@ define('skylark-bs-swt/menu',[
 			})
 			.on("mouseleave", function (e) {
 				$(this).find(".vakata-context-hover").removeClass("vakata-context-hover");
-				if($.vakata.context.settings.hide_onmouseleave) {
+				if(menu.settings.hide_onmouseleave) {
 					to = setTimeout(
 						(function (t) {
-							return function () { $.vakata.context.hide(); };
-						}(this)), $.vakata.context.settings.hide_onmouseleave);
+							return function () { menu.hide(); };
+						}(this)), menu.settings.hide_onmouseleave);
 				}
 			})
 			.on("click", "a", function (e) {
 				e.preventDefault();
 			//})
 			//.on("mouseup", "a", function (e) {
-				if(!$(this).blur().parent().hasClass("vakata-context-disabled") && $.vakata.context._execute($(this).attr("rel")) !== false) {
-					$.vakata.context.hide();
+				if(!$(this).blur().parent().hasClass("vakata-context-disabled") && menu._execute($(this).attr("rel")) !== false) {
+					menu.hide();
 				}
 			})
 			.on('keydown', 'a', function (e) {
@@ -11017,7 +11017,7 @@ define('skylark-bs-swt/menu',[
 							}
 							break;
 						case 27:
-							$.vakata.context.hide();
+							menu.hide();
 							e.preventDefault();
 							break;
 						default:
@@ -11036,7 +11036,7 @@ define('skylark-bs-swt/menu',[
 		$(document)
 			.on("mousedown.vakata.jstree", function (e) {
 				if(vakata_context.is_visible && vakata_context.element[0] !== e.target  && !noder.contains(vakata_context.element[0], e.target)) {
-					$.vakata.context.hide();
+					menu.hide();
 				}
 			})
 			.on("context_show.vakata.jstree", function (e, data) {
@@ -25034,7 +25034,7 @@ define('skylark-bs-swt/plugin/tree/contextmenu',[
 					}, this))
 				.on("click.jstree", ".jstree-anchor", $.proxy(function (e) {
 						if(this._data.contextmenu.visible && (!last_ts || (+new Date()) - last_ts > 250)) { // work around safari & macOS ctrl+click
-							$.vakata.context.hide();
+							menu.hide();
 						}
 						last_ts = 0;
 					}, this))
@@ -25051,7 +25051,7 @@ define('skylark-bs-swt/plugin/tree/contextmenu',[
 				.on('touchmove.vakata.jstree', function (e) {
 						if(cto && e.originalEvent && e.originalEvent.changedTouches && e.originalEvent.changedTouches[0] && (Math.abs(ex - e.originalEvent.changedTouches[0].clientX) > 10 || Math.abs(ey - e.originalEvent.changedTouches[0].clientY) > 10)) {
 							clearTimeout(cto);
-							$.vakata.context.hide();
+							menu.hide();
 						}
 					})
 				.on('touchend.vakata.jstree', function (e) {
@@ -25088,7 +25088,7 @@ define('skylark-bs-swt/plugin/tree/contextmenu',[
 		};
 		this.teardown = function () {
 			if(this._data.contextmenu.visible) {
-				$.vakata.context.hide();
+				menu.hide();
 			}
 			parent.teardown.call(this);
 		};
@@ -25150,7 +25150,7 @@ define('skylark-bs-swt/plugin/tree/contextmenu',[
 				a.addClass('jstree-context');
 			}, this));
 			this._data.contextmenu.visible = true;
-			$.vakata.context.show(a, { 'x' : x, 'y' : y }, i);
+			menu.show(a, { 'x' : x, 'y' : y }, i);
 			/**
 			 * triggered when the contextmenu is shown for a node
 			 * @event
@@ -25164,7 +25164,6 @@ define('skylark-bs-swt/plugin/tree/contextmenu',[
 		};
 	};
 
-	$.vakata.context = menu;
 	// $.jstree.defaults.plugins.push("contextmenu");
 
 	return $;
@@ -26593,9 +26592,10 @@ define('skylark-bs-swt/plugin/tree/treegrid',[
   "skylark-utils/geom",
   "skylark-utils/velm",
   "skylark-utils/query",
+  "../../menu",
   "../../tree",
   "../../sbswt"
-],function(langx,browser,eventer,noder,geom,velm,$,jstree,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,menu,jstree,sbswt){
     var BLANKRE = /^\s*$/g,
         IDREGEX = /[\\:&!^|()\[\]<>@*'+~#";,= \/${}%]/g,
         escapeId = function(id) {
@@ -27822,7 +27822,7 @@ define('skylark-bs-swt/plugin/tree/treegrid',[
                     return function(e) {
                         if (gs.gridcontextmenu) {
                             e.preventDefault();
-                            $.vakata.context.show(this, {
+                            menu.show(this, {
                                 'x': e.pageX,
                                 'y': e.pageY
                             }, gs.gridcontextmenu(_this, tree, node, val, col, t, e.target));
