@@ -12,8 +12,9 @@ define([
   "skylark-utils/eventer",
   "skylark-utils/noder",
   "skylark-utils/geom",
-  "skylark-utils/query"
-],function(skylark,langx,browser,eventer,noder,geom,$){
+  "skylark-utils/query",
+  "skylark-utils/widget"
+],function(skylark,langx,browser,eventer,noder,geom,$,widget){
 	var ui = skylark.ui = skylark.ui || {}, 
 		sbswt = ui.sbswt = {};
 
@@ -79,7 +80,7 @@ define([
 
 /*---------------------------------------------------------------------------------*/
 
-	var WidgetBase = langx.Evented.inherit({
+	var WidgetBase = widget.Widget.inherit({
         klassName: "WidgetBase",
     });
 

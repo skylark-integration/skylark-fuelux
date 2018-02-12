@@ -19,6 +19,7 @@ define([
     "./dropdown-autoflip",
     "./infinite-scroll",
     "./modal",
+    "./menu",
     "./picker",
     "./pillbox",
     "./placard",
