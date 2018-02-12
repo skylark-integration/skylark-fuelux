@@ -12,9 +12,7 @@
 
 	<meta name="robots" content="index,follow" />
 	<link rel="stylesheet" href="https://static.jstree.com/3.3.2/assets/bootstrap/css/bootstrap.min.css" />
-	<link rel="stylesheet" href="../../dist/themes/proton/style.min.css" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
-
+	<link rel="stylesheet" href="../../dist/css/jstree-proton/style.min.css" />
 	<link rel="stylesheet" href="https://static.jstree.com/3.3.2/assets/docs.css" />
 	<!--[if lt IE 9]><script src="//static.jstree.com/3.3.2/assets/respond.js"></script><![endif]-->
 
@@ -133,11 +131,7 @@
   "core" : {
     "animation" : 0,
     "check_callback" : true,
-    "themes" : { 
-        'name': 'proton',
- 		'responsive': true,
- 		"stripes" : true 
-	},
+    "themes" : { "stripes" : true },
     'data' : {
       'url' : function (node) {
         return node.id === '#' ?
@@ -183,11 +177,11 @@
 	</div>
 	<a class="hidden-xs hidden-sm" href="https://github.com/vakata/jstree"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_green_007200.png" alt="Fork me on GitHub"></a>
 <!--	<script src="https://static.jstree.com/3.3.2/assets/jquery-1.10.2.min.js"></script> -->
-	<script src="http://registry.skylarkjs.org/packages/skylark-jquery/v0.9.6-beta/uncompressed/skylark-jquery-all.js"></script>
-	<script src="http://registry.skylarkjs.org/packages/skylark-jquery/v0.9.6-beta/uncompressed/skylark-jquery-all.js"></script>
-	<script src="https://static.jstree.com/3.3.2/assets/jquery.address-1.6.js"></script>
-	<script src="https://static.jstree.com/3.3.2/assets/vakata.js"></script>
-	<script src="../../dist/jstree.js"></script>
+	<script src="http://registry.skylarkjs.org/packages/skylark-utils/v0.9.5-beta/uncompressed/skylark-utils-all.js"></script>
+	<script src="../../dist/js/uncompressed/skylark-bs-swt.js"></script>
+	<script>
+		window.$ = window.jQuery = skylarkjs.query;
+	</script>
 	<script src="./site.js"></script>
 	<script>$.each($q,function(i,f){$(f)});$q=null;</script>
 </body>
