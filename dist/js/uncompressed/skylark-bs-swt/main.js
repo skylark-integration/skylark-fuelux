@@ -46,6 +46,7 @@ define([
     "./plugin/tree/search",
     "./plugin/tree/sort",
     "./plugin/tree/state",
+    "./plugin/tree/treegrid",
     "./plugin/tree/types",
     "./plugin/tree/unique",
     "./plugin/tree/wholerow",
