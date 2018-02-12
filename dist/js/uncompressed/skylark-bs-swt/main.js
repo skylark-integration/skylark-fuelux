@@ -6,7 +6,7 @@
  * @license MIT
  */
 define([
-    "skylark-utils/query",
+    // "skylark-utils/query",
     "./affix",
     "./alert",
     "./button",
@@ -37,6 +37,18 @@ define([
     "./tooltip",
     "./transition",
     "./tree",
+    "./plugin/tree/changed",
+    "./plugin/tree/checkbox",
+    "./plugin/tree/conditionalselect",
+    "./plugin/tree/contextmenu",
+    "./plugin/tree/dnd",
+    "./plugin/tree/massload",
+    "./plugin/tree/search",
+    "./plugin/tree/sort",
+    "./plugin/tree/state",
+    "./plugin/tree/types",
+    "./plugin/tree/unique",
+    "./plugin/tree/wholerow",
     "./window",
     "./wizard",
     "./lightbox"
