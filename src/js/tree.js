@@ -1,5 +1,4 @@
 define([
-  "skylark-utils/ajax",
   "skylark-utils/langx",
   "skylark-utils/browser",
   "skylark-utils/eventer",
@@ -8,10 +7,12 @@ define([
   "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(ajax,langx,browser,eventer,noder,geom,velm,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 	"use strict";
 
-	$.ajax = ajax;
+	$.ajax = $.ajax || function(options) {
+        return langx.Xhr.request(options.url,options);
+    };
 
     $.camelCase = langx.camelCase;
 
@@ -57,6 +58,10 @@ define([
 
     $.trim = langx.trim;
     $.type = langx.type;
+
+    $.fn.stop = function() {
+    	return this;
+    }
 
 
 	/*!

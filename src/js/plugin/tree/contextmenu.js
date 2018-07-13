@@ -236,7 +236,7 @@ define([
 					});
 			}
 			*/
-			$(document).on("context_hide.vakata.jstree", $.proxy(function (e, data) {
+			$(document).on("context_hide.sbswt.popup", $.proxy(function (e, data) {
 				this._data.contextmenu.visible = false;
 				$(data.reference).removeClass('jstree-context');
 			}, this));
@@ -299,13 +299,13 @@ define([
 		this._show_contextmenu = function (obj, x, y, i) {
 			var d = this.get_node(obj, true),
 				a = d.children(".jstree-anchor");
-			$(document).one("context_show.vakata.jstree", $.proxy(function (e, data) {
+			$(document).one("context_show.sbswt.popup", $.proxy(function (e, data) {
 				var cls = 'jstree-contextmenu jstree-' + this.get_theme() + '-contextmenu';
 				$(data.element).addClass(cls);
 				a.addClass('jstree-context');
 			}, this));
 			this._data.contextmenu.visible = true;
-			menu.show(a, { 'x' : x, 'y' : y }, i);
+			menu.popup(a, { 'x' : x, 'y' : y }, i);
 			/**
 			 * triggered when the contextmenu is shown for a node
 			 * @event

@@ -23,6 +23,10 @@ define([
   var Popover = sbswt.Popover = tooltip.Constructor.inherit({
     klassName: "Popover",
 
+    init : function(element,options) {
+      this.overrided(element,options);
+      this.type = "popover";
+    },
     getDefaults : function () {
       return Popover.DEFAULTS
     },

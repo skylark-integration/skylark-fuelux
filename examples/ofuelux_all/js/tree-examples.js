@@ -7,7 +7,7 @@
 define([
 	"skylark-bs-swt"
 ],function ($) {
-
+	return;
 
 	$('#treeIllustration').tree({
 		dataSource: function (options, callback) {

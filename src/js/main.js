@@ -1,5 +1,5 @@
 define([
-    // "skylark-utils/query",
+    "skylark-utils/query",
     "./affix",
     "./alert",
     "./button",

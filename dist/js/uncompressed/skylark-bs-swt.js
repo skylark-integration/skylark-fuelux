@@ -3463,65 +3463,179 @@ define('skylark-bs-swt/menu',[
   "./sbswt"
 ],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 
-	var right_to_left = false,
-		vakata_context = {
-			element		: false,
-			reference	: false,
-			position_x	: 0,
-			position_y	: 0,
-			items		: [],
-			html		: "",
-			is_visible	: false
-		};
+	var popup = null;
+	var right_to_left ;
 
-	var menu = {
-		settings : {
-			hide_onmouseleave	: 0,
-			icons				: true
-		},
+	var Menu = sbswt.Menu = sbswt.WidgetBase.inherit({
+        klassName: "Menu",
+
+        init : function(elm,options) {
+        	if (!options) {
+        		options = elm;
+        		elm = null;
+        	}
+			var self = this,$el;
+
+			this._options = langx.mixin({
+					hide_onmouseleave	: 0,
+					icons				: true
+
+			},options);
+
+			if (!elm) {
+				$el = this.$el = $("<ul class='vakata-context'></ul>");
+			} else {
+				$el = this.$el = $(elm);
+			}
+
+			var to = false;
+			$el.on("mouseenter", "li", function (e) {
+					e.stopImmediatePropagation();
+
+					if(noder.contains(this, e.relatedTarget)) {
+						// премахнато заради delegate mouseleave по-долу
+						// $(this).find(".vakata-context-hover").removeClass("vakata-context-hover");
+						return;
+					}
+
+					if(to) { clearTimeout(to); }
+					$el.find(".vakata-context-hover").removeClass("vakata-context-hover").end();
+
+					$(this)
+						.siblings().find("ul").hide().end().end()
+						.parentsUntil(".vakata-context", "li").addBack().addClass("vakata-context-hover");
+					self._show_submenu(this);
+				})
+				// тестово - дали не натоварва?
+				.on("mouseleave", "li", function (e) {
+					if(noder.contains(this, e.relatedTarget)) { return; }
+					$(this).find(".vakata-context-hover").addBack().removeClass("vakata-context-hover");
+				})
+				.on("mouseleave", function (e) {
+					$(this).find(".vakata-context-hover").removeClass("vakata-context-hover");
+					if(self._options.hide_onmouseleave) {
+						to = setTimeout(
+							(function (t) {
+								return function () { self.hide(); };
+							}(this)), self._options.hide_onmouseleave);
+					}
+				})
+				.on("click", "a", function (e) {
+					e.preventDefault();
+				//})
+				//.on("mouseup", "a", function (e) {
+					if(!$(this).blur().parent().hasClass("vakata-context-disabled") && self._execute($(this).attr("rel")) !== false) {
+						self.hide();
+					}
+				})
+				.on('keydown', 'a', function (e) {
+						var o = null;
+						switch(e.which) {
+							case 13:
+							case 32:
+								e.type = "click";
+								e.preventDefault();
+								$(e.currentTarget).trigger(e);
+								break;
+							case 37:
+								self.$el.find(".vakata-context-hover").last().closest("li").first().find("ul").hide().find(".vakata-context-hover").removeClass("vakata-context-hover").end().end().children('a').focus();
+								e.stopImmediatePropagation();
+								e.preventDefault();
+								break;
+							case 38:
+								o = self.$el.find("ul:visible").addBack().last().children(".vakata-context-hover").removeClass("vakata-context-hover").prevAll("li:not(.vakata-context-separator)").first();
+								if(!o.length) { o = self.$el.find("ul:visible").addBack().last().children("li:not(.vakata-context-separator)").last(); }
+								o.addClass("vakata-context-hover").children('a').focus();
+								e.stopImmediatePropagation();
+								e.preventDefault();
+								break;
+							case 39:
+								self.$el.find(".vakata-context-hover").last().children("ul").show().children("li:not(.vakata-context-separator)").removeClass("vakata-context-hover").first().addClass("vakata-context-hover").children('a').focus();
+								e.stopImmediatePropagation();
+								e.preventDefault();
+								break;
+							case 40:
+								o = self.$el.find("ul:visible").addBack().last().children(".vakata-context-hover").removeClass("vakata-context-hover").nextAll("li:not(.vakata-context-separator)").first();
+								if(!o.length) { o = self.$el.find("ul:visible").addBack().last().children("li:not(.vakata-context-separator)").first(); }
+								o.addClass("vakata-context-hover").children('a').focus();
+								e.stopImmediatePropagation();
+								e.preventDefault();
+								break;
+							case 27:
+								self.hide();
+								e.preventDefault();
+								break;
+							default:
+								//console.log(e.which);
+								break;
+						}
+					})
+				.on('keydown', function (e) {
+					e.preventDefault();
+					var a = self.$el.find('.vakata-contextmenu-shortcut-' + e.which).parent();
+					if(a.parent().not('.vakata-context-disabled')) {
+						a.click();
+					}
+				});
+
+			this.render();
+        },
+
+        render : function() {
+        	var items = this._options.items;
+			if(this._parse(items)) {
+				this.$el.html(this.html);
+			}
+			this.$el.width('');
+        },
+
 		_trigger : function (event_name) {
-			$(document).trigger("context_" + event_name + ".vakata", {
-				"reference"	: vakata_context.reference,
-				"element"	: vakata_context.element,
+			$(document).trigger("context_" + event_name + ".sbswt", {
+				"reference"	: this.reference,
+				"element"	: this.$el,
 				"position"	: {
-					"x" : vakata_context.position_x,
-					"y" : vakata_context.position_y
+					"x" : this.position_x,
+					"y" : this.position_y
 				}
 			});
-		},
+		},        
+
 		_execute : function (i) {
-			i = vakata_context.items[i];
-			return i && (!i._disabled || ($.isFunction(i._disabled) && !i._disabled({ "item" : i, "reference" : vakata_context.reference, "element" : vakata_context.element }))) && i.action ? i.action.call(null, {
+			i = this.items[i];
+			return i && (!i._disabled || (langx.isFunction(i._disabled) && !i._disabled({ "item" : i, "reference" : this.reference, "element" : this.$el }))) && i.action ? i.action.call(null, {
 						"item"		: i,
-						"reference"	: vakata_context.reference,
-						"element"	: vakata_context.element,
+						"reference"	: this.reference,
+						"element"	: this.$el,
 						"position"	: {
-							"x" : vakata_context.position_x,
-							"y" : vakata_context.position_y
+							"x" : this.position_x,
+							"y" : this.position_y
 						}
 					}) : false;
 		},
 		_parse : function (o, is_callback) {
+			var self = this,
+				reference = self._options.reference;
+
 			if(!o) { return false; }
 			if(!is_callback) {
-				vakata_context.html		= "";
-				vakata_context.items	= [];
+				self.html		= "";
+				self.items	= [];
 			}
 			var str = "",
 				sep = false,
 				tmp;
 
 			if(is_callback) { str += "<"+"ul>"; }
-			$.each(o, function (i, val) {
+			langx.each(o, function (i, val) {
 				if(!val) { return true; }
-				vakata_context.items.push(val);
+				self.items.push(val);
 				if(!sep && val.separator_before) {
-					str += "<"+"li class='vakata-context-separator'><"+"a href='#' " + (menu.settings.icons ? '' : 'style="margin-left:0px;"') + ">&#160;<"+"/a><"+"/li>";
+					str += "<"+"li class='vakata-context-separator'><"+"a href='#' " + (self._options.icons ? '' : 'style="margin-left:0px;"') + ">&#160;<"+"/a><"+"/li>";
 				}
 				sep = false;
-				str += "<"+"li class='" + (val._class || "") + (val._disabled === true || ($.isFunction(val._disabled) && val._disabled({ "item" : val, "reference" : vakata_context.reference, "element" : vakata_context.element })) ? " vakata-contextmenu-disabled " : "") + "' "+(val.shortcut?" data-shortcut='"+val.shortcut+"' ":'')+">";
-				str += "<"+"a href='#' rel='" + (vakata_context.items.length - 1) + "' " + (val.title ? "title='" + val.title + "'" : "") + ">";
-				if(menu.settings.icons) {
+				str += "<"+"li class='" + (val._class || "") + (val._disabled === true || (langx.isFunction(val._disabled) && val._disabled({ "item" : val, "reference" : reference, "element" : self.$el })) ? " vakata-contextmenu-disabled " : "") + "' "+(val.shortcut?" data-shortcut='"+val.shortcut+"' ":'')+">";
+				str += "<"+"a href='#' rel='" + (self.items.length - 1) + "' " + (val.title ? "title='" + val.title + "'" : "") + ">";
+				if(self._options.icons) {
 					str += "<"+"i ";
 					if(val.icon) {
 						if(val.icon.indexOf("/") !== -1 || val.icon.indexOf(".") !== -1) { str += " style='background:url(\"" + val.icon + "\") center center no-repeat' "; }
@@ -3529,14 +3643,14 @@ define('skylark-bs-swt/menu',[
 					}
 					str += "><"+"/i><"+"span class='vakata-contextmenu-sep'>&#160;<"+"/span>";
 				}
-				str += ($.isFunction(val.label) ? val.label({ "item" : i, "reference" : vakata_context.reference, "element" : vakata_context.element }) : val.label) + (val.shortcut?' <span class="vakata-contextmenu-shortcut vakata-contextmenu-shortcut-'+val.shortcut+'">'+ (val.shortcut_label || '') +'</span>':'') + "<"+"/a>";
+				str += (langx.isFunction(val.label) ? val.label({ "item" : i, "reference" : reference, "element" : self.$el }) : val.label) + (val.shortcut?' <span class="vakata-contextmenu-shortcut vakata-contextmenu-shortcut-'+val.shortcut+'">'+ (val.shortcut_label || '') +'</span>':'') + "<"+"/a>";
 				if(val.submenu) {
-					tmp = menu._parse(val.submenu, true);
+					tmp = self._parse(val.submenu, true);
 					if(tmp) { str += tmp; }
 				}
 				str += "<"+"/li>";
 				if(val.separator_after) {
-					str += "<"+"li class='vakata-context-separator'><"+"a href='#' " + (menu.settings.icons ? '' : 'style="margin-left:0px;"') + ">&#160;<"+"/a><"+"/li>";
+					str += "<"+"li class='vakata-context-separator'><"+"a href='#' " + (self._options.icons ? '' : 'style="margin-left:0px;"') + ">&#160;<"+"/a><"+"/li>";
 					sep = true;
 				}
 			});
@@ -3551,7 +3665,7 @@ define('skylark-bs-swt/menu',[
 			 * @param {jQuery} element the DOM element of the menu itself
 			 * @param {Object} position the x & y coordinates of the menu
 			 */
-			if(!is_callback) { vakata_context.html = str; menu._trigger("parse"); }
+			if(!is_callback) { self.html = str; self._trigger("parse"); }
 			return str.length > 10 ? str : false;
 		},
 		_show_submenu : function (o) {
@@ -3591,39 +3705,34 @@ define('skylark-bs-swt/menu',[
 		},
 		show : function (reference, position, data) {
 			var o, e, x, y, w, h, dw, dh, cond = true;
-			if(vakata_context.element && vakata_context.element.length) {
-				vakata_context.element.width('');
-			}
 			switch(cond) {
 				case (!position && !reference):
 					return false;
 				case (!!position && !!reference):
-					vakata_context.reference	= reference;
-					vakata_context.position_x	= position.x;
-					vakata_context.position_y	= position.y;
+					this.reference	= reference;
+					this.position_x	= position.x;
+					this.position_y	= position.y;
 					break;
 				case (!position && !!reference):
-					vakata_context.reference	= reference;
+					this.reference	= reference;
 					o = reference.offset();
-					vakata_context.position_x	= o.left + reference.outerHeight();
-					vakata_context.position_y	= o.top;
+					this.position_x	= o.left + reference.outerHeight();
+					this.position_y	= o.top;
 					break;
 				case (!!position && !reference):
-					vakata_context.position_x	= position.x;
-					vakata_context.position_y	= position.y;
+					this.position_x	= position.x;
+					this.position_y	= position.y;
 					break;
 			}
 			if(!!reference && !data && $(reference).data('vakata_contextmenu')) {
 				data = $(reference).data('vakata_contextmenu');
 			}
-			if(menu._parse(data)) {
-				vakata_context.element.html(vakata_context.html);
-			}
-			if(vakata_context.items.length) {
-				vakata_context.element.appendTo(document.body);
-				e = vakata_context.element;
-				x = vakata_context.position_x;
-				y = vakata_context.position_y;
+
+			if(this.items.length) {
+				this.$el.appendTo(document.body);
+				e = this.$el;
+				x = this.position_x;
+				y = this.position_y;
 				w = e.width();
 				h = e.height();
 				dw = $(window).width() + $(window).scrollLeft();
@@ -3641,11 +3750,14 @@ define('skylark-bs-swt/menu',[
 					y = dh - (h + 20);
 				}
 
-				vakata_context.element
+				this.$el
 					.css({ "left" : x, "top" : y })
 					.show()
 					.find('a').first().focus().parent().addClass("vakata-context-hover");
-				vakata_context.is_visible = true;
+				this.is_visible = true;
+
+				popup = this;
+
 				/**
 				 * triggered on the document when the contextmenu is shown
 				 * @event
@@ -3659,9 +3771,10 @@ define('skylark-bs-swt/menu',[
 			}
 		},
 		hide : function () {
-			if(vakata_context.is_visible) {
-				vakata_context.element.hide().find("ul").hide().end().find(':focus').blur().end().detach();
-				vakata_context.is_visible = false;
+			if(this.is_visible) {
+				this.$el.hide().find("ul").hide().end().find(':focus').blur().end().detach();
+				this.is_visible = false;
+				popup = null;
 				/**
 				 * triggered on the document when the contextmenu is hidden
 				 * @event
@@ -3674,127 +3787,43 @@ define('skylark-bs-swt/menu',[
 				this._trigger("hide");
 			}
 		}
-	};
+
+    });	
+
 	$(function () {
 		right_to_left = $(document.body).css("direction") === "rtl";
-		var to = false;
-
-		vakata_context.element = $("<ul class='vakata-context'></ul>");
-		vakata_context.element
-			.on("mouseenter", "li", function (e) {
-				e.stopImmediatePropagation();
-
-				if(noder.contains(this, e.relatedTarget)) {
-					// премахнато заради delegate mouseleave по-долу
-					// $(this).find(".vakata-context-hover").removeClass("vakata-context-hover");
-					return;
-				}
-
-				if(to) { clearTimeout(to); }
-				vakata_context.element.find(".vakata-context-hover").removeClass("vakata-context-hover").end();
-
-				$(this)
-					.siblings().find("ul").hide().end().end()
-					.parentsUntil(".vakata-context", "li").addBack().addClass("vakata-context-hover");
-				menu._show_submenu(this);
-			})
-			// тестово - дали не натоварва?
-			.on("mouseleave", "li", function (e) {
-				if(noder.contains(this, e.relatedTarget)) { return; }
-				$(this).find(".vakata-context-hover").addBack().removeClass("vakata-context-hover");
-			})
-			.on("mouseleave", function (e) {
-				$(this).find(".vakata-context-hover").removeClass("vakata-context-hover");
-				if(menu.settings.hide_onmouseleave) {
-					to = setTimeout(
-						(function (t) {
-							return function () { menu.hide(); };
-						}(this)), menu.settings.hide_onmouseleave);
-				}
-			})
-			.on("click", "a", function (e) {
-				e.preventDefault();
-			//})
-			//.on("mouseup", "a", function (e) {
-				if(!$(this).blur().parent().hasClass("vakata-context-disabled") && menu._execute($(this).attr("rel")) !== false) {
-					menu.hide();
-				}
-			})
-			.on('keydown', 'a', function (e) {
-					var o = null;
-					switch(e.which) {
-						case 13:
-						case 32:
-							e.type = "click";
-							e.preventDefault();
-							$(e.currentTarget).trigger(e);
-							break;
-						case 37:
-							if(vakata_context.is_visible) {
-								vakata_context.element.find(".vakata-context-hover").last().closest("li").first().find("ul").hide().find(".vakata-context-hover").removeClass("vakata-context-hover").end().end().children('a').focus();
-								e.stopImmediatePropagation();
-								e.preventDefault();
-							}
-							break;
-						case 38:
-							if(vakata_context.is_visible) {
-								o = vakata_context.element.find("ul:visible").addBack().last().children(".vakata-context-hover").removeClass("vakata-context-hover").prevAll("li:not(.vakata-context-separator)").first();
-								if(!o.length) { o = vakata_context.element.find("ul:visible").addBack().last().children("li:not(.vakata-context-separator)").last(); }
-								o.addClass("vakata-context-hover").children('a').focus();
-								e.stopImmediatePropagation();
-								e.preventDefault();
-							}
-							break;
-						case 39:
-							if(vakata_context.is_visible) {
-								vakata_context.element.find(".vakata-context-hover").last().children("ul").show().children("li:not(.vakata-context-separator)").removeClass("vakata-context-hover").first().addClass("vakata-context-hover").children('a').focus();
-								e.stopImmediatePropagation();
-								e.preventDefault();
-							}
-							break;
-						case 40:
-							if(vakata_context.is_visible) {
-								o = vakata_context.element.find("ul:visible").addBack().last().children(".vakata-context-hover").removeClass("vakata-context-hover").nextAll("li:not(.vakata-context-separator)").first();
-								if(!o.length) { o = vakata_context.element.find("ul:visible").addBack().last().children("li:not(.vakata-context-separator)").first(); }
-								o.addClass("vakata-context-hover").children('a').focus();
-								e.stopImmediatePropagation();
-								e.preventDefault();
-							}
-							break;
-						case 27:
-							menu.hide();
-							e.preventDefault();
-							break;
-						default:
-							//console.log(e.which);
-							break;
-					}
-				})
-			.on('keydown', function (e) {
-				e.preventDefault();
-				var a = vakata_context.element.find('.vakata-contextmenu-shortcut-' + e.which).parent();
-				if(a.parent().not('.vakata-context-disabled')) {
-					a.click();
-				}
-			});
 
 		$(document)
-			.on("mousedown.vakata.jstree", function (e) {
-				if(vakata_context.is_visible && vakata_context.element[0] !== e.target  && !noder.contains(vakata_context.element[0], e.target)) {
-					menu.hide();
+			.on("mousedown.sbswt.popup", function (e) {
+				if(popup && popup.$el[0] !== e.target  && !noder.contains(popup.$el[0], e.target)) {
+					popup.hide();
 				}
 			})
-			.on("context_show.vakata.jstree", function (e, data) {
-				vakata_context.element.find("li:has(ul)").children("a").addClass("vakata-context-parent");
+			.on("context_show.sbswt.popup", function (e, data) {
+				popup.$el.find("li:has(ul)").children("a").addClass("vakata-context-parent");
 				if(right_to_left) {
-					vakata_context.element.addClass("vakata-context-rtl").css("direction", "rtl");
+					popup.$el.addClass("vakata-context-rtl").css("direction", "rtl");
 				}
 				// also apply a RTL class?
-				vakata_context.element.find("ul").hide().end();
+				popup.$el.find("ul").hide().end();
 			});
 	});
 
-	return menu;
+	Menu.popup = function (reference, position, data) {
+		var m = new Menu({
+			reference : reference,
+			items : data
+		});
+		m.show(reference,position);
+	};
+
+	Menu.hide = function() {
+		if (popup) {
+			popup.hide();
+		}
+	}
+
+	return Menu;
 
 });
 
@@ -5763,6 +5792,10 @@ define('skylark-bs-swt/popover',[
   var Popover = sbswt.Popover = tooltip.Constructor.inherit({
     klassName: "Popover",
 
+    init : function(element,options) {
+      this.overrided(element,options);
+      this.type = "popover";
+    },
     getDefaults : function () {
       return Popover.DEFAULTS
     },
@@ -10696,7 +10729,6 @@ define('skylark-bs-swt/transition',[
 });
 
 define('skylark-bs-swt/tree',[
-  "skylark-utils/ajax",
   "skylark-utils/langx",
   "skylark-utils/browser",
   "skylark-utils/eventer",
@@ -10705,10 +10737,12 @@ define('skylark-bs-swt/tree',[
   "skylark-utils/velm",
   "skylark-utils/query",
   "./sbswt"
-],function(ajax,langx,browser,eventer,noder,geom,velm,$,sbswt){
+],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
 	"use strict";
 
-	$.ajax = ajax;
+	$.ajax = $.ajax || function(options) {
+        return langx.Xhr.request(options.url,options);
+    };
 
     $.camelCase = langx.camelCase;
 
@@ -10754,6 +10788,10 @@ define('skylark-bs-swt/tree',[
 
     $.trim = langx.trim;
     $.type = langx.type;
+
+    $.fn.stop = function() {
+    	return this;
+    }
 
 
 	/*!
@@ -17068,7 +17106,7 @@ define('skylark-bs-swt/plugin/tree/contextmenu',[
 					});
 			}
 			*/
-			$(document).on("context_hide.vakata.jstree", $.proxy(function (e, data) {
+			$(document).on("context_hide.sbswt.popup", $.proxy(function (e, data) {
 				this._data.contextmenu.visible = false;
 				$(data.reference).removeClass('jstree-context');
 			}, this));
@@ -17131,13 +17169,13 @@ define('skylark-bs-swt/plugin/tree/contextmenu',[
 		this._show_contextmenu = function (obj, x, y, i) {
 			var d = this.get_node(obj, true),
 				a = d.children(".jstree-anchor");
-			$(document).one("context_show.vakata.jstree", $.proxy(function (e, data) {
+			$(document).one("context_show.sbswt.popup", $.proxy(function (e, data) {
 				var cls = 'jstree-contextmenu jstree-' + this.get_theme() + '-contextmenu';
 				$(data.element).addClass(cls);
 				a.addClass('jstree-context');
 			}, this));
 			this._data.contextmenu.visible = true;
-			menu.show(a, { 'x' : x, 'y' : y }, i);
+			menu.popup(a, { 'x' : x, 'y' : y }, i);
 			/**
 			 * triggered when the contextmenu is shown for a node
 			 * @event
@@ -22554,7 +22592,7 @@ define('skylark-bs-swt/lightbox',[
     return $.fn.lightbox;
 });
 define('skylark-bs-swt/main',[
-    // "skylark-utils/query",
+    "skylark-utils/query",
     "./affix",
     "./alert",
     "./button",
