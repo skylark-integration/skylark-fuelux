@@ -6,7 +6,7 @@
  */
 
 define([
-	"skylark-swt"
+	"skylark-ui-swt"
 ],function ($) {
 	// COMBOBOX
 	$('#btnComboboxGetSelectedItem').on('click', function () {

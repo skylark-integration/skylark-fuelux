@@ -1,19 +1,19 @@
 requirejs.config({
     paths: {
         "skylark-utils" : "http://registry.skylarkjs.org/dev/utils/skylark-utils/uncompressed/skylark-utils-all"
-  //      "skylark-swt": "../dist/js/uncompressed/skylark-swt"
+  //      "skylark-ui-swt": "../dist/js/uncompressed/skylark-ui-swt"
     },
       packages: [
          {
-            name: 'skylark-swt',
-//            location: '../dist/js/uncompressed/skylark-swt',
+            name: 'skylark-ui-swt',
+//            location: '../dist/js/uncompressed/skylark-ui-swt',
             location: '../src/js',
             main: 'main'
           }
       ],      
           // shimオプションの設定。モジュール間の依存関係を定義します。
     shim: {
-        "skylark-swt": {
+        "skylark-ui-swt": {
             deps: ["skylark-utils"]
         }
     }
@@ -21,7 +21,7 @@ requirejs.config({
  
 // require(["module/name", ...], function(params){ ... });
 require(["skylark-utils"], function (sutils) {
-    require(["skylark-swt"], function ($) {
+    require(["skylark-ui-swt"], function ($) {
         if (window.initPage) {
             window.initPage($,sutils);
         }

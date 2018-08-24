@@ -6,7 +6,7 @@
  */
 
 define([
-	"skylark-swt",
+	"skylark-ui-swt",
 	"./combobox-examples",
 	"./infinite-scroll-examples",
 	"./placard-examples",
