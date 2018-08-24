@@ -1,7 +1,7 @@
 {
   "name": "skylark-swt",
   "description": "The skylark standard widget tookit",
-  "version": "0.9.1",
+  "version": "0.9.2.beta",
   "keywords": [
     "css",
     "less",
@@ -23,7 +23,7 @@
   "main": "./dist/js/main",
   "repository": {
     "type": "git",
-    "url": "https://github.com/skylarkui/skylark-bs-swt.git"
+    "url": "https://github.com/skylarkui/skylark-ui-swt.git"
   },
   "bugs": {
     "url": "https://github.com/skylarkui/skylark-bs-swt/issues"
@@ -45,8 +45,8 @@
     "gulp-usemin": "^0.3.11",
     "gulp-util": "^3.0.6",
     "run-sequence": "^2.1.0",
-    "skylark-langx": "^0.9.1",
-    "skylark-utils": "^0.9.2",
+    "skylark-langx": "https://github.com/skylarklangx/skylark-langx#master",
+    "skylark-utils": "https://github.com/skylarkutils/skylark-utils#master",
     "btoa": "~1.1.2",
     "glob": "~7.0.3",
     "markdown-it": "^7.0.0",

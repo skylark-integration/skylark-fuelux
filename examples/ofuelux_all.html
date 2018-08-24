@@ -19,7 +19,7 @@
 <!-- Styles -->
 
 <!-- Bootstrap CSS-->
-<link rel="stylesheet" href="../dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="../dist/css/bootstrap.css">
 <link rel="stylesheet" href="../dist/css/fuelux.css">
 <!-- Docs CSS -->
 <link href="./ofuelux_all/css/docs.css" rel="stylesheet">
@@ -8116,14 +8116,15 @@ Remove one or more items at a specific position in the pillbox by passing option
       waitSeconds: 600,
       packages: [
          {
-            name: 'skylark-bs-swt',
-            location: '../dist/js/uncompressed/skylark-bs-swt',
+            name: 'skylark-swt',
+            location: '../dist/js/uncompressed/skylark-swt',
             main: 'main'
           }
       ],      
       paths: {
-        "skylark-utils" : "http://registry.skylarkjs.org/packages/skylark-utils/v0.9.5-beta/uncompressed/skylark-utils-all",
-//        "skylark-bs-swt": "../dist/js/uncompressed/skylark-bs-swt",
+        "skylark-utils" : "http://registry.skylarkjs.org/dev/utils/skylark-utils/uncompressed/skylark-utils-all",
+        "skylark-utils-interact" : "http://registry.skylarkjs.org/dev/utils/skylark-utils-interact/uncompressed/skylark-utils-interact",
+        //        "skylark-swt": "../dist/js/uncompressed/skylark-swt",
 
         assets: './ofuelux_all',
         moment: './ofuelux_all/vendor/moment-with-locales.min', // comment out if you dont want momentjs to be default
@@ -8141,7 +8142,7 @@ Remove one or more items at a specific position in the pillbox by passing option
       },
       // Bootstrap is a "browser globals" script :-(
       shim: {
-        'skylark-bs-swt': { deps: ['skylark-utils'] },
+        'skylark-swt': { deps: ['skylark-utils'] },
         'backbone': {
           deps: ['underscore', 'skylark-utils'],
           exports: 'Backbone'
@@ -8152,7 +8153,7 @@ Remove one or more items at a specific position in the pillbox by passing option
 </script>
 <script>
   require(['skylark-utils'],function(){
-    require(['skylark-bs-swt', 'moment'],function(){
+    require(['skylark-swt', 'moment'],function(){
       require(['ofuelux_all/js/application'], function($){
 
       });

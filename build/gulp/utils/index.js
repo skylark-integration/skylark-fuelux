@@ -16,6 +16,7 @@ module.exports = {
     src: '../src/',
     lib_langx: '../node_modules/skylark-langx/dist/',
     lib_utils: '../node_modules/skylark-utils/dist/',
+    lib_utils_interact: '../node_modules/skylark-utils-interact/dist/',
     dest: '../dist/',
     banner: banner,
     allinone: 'skylark-jquery/skylark-jquery-all',

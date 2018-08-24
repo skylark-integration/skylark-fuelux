@@ -6,8 +6,8 @@ define([
   "skylark-utils/noder",
   "skylark-utils/geom",
   "skylark-utils/query",
-  "skylark-utils/widget"
-],function(skylark,langx,browser,eventer,noder,geom,$,widget){
+  "skylark-utils/widgets"
+],function(skylark,langx,browser,eventer,noder,geom,$,widgets){
 	var ui = skylark.ui = skylark.ui || {}, 
 		sbswt = ui.sbswt = {};
 
@@ -73,7 +73,7 @@ define([
 
 /*---------------------------------------------------------------------------------*/
 
-	var WidgetBase = widget.Widget.inherit({
+	var WidgetBase = widgets.Widget.inherit({
         klassName: "WidgetBase",
     });
 

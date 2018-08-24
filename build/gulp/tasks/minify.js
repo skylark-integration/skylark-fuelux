@@ -31,6 +31,10 @@ var requireConfig = {
        location :  util.lib_utils+"uncompressed/skylark-utils"
     },
     {
+       name : "skylark-utils-interact" ,
+       location :  util.lib_utils_interact+"uncompressed/skylark-utils-interact"
+    },
+    {
        name : util.pkg.name ,
        location :  util.src +"js/",
        main : "main"
