@@ -1,5 +1,5 @@
 {
-  "name": "skylark-swt",
+  "name": "skylark-ui-swt",
   "description": "The skylark standard widget tookit",
   "version": "0.9.2.beta",
   "keywords": [
@@ -11,7 +11,7 @@
     "framework",
     "web"
   ],
-  "homepage": "https://github.com/skylarkui/skylark-bs-swt/",
+  "homepage": "https://github.com/skylarkui/skylark-ui-swt/",
   "author": "Hudaokeji, Inc.",
   "scripts": {
     "change-version": "node grunt/change-version.js",
@@ -26,7 +26,7 @@
     "url": "https://github.com/skylarkui/skylark-ui-swt.git"
   },
   "bugs": {
-    "url": "https://github.com/skylarkui/skylark-bs-swt/issues"
+    "url": "https://github.com/skylarkui/skylark-ui-swt/issues"
   },
   "license": "MIT",
   "devDependencies": {
