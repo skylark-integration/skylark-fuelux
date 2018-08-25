@@ -1,7 +1,7 @@
 /**
  * skylark-ui-swt - The skylark standard widget tookit
  * @author Hudaokeji, Inc.
- * @version v0.9.2.beta
+ * @version v0.9.2
  * @link https://github.com/skylarkui/skylark-ui-swt/
  * @license MIT
  */
