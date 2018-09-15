@@ -6,7 +6,7 @@
  */
 
 define([
-	"skylark-ui-swt"
+	"skylark-fuelux"
 ],function ($) {
 	var content = '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla tincidunt auctor leo, ut ultricies lectus feugiat id. Duis sagittis erat id varius hendrerit. Etiam et hendrerit lectus. Nullam mattis, mauris vitae vestibulum gravida, enim ante adipiscing leo, sed imperdiet lacus dui bibendum erat. Sed convallis sed leo ac dapibus. Phasellus posuere lobortis euismod. Nam tempor elit ut justo tempor, eget egestas lectus sollicitudin. Cras vehicula sapien quis nisi ultricies rutrum. Nam ornare lorem mollis ullamcorper vestibulum.</p>' +
 	'<p>Nullam in vulputate erat, in mattis enim. Curabitur consequat velit a sem ornare adipiscing. Pellentesque nisl lectus, venenatis sed dui ut, placerat mollis urna. Nulla diam diam, consectetur et magna id, lobortis cursus risus. Curabitur feugiat purus sed massa imperdiet rutrum. Mauris eu sodales libero, eu ultrices orci. Nunc vel metus erat. Donec ornare bibendum leo id fermentum. Fusce nec justo consectetur, posuere elit ac, tincidunt odio. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>' +

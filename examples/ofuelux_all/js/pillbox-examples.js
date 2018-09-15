@@ -1,5 +1,5 @@
 define([
-	"skylark-ui-swt"
+	"skylark-fuelux"
 ],function ($) {
 	$('#pillboxIllustration').pillbox();
 

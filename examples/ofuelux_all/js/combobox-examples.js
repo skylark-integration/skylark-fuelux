@@ -6,7 +6,7 @@
  */
 
 define([
-	"skylark-ui-swt"
+	"skylark-fuelux"
 ],function ($) {
 	// COMBOBOX
 	$('#btnComboboxGetSelectedItem').on('click', function () {

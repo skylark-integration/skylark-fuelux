@@ -5,7 +5,7 @@
  * details, see http://creativecommons.org/licenses/by/3.0/.
  */
 define([
-	"skylark-ui-swt"
+	"skylark-fuelux"
 ],function ($) {
 
 

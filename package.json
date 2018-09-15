@@ -47,6 +47,7 @@
     "run-sequence": "^2.1.0",
     "skylark-langx": "https://github.com/skylarklangx/skylark-langx#master",
     "skylark-utils": "https://github.com/skylarkutils/skylark-utils#master",
+    "skylark-bootstrap3": "https://github.com/skylarkui/skylark-bootstrap3#master",
     "btoa": "~1.1.2",
     "glob": "~7.0.3",
     "markdown-it": "^7.0.0",

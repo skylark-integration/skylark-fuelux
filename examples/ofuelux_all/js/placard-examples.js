@@ -6,7 +6,7 @@
  */
 
 define([
-	"skylark-ui-swt"
+	"skylark-fuelux"
 ],function ($) {
 
 	// PLACARD

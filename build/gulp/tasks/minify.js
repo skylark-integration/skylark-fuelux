@@ -12,12 +12,10 @@ var gulp = require('gulp'),
      fs = require('fs');
 
 
-var src = [util.src +  "js/**/*.js"];
+var src = [util.src +  "**/*.js"];
 
 var dest = util.dest;
 
-
-var dest = util.dest + "js/";
 
 var requireConfig = {
     baseUrl: util.src,
@@ -36,7 +34,7 @@ var requireConfig = {
     },
     {
        name : util.pkg.name ,
-       location :  util.src +"js/",
+       location :  util.src,
        main : "main"
 
     }],

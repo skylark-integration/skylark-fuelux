@@ -6,11 +6,13 @@
  */
 
 define([
-	"skylark-ui-swt",
+	"skylark-fuelux",
 	"./combobox-examples",
+	"./datepicker-examples",
 	"./infinite-scroll-examples",
 	"./placard-examples",
 	"./pillbox-examples",
+	"./scheduler-examples",
 	"./search-examples",
 	"./selectlist-examples",
 	"./spinbox-examples",
@@ -66,6 +68,15 @@ define([
 			}
 		});	
 
+		$('[data-initialize=datepicker]').each(function () {
+			var $this = $(this);
+			if ($this.data('datepicker')) {
+				return;
+			}
+
+			$this.datepicker($this.data());
+		});
+
 		$('[data-initialize=loader]').each(function () {
 			var $this = $(this);
 			if (!$this.data('fu.loader')) {
@@ -98,6 +109,11 @@ define([
 			}
 		});
 
+		$('[data-initialize=scheduler]').each(function () {
+			var $this = $(this);
+			if ($this.data('scheduler')) return;
+			$this.scheduler($this.data());
+		});
 
 	    $('[data-spy="scroll"]').each(function () {
 	      var $this = $(this)
