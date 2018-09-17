@@ -344,4 +344,7 @@ define([
 		});
 	});
 	*/
+	
+	return $.fn.placard;
+
 });

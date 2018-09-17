@@ -351,4 +351,7 @@ define([
 		});
 	});
 	*/
+	
+	return $.fn.placard;
+
 });

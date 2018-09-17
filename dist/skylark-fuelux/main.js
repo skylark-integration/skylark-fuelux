@@ -5,5 +5,5 @@
  * @link https://github.com/skylarkui/skylark-fuelux/
  * @license MIT
  */
-define(["skylark-utils/query","./affix","./alert","./button","./carousel","./checkbox","./collapse","./combobox","./datepicker","./dropdown","./dropdown-autoflip","./infinite-scroll","./loader","./modal","./menu","./picker","./pillbox","./placard","./popover","./radio","./scheduler","./scrollspy","./search","./selectlist","./spinbox","./tab","./toolbar","./tooltip","./transition","./wizard"],function(o){return o});
+define(["skylark-utils/query","./checkbox","./combobox","./datepicker","./dropdown-autoflip","./infinite-scroll","./loader","./menu","./picker","./pillbox","./placard","./radio","./scheduler","./search","./selectlist","./spinbox","./toolbar","./wizard"],function(e){return e});
 //# sourceMappingURL=sourcemaps/main.js.map
