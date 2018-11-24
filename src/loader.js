@@ -1,13 +1,12 @@
 define([
-  "skylark-utils/langx",
-  "skylark-utils/browser",
-  "skylark-utils/eventer",
-  "skylark-utils/noder",
-  "skylark-utils/geom",
-  "skylark-utils/velm",
-  "skylark-utils/query",
-  "./sbswt"
-],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
+  "skylark-langx/langx",
+  "skylark-utils-dom/browser",
+  "skylark-utils-dom/eventer",
+  "skylark-utils-dom/noder",
+  "skylark-utils-dom/geom",
+  "skylark-utils-dom/query",
+  "./fuelux"
+],function(langx,browser,eventer,noder,geom,$,fuelux){
 
 
 	/*
@@ -23,7 +22,7 @@ define([
 
 	// LOADER CONSTRUCTOR AND PROTOTYPE
 
-	var Loader = sbswt.Loader = sbswt.WidgetBase.inherit({
+	var Loader = fuelux.Loader = fuelux.WidgetBase.inherit({
 		klassName: "Loader",
 
 		init : function(element,options) {

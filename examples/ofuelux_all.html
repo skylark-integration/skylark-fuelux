@@ -7191,16 +7191,27 @@ Remove one or more items at a specific position in the pillbox by passing option
       waitSeconds: 600,
       packages: [
          {
+            name: 'skylark-langx',
+            location: '../node_modules/skylark-langx/dist/uncompressed/skylark-langx',
+            main: 'main'
+          },
+         {
+            name: 'skylark-utils-dom',
+            location: '../node_modules/skylark-utils-dom/dist/uncompressed/skylark-utils-dom',
+            main: 'main'
+          },
+         {
+            name: 'skylark-bootstrap3',
+            location: '../node_modules/skylark-bootstrap3/dist/uncompressed/skylark-bootstrap3',
+            main: 'main'
+          },
+         {
             name: 'skylark-fuelux',
             location: '../dist/uncompressed/skylark-fuelux',
             main: 'main'
           }
       ],      
       paths: {
-        "skylark-utils" : "../node_modules/skylark-utils/dist/uncompressed/skylark-utils-all",
-        "skylark-utils-interact" : "../node_modules/skylark-utils-interact/dist/uncompressed/skylark-utils-interact",
-        //        "skylark-fuelux": "../dist/js/uncompressed/skylark-fuelux",
-
         assets: './ofuelux_all',
         moment: './ofuelux_all/vendor/moment-with-locales.min', // comment out if you dont want momentjs to be default
         underscore: './ofuelux_all/vendor/underscore',
@@ -7227,7 +7238,7 @@ Remove one or more items at a specific position in the pillbox by passing option
   })();
 </script>
 <script>
-  require(['skylark-utils'],function(){
+  require(['skylark-utils-dom'],function(){
     require(['skylark-fuelux', 'moment'],function(){
       require(['ofuelux_all/js/application'], function($){
 

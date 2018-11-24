@@ -6,7 +6,9 @@
  */
 
 define([
-	"skylark-fuelux",
+	"skylark-utils-dom/query",
+	"skylark-bootstrap3/affix",
+	"skylark-bootstrap3/scrollspy",
 	"./combobox-examples",
 	"./datepicker-examples",
 	"./infinite-scroll-examples",

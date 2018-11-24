@@ -1,12 +1,5 @@
-/**
- * skylark-fuelux - A version of fuelux that ported to running on skylarkjs
- * @author Hudaokeji, Inc.
- * @version v0.9.2
- * @link https://github.com/skylarkui/skylark-fuelux/
- * @license MIT
- */
 define([
-    "skylark-utils/query",
+    "skylark-utils-dom/query",
     "./checkbox",
     "./combobox",
     "./datepicker",
@@ -23,7 +16,12 @@ define([
     "./selectlist",
     "./spinbox",
     "./toolbar",
-    "./wizard"
+    "./wizard",
+
+    "./repeater",
+    "./repeater-list",
+    "./repeater-thumbnail"
+    
 ], function($) {
     return $;
 });

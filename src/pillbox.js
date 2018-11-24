@@ -1,14 +1,13 @@
 define([
-  "skylark-utils/langx",
-  "skylark-utils/browser",
-  "skylark-utils/eventer",
-  "skylark-utils/noder",
-  "skylark-utils/geom",
-  "skylark-utils/velm",
-  "skylark-utils/query",
-  "./sbswt",
+  "skylark-langx/langx",
+  "skylark-utils-dom/browser",
+  "skylark-utils-dom/eventer",
+  "skylark-utils-dom/noder",
+  "skylark-utils-dom/geom",
+  "skylark-utils-dom/query",
+  "./fuelux",
   "./dropdown-autoflip"
-],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
+],function(langx,browser,eventer,noder,geom,$,fuelux){
 
 	/*
 	 * Fuel UX Checkbox
@@ -24,20 +23,20 @@ define([
 
 	var old = $.fn.pillbox;
 
-	var CONST = sbswt.CONST;
+	var CONST = fuelux.CONST;
 	var COMMA_KEYCODE = CONST.COMMA_KEYCODE;
 	var ENTER_KEYCODE = CONST.ENTER_KEYCODE;
-	var isBackspaceKey = sbswt.isBackspaceKey;
-	var isDeleteKey = sbswt.isDeleteKey;
-	var isTabKey = sbswt.isTabKey;
-	var isUpArrow = sbswt.isUpArrow;
-	var isDownArrow = sbswt.isDownArrow;
-	var cleanInput = sbswt.cleanInput;
-	var isShiftHeld = sbswt.isShiftHeld;
+	var isBackspaceKey = fuelux.isBackspaceKey;
+	var isDeleteKey = fuelux.isDeleteKey;
+	var isTabKey = fuelux.isTabKey;
+	var isUpArrow = fuelux.isUpArrow;
+	var isDownArrow = fuelux.isDownArrow;
+	var cleanInput = fuelux.cleanInput;
+	var isShiftHeld = fuelux.isShiftHeld;
 
 	// PILLBOX CONSTRUCTOR AND PROTOTYPE
 
-	var Pillbox = sbswt.Pillbox = sbswt.WidgetBase.inherit({
+	var Pillbox = fuelux.Pillbox = fuelux.WidgetBase.inherit({
 		klassName: "Pillbox",
 
 		init : function(element,options) {

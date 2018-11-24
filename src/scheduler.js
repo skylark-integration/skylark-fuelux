@@ -1,18 +1,17 @@
 define([
-  "skylark-utils/langx",
-  "skylark-utils/browser",
-  "skylark-utils/eventer",
-  "skylark-utils/noder",
-  "skylark-utils/geom",
-  "skylark-utils/velm",
-  "skylark-utils/query",
-  "./sbswt",
+  "skylark-langx/langx",
+  "skylark-utils-dom/browser",
+  "skylark-utils-dom/eventer",
+  "skylark-utils-dom/noder",
+  "skylark-utils-dom/geom",
+  "skylark-utils-dom/query",
+  "./fuelux",
   "./combobox",
   "./datepicker",
   "./radio",
   "./selectlist",
   "./spinbox"
-],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
+],function(langx,browser,eventer,noder,geom,$,fuelux){
 
 	/*
 	 * Fuel UX Checkbox
@@ -30,7 +29,7 @@ define([
 
 	// SCHEDULER CONSTRUCTOR AND PROTOTYPE
 
-	var Scheduler = sbswt.Scheduler = sbswt.WidgetBase.inherit({
+	var Scheduler = fuelux.Scheduler = fuelux.WidgetBase.inherit({
 		klassName: "Scheduler",
 
 		init : function(element,options) {

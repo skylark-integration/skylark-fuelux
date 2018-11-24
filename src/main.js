@@ -1,5 +1,5 @@
 define([
-    "skylark-utils/query",
+    "skylark-utils-dom/query",
     "./checkbox",
     "./combobox",
     "./datepicker",
@@ -16,7 +16,12 @@ define([
     "./selectlist",
     "./spinbox",
     "./toolbar",
-    "./wizard"
+    "./wizard",
+
+    "./repeater",
+    "./repeater-list",
+    "./repeater-thumbnail"
+    
 ], function($) {
     return $;
 });

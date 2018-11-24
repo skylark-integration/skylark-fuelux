@@ -1,22 +1,14 @@
-/**
- * skylark-fuelux - A version of fuelux that ported to running on skylarkjs
- * @author Hudaokeji, Inc.
- * @version v0.9.2
- * @link https://github.com/skylarkui/skylark-fuelux/
- * @license MIT
- */
 define([
-  "skylark-utils/skylark",
-  "skylark-utils/langx",
-  "skylark-utils/browser",
-  "skylark-utils/eventer",
-  "skylark-utils/noder",
-  "skylark-utils/geom",
-  "skylark-utils/query",
-  "skylark-utils/widgets"
-],function(skylark,langx,browser,eventer,noder,geom,$,widgets){
+  "skylark-langx/skylark",
+  "skylark-langx/langx",
+  "skylark-utils-dom/browser",
+  "skylark-utils-dom/eventer",
+  "skylark-utils-dom/noder",
+  "skylark-utils-dom/geom",
+  "skylark-utils-dom/query"
+],function(skylark,langx,browser,eventer,noder,geom,$){
 	var ui = skylark.ui = skylark.ui || {}, 
-		sbswt = ui.sbswt = {};
+		fuelux = ui.fuelux = {};
 
 /*---------------------------------------------------------------------------------*/
 	/*
@@ -67,7 +59,7 @@ define([
 
 
 
-	langx.mixin(sbswt, {
+	langx.mixin(fuelux, {
 		CONST: CONST,
 		cleanInput: cleanInput,
 		isBackspaceKey: isBackspaceKey,
@@ -80,14 +72,9 @@ define([
 
 /*---------------------------------------------------------------------------------*/
 
-	var WidgetBase = widgets.Widget.inherit({
-        klassName: "WidgetBase",
-    });
-
-
-	langx.mixin(sbswt, {
-		WidgetBase : WidgetBase
+	langx.mixin(fuelux, {
+		WidgetBase : langx.Evented
 	});
 
-	return sbswt;
+	return fuelux;
 });

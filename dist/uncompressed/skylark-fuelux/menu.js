@@ -1,25 +1,17 @@
-/**
- * skylark-fuelux - A version of fuelux that ported to running on skylarkjs
- * @author Hudaokeji, Inc.
- * @version v0.9.2
- * @link https://github.com/skylarkui/skylark-fuelux/
- * @license MIT
- */
 define([
-  "skylark-utils/langx",
-  "skylark-utils/browser",
-  "skylark-utils/eventer",
-  "skylark-utils/noder",
-  "skylark-utils/geom",
-  "skylark-utils/velm",
-  "skylark-utils/query",
-  "./sbswt"
-],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
+  "skylark-langx/langx",
+  "skylark-utils-dom/browser",
+  "skylark-utils-dom/eventer",
+  "skylark-utils-dom/noder",
+  "skylark-utils-dom/geom",
+  "skylark-utils-dom/query",
+  "./fuelux"
+],function(langx,browser,eventer,noder,geom,$,fuelux){
 
 	var popup = null;
 	var right_to_left ;
 
-	var Menu = sbswt.Menu = sbswt.WidgetBase.inherit({
+	var Menu = fuelux.Menu = fuelux.WidgetBase.inherit({
         klassName: "Menu",
 
         init : function(elm,options) {
@@ -143,7 +135,7 @@ define([
         },
 
 		_trigger : function (event_name) {
-			$(document).trigger("context_" + event_name + ".sbswt", {
+			$(document).trigger("context_" + event_name + ".fuelux", {
 				"reference"	: this.reference,
 				"element"	: this.$el,
 				"position"	: {
@@ -347,12 +339,12 @@ define([
 		right_to_left = $(document.body).css("direction") === "rtl";
 
 		$(document)
-			.on("mousedown.sbswt.popup", function (e) {
+			.on("mousedown.fuelux.popup", function (e) {
 				if(popup && popup.$el[0] !== e.target  && !noder.contains(popup.$el[0], e.target)) {
 					popup.hide();
 				}
 			})
-			.on("context_show.sbswt.popup", function (e, data) {
+			.on("context_show.fuelux.popup", function (e, data) {
 				popup.$el.find("li:has(ul)").children("a").addClass("vakata-context-parent");
 				if(right_to_left) {
 					popup.$el.addClass("vakata-context-rtl").css("direction", "rtl");

@@ -1,13 +1,12 @@
 define([
-  "skylark-utils/langx",
-  "skylark-utils/browser",
-  "skylark-utils/eventer",
-  "skylark-utils/noder",
-  "skylark-utils/geom",
-  "skylark-utils/velm",
-  "skylark-utils/query",
-  "./sbswt"
-],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
+  "skylark-langx/langx",
+  "skylark-utils-dom/browser",
+  "skylark-utils-dom/eventer",
+  "skylark-utils-dom/noder",
+  "skylark-utils-dom/geom",
+  "skylark-utils-dom/query",
+  "./fuelux"
+],function(langx,browser,eventer,noder,geom,$,fuelux){
 
 
 	/*
@@ -22,7 +21,7 @@ define([
 
 	// SPINBOX CONSTRUCTOR AND PROTOTYPE
 
-	var Spinbox = sbswt.Spinbox = sbswt.WidgetBase.inherit({
+	var Spinbox = fuelux.Spinbox = fuelux.WidgetBase.inherit({
 		klassName: "Spinbox",
 
 		init : function(element,options) {

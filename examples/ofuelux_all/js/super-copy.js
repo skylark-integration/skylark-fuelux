@@ -1,8 +1,8 @@
 define([
-    "skylark-utils"
-],function(sutils){
-    var $ = sutils.query;
-sutils.eventer.ready(function() {
+    "skylark-utils-dom/query",
+    "skylark-utils-dom/eventer"
+],function($,eventer){
+    eventer.ready(function() {
     var COPY_PROMPT_TEXT = 'copy';
     var KEYSTROKE_TEXT = '⌘ + c (ctrl + c)';
 

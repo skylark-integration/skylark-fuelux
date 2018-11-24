@@ -1,20 +1,12 @@
-/**
- * skylark-fuelux - A version of fuelux that ported to running on skylarkjs
- * @author Hudaokeji, Inc.
- * @version v0.9.2
- * @link https://github.com/skylarkui/skylark-fuelux/
- * @license MIT
- */
 define([
-  "skylark-utils/langx",
-  "skylark-utils/browser",
-  "skylark-utils/eventer",
-  "skylark-utils/noder",
-  "skylark-utils/geom",
-  "skylark-utils/velm",
-  "skylark-utils/query",
-  "./sbswt"
-],function(langx,browser,eventer,noder,geom,velm,$,sbswt){
+  "skylark-langx/langx",
+  "skylark-utils-dom/browser",
+  "skylark-utils-dom/eventer",
+  "skylark-utils-dom/noder",
+  "skylark-utils-dom/geom",
+  "skylark-utils-dom/query",
+  "./fuelux"
+],function(langx,browser,eventer,noder,geom,$,fuelux){
 
 
 	/*
@@ -30,7 +22,7 @@ define([
 
 	// COMBOBOX CONSTRUCTOR AND PROTOTYPE
 
-	var Combobox = sbswt.Combobox = sbswt.WidgetBase.inherit({
+	var Combobox = fuelux.Combobox = fuelux.WidgetBase.inherit({
 		klassName: "Combobox",
 
 		init : function(element,options) {
