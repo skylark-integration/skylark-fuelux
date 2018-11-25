@@ -1424,6 +1424,7 @@ define('skylark-langx/funcs',[
 	"./types"
 ],function(objects,types){
 	var mixin = objects.mixin,
+        slice = Array.prototype.slice,
         isFunction = types.isFunction,
         isString = types.isString;
 

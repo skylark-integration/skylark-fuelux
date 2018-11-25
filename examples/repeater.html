@@ -1040,14 +1040,9 @@
 
       ],      
       paths: {
-        "skylark-utils" : "../node_modules/skylark-utils/dist/uncompressed/skylark-utils-all",
-        "skylark-utils-interact" : "../node_modules/skylark-utils-interact/dist/uncompressed/skylark-utils-interact",
-        //        "skylark-fuelux": "../dist/js/uncompressed/skylark-fuelux",
-
         assets: './ofuelux_all',
         moment: './ofuelux_all/vendor/moment-with-locales.min', // comment out if you dont want momentjs to be default
         underscore: './ofuelux_all/vendor/underscore',
-        backbone: 'http://registry.skylarkjs.org/packages/skylark-backbone/0.9.0/backbone',
         formbuilder: 'http://getfuelux.com/assets/js/form-builder',
         collections: 'http://getfuelux.com/assets/js/form-builder/collections',
         data: 'http://getfuelux.com/assets/js/form-builder/data',
@@ -1057,20 +1052,12 @@
         views: 'http://getfuelux.com/assets/js/form-builder/views',
         text: 'https://cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text',
         supercopy: './ofuelux_all/js/super-copy',
-      },
-      // Bootstrap is a "browser globals" script :-(
-      shim: {
-        'skylark-fuelux': { deps: ['skylark-utils'] },
-        'backbone': {
-          deps: ['underscore', 'skylark-utils'],
-          exports: 'Backbone'
-        }
       }
     });
   })();
 </script>
 <script>
-  require(['skylark-utils'],function(){
+  require(['skylark-utils-dom'],function(){
     require(['skylark-fuelux'],function(){
       require(['moment'],function(){
         require(['ofuelux_all/js/application-repeater'], function($){

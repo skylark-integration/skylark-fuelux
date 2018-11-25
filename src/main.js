@@ -16,6 +16,7 @@ define([
     "./selectlist",
     "./spinbox",
     "./toolbar",
+    "./tree",
     "./wizard",
 
     "./repeater",
