@@ -7,7 +7,6 @@
 define([
 	"skylark-fuelux"
 ],function ($) {
-	return;
 
 	$('#treeIllustration').tree({
 		dataSource: function (options, callback) {

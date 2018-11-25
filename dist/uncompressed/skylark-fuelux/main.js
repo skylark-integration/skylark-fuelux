@@ -6,7 +6,6 @@ define([
     "./dropdown-autoflip",
     "./infinite-scroll",
     "./loader",
-    "./menu",
     "./picker",
     "./pillbox",
     "./placard",
@@ -15,7 +14,7 @@ define([
     "./search",
     "./selectlist",
     "./spinbox",
-    "./toolbar",
+    "./tree",
     "./wizard",
 
     "./repeater",

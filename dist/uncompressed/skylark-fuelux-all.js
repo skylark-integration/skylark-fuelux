@@ -10521,380 +10521,6 @@ define('skylark-fuelux/loader',[
 	return $.fn.loader;
 });
 
-define('skylark-fuelux/menu',[
-  "skylark-langx/langx",
-  "skylark-utils-dom/browser",
-  "skylark-utils-dom/eventer",
-  "skylark-utils-dom/noder",
-  "skylark-utils-dom/geom",
-  "skylark-utils-dom/query",
-  "./fuelux"
-],function(langx,browser,eventer,noder,geom,$,fuelux){
-
-	var popup = null;
-	var right_to_left ;
-
-	var Menu = fuelux.Menu = fuelux.WidgetBase.inherit({
-        klassName: "Menu",
-
-        init : function(elm,options) {
-        	if (!options) {
-        		options = elm;
-        		elm = null;
-        	}
-			var self = this,$el;
-
-			this._options = langx.mixin({
-					hide_onmouseleave	: 0,
-					icons				: true
-
-			},options);
-
-			if (!elm) {
-				$el = this.$el = $("<ul class='vakata-context'></ul>");
-			} else {
-				$el = this.$el = $(elm);
-			}
-
-			var to = false;
-			$el.on("mouseenter", "li", function (e) {
-					e.stopImmediatePropagation();
-
-					if(noder.contains(this, e.relatedTarget)) {
-						// премахнато заради delegate mouseleave по-долу
-						// $(this).find(".vakata-context-hover").removeClass("vakata-context-hover");
-						return;
-					}
-
-					if(to) { clearTimeout(to); }
-					$el.find(".vakata-context-hover").removeClass("vakata-context-hover").end();
-
-					$(this)
-						.siblings().find("ul").hide().end().end()
-						.parentsUntil(".vakata-context", "li").addBack().addClass("vakata-context-hover");
-					self._show_submenu(this);
-				})
-				// тестово - дали не натоварва?
-				.on("mouseleave", "li", function (e) {
-					if(noder.contains(this, e.relatedTarget)) { return; }
-					$(this).find(".vakata-context-hover").addBack().removeClass("vakata-context-hover");
-				})
-				.on("mouseleave", function (e) {
-					$(this).find(".vakata-context-hover").removeClass("vakata-context-hover");
-					if(self._options.hide_onmouseleave) {
-						to = setTimeout(
-							(function (t) {
-								return function () { self.hide(); };
-							}(this)), self._options.hide_onmouseleave);
-					}
-				})
-				.on("click", "a", function (e) {
-					e.preventDefault();
-				//})
-				//.on("mouseup", "a", function (e) {
-					if(!$(this).blur().parent().hasClass("vakata-context-disabled") && self._execute($(this).attr("rel")) !== false) {
-						self.hide();
-					}
-				})
-				.on('keydown', 'a', function (e) {
-						var o = null;
-						switch(e.which) {
-							case 13:
-							case 32:
-								e.type = "click";
-								e.preventDefault();
-								$(e.currentTarget).trigger(e);
-								break;
-							case 37:
-								self.$el.find(".vakata-context-hover").last().closest("li").first().find("ul").hide().find(".vakata-context-hover").removeClass("vakata-context-hover").end().end().children('a').focus();
-								e.stopImmediatePropagation();
-								e.preventDefault();
-								break;
-							case 38:
-								o = self.$el.find("ul:visible").addBack().last().children(".vakata-context-hover").removeClass("vakata-context-hover").prevAll("li:not(.vakata-context-separator)").first();
-								if(!o.length) { o = self.$el.find("ul:visible").addBack().last().children("li:not(.vakata-context-separator)").last(); }
-								o.addClass("vakata-context-hover").children('a').focus();
-								e.stopImmediatePropagation();
-								e.preventDefault();
-								break;
-							case 39:
-								self.$el.find(".vakata-context-hover").last().children("ul").show().children("li:not(.vakata-context-separator)").removeClass("vakata-context-hover").first().addClass("vakata-context-hover").children('a').focus();
-								e.stopImmediatePropagation();
-								e.preventDefault();
-								break;
-							case 40:
-								o = self.$el.find("ul:visible").addBack().last().children(".vakata-context-hover").removeClass("vakata-context-hover").nextAll("li:not(.vakata-context-separator)").first();
-								if(!o.length) { o = self.$el.find("ul:visible").addBack().last().children("li:not(.vakata-context-separator)").first(); }
-								o.addClass("vakata-context-hover").children('a').focus();
-								e.stopImmediatePropagation();
-								e.preventDefault();
-								break;
-							case 27:
-								self.hide();
-								e.preventDefault();
-								break;
-							default:
-								//console.log(e.which);
-								break;
-						}
-					})
-				.on('keydown', function (e) {
-					e.preventDefault();
-					var a = self.$el.find('.vakata-contextmenu-shortcut-' + e.which).parent();
-					if(a.parent().not('.vakata-context-disabled')) {
-						a.click();
-					}
-				});
-
-			this.render();
-        },
-
-        render : function() {
-        	var items = this._options.items;
-			if(this._parse(items)) {
-				this.$el.html(this.html);
-			}
-			this.$el.width('');
-        },
-
-		_trigger : function (event_name) {
-			$(document).trigger("context_" + event_name + ".fuelux", {
-				"reference"	: this.reference,
-				"element"	: this.$el,
-				"position"	: {
-					"x" : this.position_x,
-					"y" : this.position_y
-				}
-			});
-		},        
-
-		_execute : function (i) {
-			i = this.items[i];
-			return i && (!i._disabled || (langx.isFunction(i._disabled) && !i._disabled({ "item" : i, "reference" : this.reference, "element" : this.$el }))) && i.action ? i.action.call(null, {
-						"item"		: i,
-						"reference"	: this.reference,
-						"element"	: this.$el,
-						"position"	: {
-							"x" : this.position_x,
-							"y" : this.position_y
-						}
-					}) : false;
-		},
-		_parse : function (o, is_callback) {
-			var self = this,
-				reference = self._options.reference;
-
-			if(!o) { return false; }
-			if(!is_callback) {
-				self.html		= "";
-				self.items	= [];
-			}
-			var str = "",
-				sep = false,
-				tmp;
-
-			if(is_callback) { str += "<"+"ul>"; }
-			langx.each(o, function (i, val) {
-				if(!val) { return true; }
-				self.items.push(val);
-				if(!sep && val.separator_before) {
-					str += "<"+"li class='vakata-context-separator'><"+"a href='#' " + (self._options.icons ? '' : 'style="margin-left:0px;"') + ">&#160;<"+"/a><"+"/li>";
-				}
-				sep = false;
-				str += "<"+"li class='" + (val._class || "") + (val._disabled === true || (langx.isFunction(val._disabled) && val._disabled({ "item" : val, "reference" : reference, "element" : self.$el })) ? " vakata-contextmenu-disabled " : "") + "' "+(val.shortcut?" data-shortcut='"+val.shortcut+"' ":'')+">";
-				str += "<"+"a href='#' rel='" + (self.items.length - 1) + "' " + (val.title ? "title='" + val.title + "'" : "") + ">";
-				if(self._options.icons) {
-					str += "<"+"i ";
-					if(val.icon) {
-						if(val.icon.indexOf("/") !== -1 || val.icon.indexOf(".") !== -1) { str += " style='background:url(\"" + val.icon + "\") center center no-repeat' "; }
-						else { str += " class='" + val.icon + "' "; }
-					}
-					str += "><"+"/i><"+"span class='vakata-contextmenu-sep'>&#160;<"+"/span>";
-				}
-				str += (langx.isFunction(val.label) ? val.label({ "item" : i, "reference" : reference, "element" : self.$el }) : val.label) + (val.shortcut?' <span class="vakata-contextmenu-shortcut vakata-contextmenu-shortcut-'+val.shortcut+'">'+ (val.shortcut_label || '') +'</span>':'') + "<"+"/a>";
-				if(val.submenu) {
-					tmp = self._parse(val.submenu, true);
-					if(tmp) { str += tmp; }
-				}
-				str += "<"+"/li>";
-				if(val.separator_after) {
-					str += "<"+"li class='vakata-context-separator'><"+"a href='#' " + (self._options.icons ? '' : 'style="margin-left:0px;"') + ">&#160;<"+"/a><"+"/li>";
-					sep = true;
-				}
-			});
-			str  = str.replace(/<li class\='vakata-context-separator'\><\/li\>$/,"");
-			if(is_callback) { str += "</ul>"; }
-			/**
-			 * triggered on the document when the contextmenu is parsed (HTML is built)
-			 * @event
-			 * @plugin contextmenu
-			 * @name context_parse.vakata
-			 * @param {jQuery} reference the element that was right clicked
-			 * @param {jQuery} element the DOM element of the menu itself
-			 * @param {Object} position the x & y coordinates of the menu
-			 */
-			if(!is_callback) { self.html = str; self._trigger("parse"); }
-			return str.length > 10 ? str : false;
-		},
-		_show_submenu : function (o) {
-			o = $(o);
-			if(!o.length || !o.children("ul").length) { return; }
-			var e = o.children("ul"),
-				xl = o.offset().left,
-				x = xl + o.outerWidth(),
-				y = o.offset().top,
-				w = e.width(),
-				h = e.height(),
-				dw = $(window).width() + $(window).scrollLeft(),
-				dh = $(window).height() + $(window).scrollTop();
-			// може да се спести е една проверка - дали няма някой от класовете вече нагоре
-			if(right_to_left) {
-				o[x - (w + 10 + o.outerWidth()) < 0 ? "addClass" : "removeClass"]("vakata-context-left");
-			}
-			else {
-				o[x + w > dw  && xl > dw - x ? "addClass" : "removeClass"]("vakata-context-right");
-			}
-			if(y + h + 10 > dh) {
-				e.css("bottom","-1px");
-			}
-
-			//if does not fit - stick it to the side
-			if (o.hasClass('vakata-context-right')) {
-				if (xl < w) {
-					e.css("margin-right", xl - w);
-				}
-			} else {
-				if (dw - x < w) {
-					e.css("margin-left", dw - x - w);
-				}
-			}
-
-			e.show();
-		},
-		show : function (reference, position, data) {
-			var o, e, x, y, w, h, dw, dh, cond = true;
-			switch(cond) {
-				case (!position && !reference):
-					return false;
-				case (!!position && !!reference):
-					this.reference	= reference;
-					this.position_x	= position.x;
-					this.position_y	= position.y;
-					break;
-				case (!position && !!reference):
-					this.reference	= reference;
-					o = reference.offset();
-					this.position_x	= o.left + reference.outerHeight();
-					this.position_y	= o.top;
-					break;
-				case (!!position && !reference):
-					this.position_x	= position.x;
-					this.position_y	= position.y;
-					break;
-			}
-			if(!!reference && !data && $(reference).data('vakata_contextmenu')) {
-				data = $(reference).data('vakata_contextmenu');
-			}
-
-			if(this.items.length) {
-				this.$el.appendTo(document.body);
-				e = this.$el;
-				x = this.position_x;
-				y = this.position_y;
-				w = e.width();
-				h = e.height();
-				dw = $(window).width() + $(window).scrollLeft();
-				dh = $(window).height() + $(window).scrollTop();
-				if(right_to_left) {
-					x -= (e.outerWidth() - $(reference).outerWidth());
-					if(x < $(window).scrollLeft() + 20) {
-						x = $(window).scrollLeft() + 20;
-					}
-				}
-				if(x + w + 20 > dw) {
-					x = dw - (w + 20);
-				}
-				if(y + h + 20 > dh) {
-					y = dh - (h + 20);
-				}
-
-				this.$el
-					.css({ "left" : x, "top" : y })
-					.show()
-					.find('a').first().focus().parent().addClass("vakata-context-hover");
-				this.is_visible = true;
-
-				popup = this;
-
-				/**
-				 * triggered on the document when the contextmenu is shown
-				 * @event
-				 * @plugin contextmenu
-				 * @name context_show.vakata
-				 * @param {jQuery} reference the element that was right clicked
-				 * @param {jQuery} element the DOM element of the menu itself
-				 * @param {Object} position the x & y coordinates of the menu
-				 */
-				this._trigger("show");
-			}
-		},
-		hide : function () {
-			if(this.is_visible) {
-				this.$el.hide().find("ul").hide().end().find(':focus').blur().end().detach();
-				this.is_visible = false;
-				popup = null;
-				/**
-				 * triggered on the document when the contextmenu is hidden
-				 * @event
-				 * @plugin contextmenu
-				 * @name context_hide.vakata
-				 * @param {jQuery} reference the element that was right clicked
-				 * @param {jQuery} element the DOM element of the menu itself
-				 * @param {Object} position the x & y coordinates of the menu
-				 */
-				this._trigger("hide");
-			}
-		}
-
-    });	
-
-	$(function () {
-		right_to_left = $(document.body).css("direction") === "rtl";
-
-		$(document)
-			.on("mousedown.fuelux.popup", function (e) {
-				if(popup && popup.$el[0] !== e.target  && !noder.contains(popup.$el[0], e.target)) {
-					popup.hide();
-				}
-			})
-			.on("context_show.fuelux.popup", function (e, data) {
-				popup.$el.find("li:has(ul)").children("a").addClass("vakata-context-parent");
-				if(right_to_left) {
-					popup.$el.addClass("vakata-context-rtl").css("direction", "rtl");
-				}
-				// also apply a RTL class?
-				popup.$el.find("ul").hide().end();
-			});
-	});
-
-	Menu.popup = function (reference, position, data) {
-		var m = new Menu({
-			reference : reference,
-			items : data
-		});
-		m.show(reference,position);
-	};
-
-	Menu.hide = function() {
-		if (popup) {
-			popup.hide();
-		}
-	}
-
-	return Menu;
-
-});
-
 define('skylark-fuelux/picker',[
   "skylark-langx/langx",
   "skylark-utils-dom/browser",
@@ -14501,489 +14127,919 @@ define('skylark-fuelux/search',[
 	return 	$.fn.search;
 });
 
-define('skylark-utils-dom/elmx',[
-    "./dom",
-    "./langx",
-    "./datax",
-    "./eventer",
-    "./finder",
-    "./fx",
-    "./geom",
-    "./noder",
-    "./styler",
-    "./query"
-], function(dom, langx, datax, eventer, finder, fx, geom, noder, styler,$) {
-    var map = Array.prototype.map,
-        slice = Array.prototype.slice;
-    /*
-     * VisualElement is a skylark class type wrapping a visule dom node,
-     * provides a number of prototype methods and supports chain calls.
-     */
-    var VisualElement = langx.klass({
-        klassName: "VisualElement",
-
-        "init": function(node) {
-            if (langx.isString(node)) {
-                node = document.getElementById(node);
-            }
-            this.domNode = node;
-        }
-    });
-
-    VisualElement.prototype.$ = VisualElement.prototype.query = function(selector) {
-        return $(selector,this.domNode);
-    };
-
-    /*
-     * the VisualElement object wrapping document.body
-     */
-    var root = new VisualElement(document.body),
-        elmx = function(node) {
-            if (node) {
-                return new VisualElement(node);
-            } else {
-                return root;
-            }
-        };
-    /*
-     * Extend VisualElement prototype with wrapping the specified methods.
-     * @param {ArrayLike} fn
-     * @param {Object} context
-     */
-    function _delegator(fn, context) {
-        return function() {
-            var self = this,
-                elem = self.domNode,
-                ret = fn.apply(context, [elem].concat(slice.call(arguments)));
-
-            if (ret) {
-                if (ret === context) {
-                    return self;
-                } else {
-                    if (ret instanceof HTMLElement) {
-                        ret = new VisualElement(ret);
-                    } else if (langx.isArrayLike(ret)) {
-                        ret = map.call(ret, function(el) {
-                            if (el instanceof HTMLElement) {
-                                return new VisualElement(el);
-                            } else {
-                                return el;
-                            }
-                        })
-                    }
-                }
-            }
-            return ret;
-        };
-    }
-
-    langx.mixin(elmx, {
-        batch: function(nodes, action, args) {
-            nodes.forEach(function(node) {
-                var elm = (node instanceof VisualElement) ? node : elmx(node);
-                elm[action].apply(elm, args);
-            });
-
-            return this;
-        },
-
-        root: new VisualElement(document.body),
-
-        VisualElement: VisualElement,
-
-        partial: function(name, fn) {
-            var props = {};
-
-            props[name] = fn;
-
-            VisualElement.partial(props);
-        },
-
-        delegate: function(names, context) {
-            var props = {};
-
-            names.forEach(function(name) {
-                props[name] = _delegator(context[name], context);
-            });
-
-            VisualElement.partial(props);
-        }
-    });
-
-    // from ./datax
-    elmx.delegate([
-        "attr",
-        "data",
-        "prop",
-        "removeAttr",
-        "removeData",
-        "text",
-        "val"
-    ], datax);
-
-    // from ./eventer
-    elmx.delegate([
-        "off",
-        "on",
-        "one",
-        "shortcuts",
-        "trigger"
-    ], eventer);
-
-    // from ./finder
-    elmx.delegate([
-        "ancestor",
-        "ancestors",
-        "children",
-        "descendant",
-        "find",
-        "findAll",
-        "firstChild",
-        "lastChild",
-        "matches",
-        "nextSibling",
-        "nextSiblings",
-        "parent",
-        "previousSibling",
-        "previousSiblings",
-        "siblings"
-    ], finder);
-
-    /*
-     * find a dom element matched by the specified selector.
-     * @param {String} selector
-     */
-    elmx.find = function(selector) {
-        if (selector === "body") {
-            return this.root;
-        } else {
-            return this.root.descendant(selector);
-        }
-    };
-
-    // from ./fx
-    elmx.delegate([
-        "animate",
-        "fadeIn",
-        "fadeOut",
-        "fadeTo",
-        "fadeToggle",
-        "hide",
-        "scrollToTop",
-        "show",
-        "toggle"
-    ], fx);
-
-
-    // from ./geom
-    elmx.delegate([
-        "borderExtents",
-        "boundingPosition",
-        "boundingRect",
-        "clientHeight",
-        "clientSize",
-        "clientWidth",
-        "contentRect",
-        "height",
-        "marginExtents",
-        "offsetParent",
-        "paddingExtents",
-        "pagePosition",
-        "pageRect",
-        "relativePosition",
-        "relativeRect",
-        "scrollIntoView",
-        "scrollLeft",
-        "scrollTop",
-        "size",
-        "width"
-    ], geom);
-
-    // from ./noder
-    elmx.delegate([
-        "after",
-        "append",
-        "before",
-        "clone",
-        "contains",
-        "contents",
-        "empty",
-        "html",
-        "isChildOf",
-        "ownerDoc",
-        "prepend",
-        "remove",
-        "removeChild",
-        "replace",
-        "reverse",
-        "throb",
-        "traverse",
-        "wrapper",
-        "wrapperInner",
-        "unwrap"
-    ], noder);
-
-    // from ./styler
-    elmx.delegate([
-        "addClass",
-        "className",
-        "css",
-        "hasClass",
-        "hide",
-        "isInvisible",
-        "removeClass",
-        "show",
-        "toggleClass"
-    ], styler);
-
-    // properties
-
-    var properties = [ 'position', 'left', 'top', 'right', 'bottom', 'width', 'height', 'border', 'borderLeft',
-    'borderTop', 'borderRight', 'borderBottom', 'borderColor', 'display', 'overflow', 'margin', 'marginLeft', 'marginTop', 'marginRight', 'marginBottom', 'padding', 'paddingLeft', 'paddingTop', 'paddingRight', 'paddingBottom', 'color',
-    'background', 'backgroundColor', 'opacity', 'fontSize', 'fontWeight', 'textAlign', 'textDecoration', 'textTransform', 'cursor', 'zIndex' ];
-
-    properties.forEach( function ( property ) {
-
-        var method = property;
-
-        VisualElement.prototype[method ] = function (value) {
-
-            this.css( property, value );
-
-            return this;
-
-        };
-
-    });
-
-    // events
-    var events = [ 'keyUp', 'keyDown', 'mouseOver', 'mouseOut', 'click', 'dblClick', 'change' ];
-
-    events.forEach( function ( event ) {
-
-        var method = event;
-
-        VisualElement.prototype[method ] = function ( callback ) {
-
-            this.on( event.toLowerCase(), callback);
-
-            return this;
-        };
-
-    });
-
-
-    return dom.elmx = elmx;
-});
-define('skylark-fuelux/toolbar',[
+define('skylark-fuelux/tree',[
   "skylark-langx/langx",
   "skylark-utils-dom/browser",
   "skylark-utils-dom/eventer",
   "skylark-utils-dom/noder",
   "skylark-utils-dom/geom",
-  "skylark-utils-dom/elmx",
   "skylark-utils-dom/query",
   "./fuelux"
-],function(langx,browser,eventer,noder,geom,elmx,$,fuelux){
-
-	var Toolbar = fuelux.Toolbar = fuelux.WidgetBase.inherit({
-        klassName: "Toolbar",
-
-        init : function(elm,options) {
-			var self = this;
-			this._options = langx.mixin({
-					autoredraw: true,
-					buttons: {},
-					context: {},
-					list: [],
-					show: true,
-			},options);
+],function(langx,browser,eventer,noder,geom,$,fuelux){
 
 
-			this.$container = $('<nav class="navbar"/>');
-			this.$el = $(elm).append(this.$container);
+	/*
+	 * Fuel UX Checkbox
+	 * https://github.com/ExactTarget/fuelux
+	 *
+	 * Copyright (c) 2014 ExactTarget
+	 * Licensed under the BSD New license.
+	 */
 
-			this.$container.on('mousedown.bs.dropdown.data-api', '[data-toggle="dropdown"]',function(e) {
-				$(this).dropdown();
-			}); 
+	var old = $.fn.tree;
+
+	// TREE CONSTRUCTOR AND PROTOTYPE
+
+	var Tree = fuelux.Tree = fuelux.WidgetBase.inherit({
+		klassName: "Tree",
+
+		init : function(element,options) {
+			this.$element = $(element);
+			this.options = langx.mixin({}, $.fn.tree.defaults, options);
+
+			this.$element.attr('tabindex', '0');
+
+			if (this.options.itemSelect) {
+				this.$element.on('click.fu.tree', '.tree-item', langx.proxy(function callSelect (ev) {
+					this.selectItem(ev.currentTarget);
+				}, this));
+			}
+
+			this.$element.on('click.fu.tree', '.tree-branch-name', langx.proxy(function callToggle (ev) {
+				this.toggleFolder(ev.currentTarget);
+			}, this));
+
+			this.$element.on('click.fu.tree', '.tree-overflow', langx.proxy(function callPopulate (ev) {
+				this.populate($(ev.currentTarget));
+			}, this));
+
+			// folderSelect default is true
+			if (this.options.folderSelect) {
+				this.$element.addClass('tree-folder-select');
+				this.$element.off('click.fu.tree', '.tree-branch-name');
+				this.$element.on('click.fu.tree', '.icon-caret', langx.proxy(function callToggle (ev) {
+					this.toggleFolder($(ev.currentTarget).parent());
+				}, this));
+				this.$element.on('click.fu.tree', '.tree-branch-name', langx.proxy(function callSelect (ev) {
+					this.selectFolder($(ev.currentTarget));
+				}, this));
+			}
+
+			this.$element.on('focus', function setFocusOnTab () {
+				var $tree = $(this);
+				focusIn($tree, $tree);
+			});
+
+			this.$element.on('keydown', function processKeypress (e) {
+				return navigateTree($(this), e);
+			});
 
 			this.render();
-        },
+		},
+		deselectAll: function deselectAll(n) {
+			// clear all child tree nodes and style as deselected
+			var nodes = n || this.$element;
+			var $selectedElements = $(nodes).find('.tree-selected');
+			$selectedElements.each(function callStyleNodeDeselected (index, element) {
+				var $element = $(element);
+				ariaDeselect($element);
+				styleNodeDeselected( $element, $element.find( '.glyphicon' ) );
+			});
+			return $selectedElements;
+		},
 
+		destroy: function destroy() {
+			// any external bindings [none]
+			// empty elements to return to original markup
+			this.$element.find('li:not([data-template])').remove();
 
-		render : function () {
-			function createToolbarItems(items,container) {
-				langx.each(items,function(i,item)  {
-					var type = item.type;
-					if (!type) {
-						type = "button";
+			this.$element.remove();
+			// returns string of markup
+			return this.$element[0].outerHTML;
+		},
+
+		render: function render() {
+			this.populate(this.$element);
+		},
+
+		populate: function populate($el, ibp) {
+			var self = this;
+
+			// populate was initiated based on clicking overflow link
+			var isOverflow = $el.hasClass('tree-overflow');
+
+			var $parent = ($el.hasClass('tree')) ? $el : $el.parent();
+			var atRoot = $parent.hasClass('tree');
+
+			if (isOverflow && !atRoot) {
+				$parent = $parent.parent();
+			}
+
+			var treeData = $parent.data();
+			// expose overflow data to datasource so it can be responded to appropriately.
+			if (isOverflow) {
+				treeData.overflow = $el.data();
+			}
+
+			var isBackgroundProcess = ibp || false;	// no user affordance needed (ex.- "loading")
+
+			if (isOverflow) {
+				if (atRoot) {
+					// the loader at the root level needs to continually replace the overflow trigger
+					// otherwise, when loader is shown below, it will be the loader for the last folder
+					// in the tree, instead of the loader at the root level.
+					$el.replaceWith($parent.find('> .tree-loader').remove());
+				} else {
+					$el.remove();
+				}
+			}
+
+			var $loader = $parent.find('.tree-loader:last');
+
+			if (isBackgroundProcess === false) {
+				$loader.removeClass('hide hidden'); // jQuery deprecated hide in 3.0. Use hidden instead. Leaving hide here to support previous markup
+			}
+
+			this.options.dataSource(treeData ? treeData : {}, function populateNodes (items) {
+				langx.each(items.data, function buildNode (i, treeNode) {
+					var nodeType = treeNode.type;
+
+					// 'item' and 'overflow' remain consistent, but 'folder' maps to 'branch'
+					if (treeNode.type === 'folder') {
+						nodeType = 'branch';
 					}
-					switch (type) {
-						case "buttongroup":
-							// Create an element with the HTML
-							createButtonGroup(item,container);
+
+					var $entity = self.$element
+						.find('[data-template=tree' + nodeType + ']:eq(0)')
+						.clone()
+						.removeClass('hide hidden')// jQuery deprecated hide in 3.0. Use hidden instead. Leaving hide here to support previous markup
+						.removeData('template')
+						.removeAttr('data-template');
+					$entity.find('.tree-' + nodeType + '-name > .tree-label').html(treeNode.text || treeNode.name);
+					$entity.data(treeNode);
+
+
+					// Decorate $entity with data or other attributes making the
+					// element easily accessible with libraries like jQuery.
+					//
+					// Values are contained within the object returned
+					// for folders and items as attr:
+					//
+					// {
+					//     text: "An Item",
+					//     type: 'item',
+					//     attr = {
+					//         'classes': 'required-item red-text',
+					//         'data-parent': parentId,
+					//         'guid': guid,
+					//         'id': guid
+					//     }
+					// };
+					//
+					// the "name" attribute is also supported but is deprecated for "text".
+
+					// add attributes to tree-branch or tree-item
+					var attrs = treeNode.attr || treeNode.dataAttributes || [];
+					langx.each(attrs, function setAttribute (attr, setTo) {
+						switch (attr) {
+						case 'cssClass':
+						case 'class':
+						case 'className':
+							$entity.addClass(setTo);
 							break;
-						case "button":
-							createButton(item,container)
+
+						// allow custom icons
+						case 'data-icon':
+							$entity.find('.icon-item').removeClass().addClass('icon-item ' + setTo);
+							$entity.attr(attr, setTo);
 							break;
-						case "dropdown":
-						case "dropup":
-							createDrop(item,container)
+
+						// ARIA support
+						case 'id':
+							$entity.attr(attr, setTo);
+							$entity.attr('aria-labelledby', setTo + '-label');
+							$entity.find('.tree-branch-name > .tree-label').attr('id', setTo + '-label');
 							break;
-						case "input":
-							createInput(item,container)
-							break;
+
+						// style, data-*
 						default:
-							throw "Wrong widget button type";
+							$entity.attr(attr, setTo);
+							break;
+						}
+					});
+
+					// add child node
+					if (atRoot) {
+						// For accessibility reasons, the root element is the only tab-able element (see https://github.com/ExactTarget/fuelux/issues/1964)
+						$parent.append($entity);
+					} else {
+						$parent.find('.tree-branch-children:eq(0)').append($entity);
 					}
 				});
 
+				$parent.find('.tree-loader').addClass('hidden');
+				// return newly populated folder
+				self.$element.trigger('loaded.fu.tree', $parent);
+			});
+		},
+
+		selectTreeNode: function selectItem(clickedElement, nodeType) {
+			var clicked = {};	// object for clicked element
+			clicked.$element = $(clickedElement);
+
+			var selected = {}; // object for selected elements
+			selected.$elements = this.$element.find('.tree-selected');
+			selected.dataForEvent = [];
+
+			// determine clicked element and it's icon
+			if (nodeType === 'folder') {
+				// make the clicked.$element the container branch
+				clicked.$element = clicked.$element.closest('.tree-branch');
+				clicked.$icon = clicked.$element.find('.icon-folder');
+			} else {
+				clicked.$icon = clicked.$element.find('.icon-item');
+			}
+			clicked.elementData = clicked.$element.data();
+
+			ariaSelect(clicked.$element);
+
+			// the below functions pass objects by copy/reference and use modified object in this function
+			if ( this.options.multiSelect ) {
+				selected = multiSelectSyncNodes(this, clicked, selected);
+			} else {
+				selected = singleSelectSyncNodes(this, clicked, selected);
 			}
 
-			function createButtonGroup(item,container) {
-				var  group = $("<div/>", { class: "btn-group", role: "group" });
-				container.append(group);
-				createToolbarItems(item.items,group);
-				return group;
+			setFocus(this.$element, clicked.$element);
+
+			// all done with the DOM, now fire events
+			this.$element.trigger(selected.eventType + '.fu.tree', {
+				target: clicked.elementData,
+				selected: selected.dataForEvent
+			});
+
+			clicked.$element.trigger('updated.fu.tree', {
+				selected: selected.dataForEvent,
+				item: clicked.$element,
+				eventType: selected.eventType
+			});
+		},
+
+		discloseFolder: function discloseFolder(folder) {
+			var $folder = $(folder);
+
+			var $branch = $folder.closest('.tree-branch');
+			var $treeFolderContent = $branch.find('.tree-branch-children');
+			var $treeFolderContentFirstChild = $treeFolderContent.eq(0);
+
+			// take care of the styles
+			$branch.addClass('tree-open');
+			$branch.attr('aria-expanded', 'true');
+			$treeFolderContentFirstChild.removeClass('hide hidden'); // jQuery deprecated hide in 3.0. Use hidden instead. Leaving hide here to support previous markup
+			$branch.find('> .tree-branch-header .icon-folder').eq(0)
+				.removeClass('glyphicon-folder-close')
+				.addClass('glyphicon-folder-open');
+
+			var $tree = this.$element;
+			var disclosedCompleted = function disclosedCompleted () {
+				$tree.trigger('disclosedFolder.fu.tree', $branch.data());
+			};
+
+			// add the children to the folder
+			if (!$treeFolderContent.children().length) {
+				$tree.one('loaded.fu.tree', disclosedCompleted);
+				this.populate($treeFolderContent);
+			} else {
+				disclosedCompleted();
+			}
+		},
+
+		closeFolder: function closeFolder(el) {
+			var $el = $(el);
+			var $branch = $el.closest('.tree-branch');
+			var $treeFolderContent = $branch.find('.tree-branch-children');
+			var $treeFolderContentFirstChild = $treeFolderContent.eq(0);
+
+			// take care of the styles
+			$branch.removeClass('tree-open');
+			$branch.attr('aria-expanded', 'false');
+			$treeFolderContentFirstChild.addClass('hidden');
+			$branch.find('> .tree-branch-header .icon-folder').eq(0)
+				.removeClass('glyphicon-folder-open')
+				.addClass('glyphicon-folder-close');
+
+			// remove chidren if no cache
+			if (!this.options.cacheItems) {
+				$treeFolderContentFirstChild.empty();
 			}
 
-			function createButton(item,container) {
-				// Create button
-				var button = $('<button type="button" class="btn btn-default"/>'),
-					attrs = langx.mixin({},item);
+			this.$element.trigger('closed.fu.tree', $branch.data());
+		},
 
-				// If has icon
-				if ("icon" in item) {
-					button.append($("<span/>", { class: item.icon }));
-					delete attrs.icon;
+		toggleFolder: function toggleFolder(el) {
+			var $el = $(el);
+
+			if ($el.find('.glyphicon-folder-close').length) {
+				this.discloseFolder(el);
+			} else if ($el.find('.glyphicon-folder-open').length) {
+				this.closeFolder(el);
+			}
+		},
+
+		selectFolder: function selectFolder(el) {
+			if (this.options.folderSelect) {
+				this.selectTreeNode(el, 'folder');
+			}
+		},
+
+		selectItem: function selectItem(el) {
+			if (this.options.itemSelect) {
+				this.selectTreeNode(el, 'item');
+			}
+		},
+
+		selectedItems: function selectedItems() {
+			var $sel = this.$element.find('.tree-selected');
+			var selected = [];
+
+			langx.each($sel, function buildSelectedArray (i, value) {
+				selected.push($(value).data());
+			});
+			return selected;
+		},
+
+		// collapses open folders
+		collapse: function collapse() {
+			var self = this;
+			var reportedClosed = [];
+
+			var closedReported = function closedReported(event, closed) {
+				reportedClosed.push(closed);
+
+				// jQuery deprecated hide in 3.0. Use hidden instead. Leaving hide here to support previous markup
+				if (self.$element.find(".tree-branch.tree-open:not('.hidden, .hide')").length === 0) {
+					self.$element.trigger('closedAll.fu.tree', {
+						tree: self.$element,
+						reportedClosed: reportedClosed
+					});
+					self.$element.off('loaded.fu.tree', self.$element, closedReported);
 				}
-				// If has text
-				if ("text" in attrs) {
-					button.append(" " + item.text);
-					delete attrs.text;
+			};
+
+			// trigger callback when all folders have reported closed
+			self.$element.on('closed.fu.tree', closedReported);
+
+			self.$element.find(".tree-branch.tree-open:not('.hidden, .hide')").each(function closeFolder () {
+				self.closeFolder(this);
+			});
+		},
+
+		// disclose visible will only disclose visible tree folders
+		discloseVisible: function discloseVisible() {
+			var self = this;
+
+			var $openableFolders = self.$element.find(".tree-branch:not('.tree-open, .hidden, .hide')");
+			var reportedOpened = [];
+
+			var openReported = function openReported(event, opened) {
+				reportedOpened.push(opened);
+
+				if (reportedOpened.length === $openableFolders.length) {
+					self.$element.trigger('disclosedVisible.fu.tree', {
+						tree: self.$element,
+						reportedOpened: reportedOpened
+					});
+					/*
+					* Unbind the `openReported` event. `discloseAll` may be running and we want to reset this
+					* method for the next iteration.
+					*/
+					self.$element.off('loaded.fu.tree', self.$element, openReported);
 				}
+			};
 
-				button.attr(attrs);
+			// trigger callback when all folders have reported opened
+			self.$element.on('loaded.fu.tree', openReported);
 
-				// Add button to the group
-				container.append(button);
+			// open all visible folders
+			self.$element.find(".tree-branch:not('.tree-open, .hidden, .hide')").each(function triggerOpen() {
+				self.discloseFolder($(this).find('.tree-branch-header'));
+			});
+		},
 
+		/*
+		* Disclose all will keep listening for `loaded.fu.tree` and if `$(tree-el).data('ignore-disclosures-limit')`
+		* is `true` (defaults to `true`) it will attempt to disclose any new closed folders than were
+		* loaded in during the last disclosure.
+		*/
+		discloseAll: function discloseAll() {
+			var self = this;
+
+			// first time
+			if (typeof self.$element.data('disclosures') === 'undefined') {
+				self.$element.data('disclosures', 0);
 			}
 
-			function createDrop(item,container) {
-				// Create button
-				var dropdown_group = $('<div class="btn-group" role="group"/>');
-				var dropdown_button = $('<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"/>');
-				var dropdown_list = $('<ul class="dropdown-menu"/>');
+			var isExceededLimit = (self.options.disclosuresUpperLimit >= 1 && self.$element.data('disclosures') >= self.options.disclosuresUpperLimit);
+			var isAllDisclosed = self.$element.find(".tree-branch:not('.tree-open, .hidden, .hide')").length === 0;
 
-				var	attrs = langx.mixin({},item);
 
-				if(item.type === "dropup") {
-					dropdown_group.addClass("dropup");
-				}
+			if (!isAllDisclosed) {
+				if (isExceededLimit) {
+					self.$element.trigger('exceededDisclosuresLimit.fu.tree', {
+						tree: self.$element,
+						disclosures: self.$element.data('disclosures')
+					});
 
-				// If has icon
-				if ("icon" in item) {
-					dropdown_button.append($("<span/>", { class: item.icon }));
-					delete attrs.icon;
-				}
-				// If has text
-				if ("text" in item) {
-					dropdown_button.append(" " + item.text);
-					delete attrs.text;
-				}
-				// Add caret
-				dropdown_button.append(' <span class="caret"/>');
-
-				// Add list of options
-				for(var i in item.list) {
-					var dropdown_option = item.list[i];
-					var dropdown_option_li = $('<li/>');
-
-					// If has icon
-					if ("icon" in dropdown_option) {
-						dropdown_option_li.append($("<span/>", { class: dropdown_option.icon }));
+					/*
+					* If you've exceeded the limit, the loop will be killed unless you
+					* explicitly ignore the limit and start the loop again:
+					*
+					*    $tree.one('exceededDisclosuresLimit.fu.tree', function () {
+					*        $tree.data('ignore-disclosures-limit', true);
+					*        $tree.tree('discloseAll');
+					*    });
+					*/
+					if (!self.$element.data('ignore-disclosures-limit')) {
+						return;
 					}
-
-					// If has text
-					if ("text" in dropdown_option) {
-						dropdown_option_li.append(" " + dropdown_option.text);
-					}
-					// Set attributes
-					dropdown_option_li.attr(dropdown_option);
-
-					// Add to dropdown list
-					dropdown_list.append(dropdown_option_li);
 				}
-				
-				// Set attributes
-				dropdown_group.attr(attrs);
 
-				dropdown_group.append(dropdown_button);
-				dropdown_group.append(dropdown_list);
-				container.append(dropdown_group);
+				self.$element.data('disclosures', self.$element.data('disclosures') + 1);
 
+				/*
+				* A new branch that is closed might be loaded in, make sure those get handled too.
+				* This attachment needs to occur before calling `discloseVisible` to make sure that
+				* if the execution of `discloseVisible` happens _super fast_ (as it does in our QUnit tests
+				* this will still be called. However, make sure this only gets called _once_, because
+				* otherwise, every single time we go through this loop, _another_ event will be bound
+				* and then when the trigger happens, this will fire N times, where N equals the number
+				* of recursive `discloseAll` executions (instead of just one)
+				*/
+				self.$element.one('disclosedVisible.fu.tree', function callDiscloseAll () {
+					self.discloseAll();
+				});
+
+				/*
+				* If the page is very fast, calling this first will cause `disclosedVisible.fu.tree` to not
+				* be bound in time to be called, so, we need to call this last so that the things bound
+				* and triggered above can have time to take place before the next execution of the
+				* `discloseAll` method.
+				*/
+				self.discloseVisible();
+			} else {
+				self.$element.trigger('disclosedAll.fu.tree', {
+					tree: self.$element,
+					disclosures: self.$element.data('disclosures')
+				});
+
+				// if `cacheItems` is false, and they call closeAll, the data is trashed and therefore
+				// disclosures needs to accurately reflect that
+				if (!self.options.cacheItems) {
+					self.$element.one('closeAll.fu.tree', function updateDisclosuresData () {
+						self.$element.data('disclosures', 0);
+					});
+				}
+			}
+		},
+
+		// This refreshes the children of a folder. Please destroy and re-initilize for "root level" refresh.
+		// The data of the refreshed folder is not updated. This control's architecture only allows updating of children.
+		// Folder renames should probably be handled directly on the node.
+		refreshFolder: function refreshFolder($el) {
+			var $treeFolder = $el.closest('.tree-branch');
+			var $treeFolderChildren = $treeFolder.find('.tree-branch-children');
+			$treeFolderChildren.eq(0).empty();
+
+			if ($treeFolder.hasClass('tree-open')) {
+				this.populate($treeFolderChildren, false);
+			} else {
+				this.populate($treeFolderChildren, true);
 			}
 
-			function createInput(item,container) {
-				var input_group = $('<div class="input-group"/>');
-				var input_element = $('<input class="form-control"/>');
-				
-				var	attrs = langx.mixin({},item);
+			this.$element.trigger('refreshedFolder.fu.tree', $treeFolder.data());
+		}
+	});
 
-				// Add prefix addon
-				if("prefix" in item) {
-					var input_prefix = $('<span class="input-group-addon"/>');
-					input_prefix.html(item.prefix);
-					input_group.append(input_prefix);
+	// ALIASES
 
-					delete attrs.prefix;
+	// alias for collapse for consistency. "Collapse" is an ambiguous term (collapse what? All? One specific branch?)
+	Tree.prototype.closeAll = Tree.prototype.collapse;
+	// alias for backwards compatibility because there's no reason not to.
+	Tree.prototype.openFolder = Tree.prototype.discloseFolder;
+	// For library consistency
+	Tree.prototype.getValue = Tree.prototype.selectedItems;
+
+	// PRIVATE FUNCTIONS
+
+	var fixFocusability = function fixFocusability ($tree, $branch) {
+		/*
+		When tree initializes on page, the `<ul>` element should have tabindex=0 and all sub-elements should have
+		tabindex=-1. When focus leaves the tree, whatever the last focused on element was will keep the tabindex=0. The
+		tree itself will have a tabindex=-1. The reason for this is that if you are inside of the tree and press
+		shift+tab, it will try and focus on the tree you are already in, which will cause focus to shift immediately
+		back to the element you are already focused on. That will make it seem like the event is getting "Swallowed up"
+		by an aggressive event listener trap.
+
+		For this reason, only one element in the entire tree, including the tree itself, should ever have tabindex=0.
+		If somewhere down the line problems are being caused by this, the only further potential improvement I can
+		envision at this time is listening for the tree to lose focus and reseting the tabindexes of all children to -1
+		and setting the tabindex of the tree itself back to 0. This seems overly complicated with no benefit that I can
+		imagine at this time, so instead I am leaving the last focused element with the tabindex of 0, even upon blur of
+		the tree.
+
+		One benefit to leaving the last focused element in a tree with a tabindex=0 is that if you accidentally tab out
+		of the tree and then want to tab back in, you will be placed exactly where you left off instead of at the
+		beginning of the tree.
+		*/
+		$tree.attr('tabindex', -1);
+		$tree.find('li').attr('tabindex', -1);
+		if ($branch && $branch.length > 0) {
+			$branch.attr('tabindex', 0); // if tabindex is not set to 0 (or greater), node is not able to receive focus
+		}
+	};
+
+	// focuses into (onto one of the children of) the provided branch
+	var focusIn = function focusIn ($tree, $branch) {
+		var $focusCandidate = $branch.find('.tree-selected:first');
+
+		// if no node is selected, set focus to first visible node
+		if ($focusCandidate.length <= 0) {
+			$focusCandidate = $branch.find('li:not(".hidden"):first');
+		}
+
+		setFocus($tree, $focusCandidate);
+	};
+
+	// focuses on provided branch
+	var setFocus = function setFocus ($tree, $branch) {
+		fixFocusability($tree, $branch);
+
+		$tree.attr('aria-activedescendant', $branch.attr('id'));
+
+		$branch.focus();
+
+		$tree.trigger('setFocus.fu.tree', $branch);
+	};
+
+	var navigateTree = function navigateTree ($tree, e) {
+		if (e.isDefaultPrevented() || e.isPropagationStopped()) {
+			return false;
+		}
+
+		var targetNode = e.originalEvent.target;
+		var $targetNode = $(targetNode);
+		var isOpen = $targetNode.hasClass('tree-open');
+		var handled = false;
+		// because es5 lacks promises and fuelux has no polyfil (and I'm not adding one just for this change)
+		// I am faking up promises here through callbacks and listeners. Done will be fired immediately at the end of
+		// the navigateTree method if there is no (fake) promise, but will be fired by an event listener that will
+		// be triggered by another function if necessary. This way when done runs, and fires keyboardNavigated.fu.tree
+		// anything listening for that event can be sure that everything tied to that event is actually completed.
+		var fireDoneImmediately = true;
+		var done = function done () {
+			$tree.trigger('keyboardNavigated.fu.tree', e, $targetNode);
+		};
+
+		switch (e.which) {
+		case 13: // enter
+		case 32: // space
+			// activates a node, i.e., performs its default action.
+			// For parent nodes, one possible default action is to open or close the node.
+			// In single-select trees where selection does not follow focus, the default action is typically to select the focused node.
+			var foldersSelectable = $tree.hasClass('tree-folder-select');
+			var isFolder = $targetNode.hasClass('tree-branch');
+			var isItem = $targetNode.hasClass('tree-item');
+			// var isOverflow = $targetNode.hasClass('tree-overflow');
+
+			fireDoneImmediately = false;
+			if (isFolder) {
+				if (foldersSelectable) {
+					$tree.one('selected.fu.tree deselected.fu.tree', done);
+					$tree.tree('selectFolder', $targetNode.find('.tree-branch-header')[0]);
+				} else {
+					$tree.one('loaded.fu.tree closed.fu.tree', done);
+					$tree.tree('toggleFolder', $targetNode.find('.tree-branch-header')[0]);
 				}
-				
-				// Add input
-				input_group.append(input_element);
+			} else if (isItem) {
+				$tree.one('selected.fu.tree', done);
+				$tree.tree('selectItem', $targetNode);
+			} else {
+				// should be isOverflow... Try and click on it either way.
+				$prev = $($targetNode.prevAll().not('.hidden')[0]);
+				$targetNode.click();
 
-				// Add sufix addon
-				if("sufix" in item) {
-					var input_sufix = $('<span class="input-group-addon"/>');
-					input_sufix.html(item.sufix);
-					input_group.append(input_sufix);
+				$tree.one('loaded.fu.tree', function selectFirstNewlyLoadedNode () {
+					$next = $($prev.nextAll().not('.hidden')[0]);
 
-					delete attrs.sufix;
-				}
-
-				attrs.type = attrs.inputType;
-
-				delete attrs.inputType;
-
-				// Set attributes
-				input_element.attr(attrs);
-
-				container.append(input_group);
-
+					setFocus($tree, $next);
+					done();
+				});
 			}
 
-			var items = this._options.items;
-			if (items) {
-				createToolbarItems(items,this.$container);
+			handled = true;
+			break;
+		case 35: // end
+			// Set focus to the last node in the tree that is focusable without opening a node.
+			setFocus($tree, $tree.find('li:not(".hidden"):last'));
+
+			handled = true;
+			break;
+		case 36: // home
+			// set focus to the first node in the tree without opening or closing a node.
+			setFocus($tree, $tree.find('li:not(".hidden"):first'));
+
+			handled = true;
+			break;
+		case 37: // left
+			if (isOpen) {
+				fireDoneImmediately = false;
+				$tree.one('closed.fu.tree', done);
+				$tree.tree('closeFolder', targetNode);
+			} else {
+				setFocus($tree, $($targetNode.parents('li')[0]));
+			}
+
+			handled = true;
+			break;
+
+		case 38: // up
+			// move focus to previous sibling
+			var $prev = [];
+			// move to previous li not hidden
+			$prev = $($targetNode.prevAll().not('.hidden')[0]);
+
+			// if the previous li is open, and has children, move selection to its last child so selection
+			// appears to move to the next "thing" up
+			if ($prev.hasClass('tree-open')) {
+				var $prevChildren = $prev.find('li:not(".hidden"):last');
+				if ($prevChildren.length > 0) {
+					$prev = $($prevChildren[0]);
+				}
+			}
+
+			// if nothing has been selected, we are presumably at the top of an open li, select the immediate parent
+			if ($prev.length < 1) {
+				$prev = $($targetNode.parents('li')[0]);
+			}
+			setFocus($tree, $prev);
+
+			handled = true;
+			break;
+
+		case 39: // right
+			if (isOpen) {
+				focusIn($tree, $targetNode);
+			} else {
+				fireDoneImmediately = false;
+				$tree.one('disclosed.fu.tree', done);
+				$tree.tree('discloseFolder', targetNode);
+			}
+
+			handled = true;
+			break;
+
+		case 40: // down
+			// move focus to next selectable tree node
+			var $next = $($targetNode.find('li:not(".hidden"):first')[0]);
+			if (!isOpen || $next.length <= 0) {
+				$next = $($targetNode.nextAll().not('.hidden')[0]);
+			}
+
+			if ($next.length < 1) {
+				$next = $($($targetNode.parents('li')[0]).nextAll().not('.hidden')[0]);
+			}
+			setFocus($tree, $next);
+
+			handled = true;
+			break;
+
+		default:
+			// console.log(e.which);
+			return true; // exit this handler for other keys
+		}
+
+		// if we didn't handle the event, allow propagation to continue so something else might.
+		if (handled) {
+			e.preventDefault();
+			e.stopPropagation();
+			if (fireDoneImmediately) {
+				done();
 			}
 		}
 
-	});
-
-
-	$.fn.toolbar = function (options) {
-		options = options || {};
-
-		return this.each(function () {
-			return new Toolbar(this, langx.mixin({}, options,true));
-		});
+		return true;
 	};
 
-	return Toolbar;
+	var ariaSelect = function ariaSelect ($element) {
+		$element.attr('aria-selected', true);
+	};
 
+	var ariaDeselect = function ariaDeselect ($element) {
+		$element.attr('aria-selected', false);
+	};
+
+	function styleNodeSelected ($element, $icon) {
+		$element.addClass('tree-selected');
+		if ( $element.data('type') === 'item' && $icon.hasClass('fueluxicon-bullet') ) {
+			$icon.removeClass('fueluxicon-bullet').addClass('glyphicon-ok'); // make checkmark
+		}
+	}
+
+	function styleNodeDeselected ($element, $icon) {
+		$element.removeClass('tree-selected');
+		if ( $element.data('type') === 'item' && $icon.hasClass('glyphicon-ok') ) {
+			$icon.removeClass('glyphicon-ok').addClass('fueluxicon-bullet'); // make bullet
+		}
+	}
+
+	function multiSelectSyncNodes (self, clicked, selected) {
+		// search for currently selected and add to selected data list if needed
+		langx.each(selected.$elements, function findCurrentlySelected (index, element) {
+			var $element = $(element);
+
+			if ($element[0] !== clicked.$element[0]) {
+				selected.dataForEvent.push( $($element).data() );
+			}
+		});
+
+		if (clicked.$element.hasClass('tree-selected')) {
+			styleNodeDeselected(clicked.$element, clicked.$icon);
+			// set event data
+			selected.eventType = 'deselected';
+		} else {
+			styleNodeSelected(clicked.$element, clicked.$icon);
+			// set event data
+			selected.eventType = 'selected';
+			selected.dataForEvent.push(clicked.elementData);
+		}
+
+		return selected;
+	}
+
+	function singleSelectSyncNodes(self, clicked, selected) {
+		// element is not currently selected
+		if (selected.$elements[0] !== clicked.$element[0]) {
+			self.deselectAll(self.$element);
+			styleNodeSelected(clicked.$element, clicked.$icon);
+			// set event data
+			selected.eventType = 'selected';
+			selected.dataForEvent = [clicked.elementData];
+		} else {
+			styleNodeDeselected(clicked.$element, clicked.$icon);
+			// set event data
+			selected.eventType = 'deselected';
+			selected.dataForEvent = [];
+		}
+
+		return selected;
+	}
+
+	// TREE PLUGIN DEFINITION
+
+	$.fn.tree = function fntree (option) {
+		var args = Array.prototype.slice.call(arguments, 1);
+		var methodReturn;
+
+		var $set = this.each(function eachThis () {
+			var $this = $(this);
+			var data = $this.data('fu.tree');
+			var options = typeof option === 'object' && option;
+
+			if (!data) {
+				$this.data('fu.tree', (data = new Tree(this, options)));
+				$this.trigger('initialized.fu.tree');
+			}
+
+			if (typeof option === 'string') {
+				methodReturn = data[option].apply(data, args);
+			}
+		});
+
+		return (methodReturn === undefined) ? $set : methodReturn;
+	};
+
+	/*
+	 * Private method used only by the default dataSource for the tree, which is used to consume static
+	 * tree data.
+	 *
+	 * Find children of supplied parent in rootData. You can pass in an entire deeply nested tree
+	 * and this will look through it recursively until it finds the child data you are looking for.
+	 *
+	 * For extremely large trees, this could cause the browser to crash, as there is no protection
+	 * or limit on the amount of branches that will be searched through.
+	 */
+	var findChildData = function findChildData (targetParent, rootData) {
+		var isRootOfTree = $.isEmptyObject(targetParent);
+		if (isRootOfTree) {
+			return rootData;
+		}
+
+		if (rootData === undefined) {
+			return false;
+		}
+
+		for (var i = 0; i < rootData.length; i++) {
+			var potentialMatch = rootData[i];
+
+			if (potentialMatch.attr && targetParent.attr && potentialMatch.attr.id === targetParent.attr.id) {
+				return potentialMatch.children;
+			} else if (potentialMatch.children) {
+				var foundChild = findChildData(targetParent, potentialMatch.children);
+				if (foundChild) {
+					return foundChild;
+				}
+			}
+		}
+
+		return false;
+	};
+
+	$.fn.tree.defaults = {
+		/*
+		 * A static data representation of your full tree data. If you do not override the tree's
+		 * default dataSource method, this will just make the tree work out of the box without
+		 * you having to bring your own dataSource.
+		 *
+		 * Array of Objects representing tree branches (folder) and leaves (item):
+			[
+				{
+					name: '',
+					type: 'folder',
+					attr: {
+						id: ''
+					},
+					children: [
+						{
+							name: '',
+							type: 'item',
+							attr: {
+								id: '',
+								'data-icon': 'glyphicon glyphicon-file'
+							}
+						}
+					]
+				},
+				{
+					name: '',
+					type: 'item',
+					attr: {
+						id: '',
+						'data-icon': 'glyphicon glyphicon-file'
+					}
+				}
+			];
+		 */
+		staticData: [],
+		/*
+		 * If you set the full tree data on options.staticData, you can use this default dataSource
+		 * to consume that data. This allows you to just pass in a JSON array representation
+		 * of your full tree data and the tree will just work out of the box.
+		 */
+		dataSource: function staticDataSourceConsumer (openedParentData, callback) {
+			if (this.staticData.length > 0) {
+				var childData = findChildData(openedParentData, this.staticData);
+
+				callback({
+					data: childData
+				});
+			}
+		},
+		multiSelect: false,
+		cacheItems: true,
+		folderSelect: true,
+		itemSelect: true,
+		/*
+		* How many times `discloseAll` should be called before a stopping and firing
+		* an `exceededDisclosuresLimit` event. You can force it to continue by
+		* listening for this event, setting `ignore-disclosures-limit` to `true` and
+		* starting `discloseAll` back up again. This lets you make more decisions
+		* about if/when/how/why/how many times `discloseAll` will be started back
+		* up after it exceeds the limit.
+		*
+		*    $tree.one('exceededDisclosuresLimit.fu.tree', function () {
+		*        $tree.data('ignore-disclosures-limit', true);
+		*        $tree.tree('discloseAll');
+		*    });
+		*
+		* `disclusuresUpperLimit` defaults to `0`, so by default this trigger
+		* will never fire. The true hard the upper limit is the browser's
+		* ability to load new items (i.e. it will keep loading until the browser
+		* falls over and dies). On the Fuel UX `index.html` page, the point at
+		* which the page became super slow (enough to seem almost unresponsive)
+		* was `4`, meaning 256 folders had been opened, and 1024 were attempting to open.
+		*/
+		disclosuresUpperLimit: 0
+	};
+
+	$.fn.tree.Constructor = Tree;
+
+	$.fn.tree.noConflict = function noConflict () {
+		$.fn.tree = old;
+		return this;
+	};
+
+	return $.fn.tree;
 });
-
 define('skylark-fuelux/wizard',[
   "skylark-langx/langx",
   "skylark-utils-dom/browser",
@@ -17603,7 +17659,6 @@ define('skylark-fuelux/main',[
     "./dropdown-autoflip",
     "./infinite-scroll",
     "./loader",
-    "./menu",
     "./picker",
     "./pillbox",
     "./placard",
@@ -17612,7 +17667,7 @@ define('skylark-fuelux/main',[
     "./search",
     "./selectlist",
     "./spinbox",
-    "./toolbar",
+    "./tree",
     "./wizard",
 
     "./repeater",

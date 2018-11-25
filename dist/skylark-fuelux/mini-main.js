@@ -5,5 +5,5 @@
  * @link https://github.com/skylarkui/skylark-fuelux/
  * @license MIT
  */
-define(["./carousel","./checkbox","./collapse","./combobox","./datepicker","./dropdown","./modal","./search","./selectlist","./tab","./transition","./wizard"],function(e){return e});
+define(["skylark-bootstrap3/carousel","./checkbox","./collapse","./combobox","./datepicker","skylark-bootstrap3/dropdown","skylark-bootstrap3/modal","./search","./selectlist","skylark-bootstrap3/tab","skylark-bootstrap3/transition","./wizard"],function(o){return o});
 //# sourceMappingURL=sourcemaps/mini-main.js.map
