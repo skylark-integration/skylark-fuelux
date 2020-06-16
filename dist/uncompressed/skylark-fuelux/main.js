@@ -1,5 +1,6 @@
 define([
     "skylark-domx/query",
+    "skylark-bootstrap3",
     "./checkbox",
     "./combobox",
     "./datepicker",
@@ -20,7 +21,7 @@ define([
     "./repeater",
     "./repeater-list",
     "./repeater-thumbnail"
-    
+
 ], function($) {
     return $;
 });

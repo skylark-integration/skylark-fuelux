@@ -4,7 +4,9 @@ define([
   "skylark-domx/eventer",
   "skylark-domx/noder",
   "skylark-domx/geom",
-  "skylark-domx/query"
+  "skylark-domx/query",
+  "./fuelux",
+  "skylark-bootstrap3/dropdown"    
 ],function(langx,browser,eventer,noder,geom,$){
 
 	/*
