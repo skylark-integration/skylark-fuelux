@@ -1,5 +1,5 @@
 define([
-    "skylark-utils-dom/query",
+    "skylark-domx/query",
     "./checkbox",
     "./combobox",
     "./datepicker",

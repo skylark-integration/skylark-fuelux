@@ -37,11 +37,16 @@
                 deps: deps.map(function(dep){
                   return absolute(dep,id);
                 }),
+                resolved: false,
                 exports: null
             };
             require(id);
         } else {
-            map[id] = factory;
+            map[id] = {
+                factory : null,
+                resolved : true,
+                exports : factory
+            };
         }
     };
     require = globals.require = function(id) {
@@ -49,14 +54,15 @@
             throw new Error('Module ' + id + ' has not been defined');
         }
         var module = map[id];
-        if (!module.exports) {
+        if (!module.resolved) {
             var args = [];
 
             module.deps.forEach(function(dep){
                 args.push(require(dep));
             })
 
-            module.exports = module.factory.apply(globals, args);
+            module.exports = module.factory.apply(globals, args) || null;
+            module.resolved = true;
         }
         return module.exports;
     };
@@ -69,7 +75,7 @@
   factory(define,require);
 
   if (!isAmd) {
-    var skylarkjs = require("skylark-langx/skylark");
+    var skylarkjs = require("skylark-langx-ns");
 
     if (isCmd) {
       module.exports = skylarkjs;
@@ -83,11 +89,11 @@
 define('skylark-fuelux/fuelux',[
   "skylark-langx/skylark",
   "skylark-langx/langx",
-  "skylark-utils-dom/browser",
-  "skylark-utils-dom/eventer",
-  "skylark-utils-dom/noder",
-  "skylark-utils-dom/geom",
-  "skylark-utils-dom/query"
+  "skylark-domx/browser",
+  "skylark-domx/eventer",
+  "skylark-domx/noder",
+  "skylark-domx/geom",
+  "skylark-domx/query"
 ],function(skylark,langx,browser,eventer,noder,geom,$){
 	var ui = skylark.ui = skylark.ui || {}, 
 		fuelux = ui.fuelux = {};
@@ -163,11 +169,11 @@ define('skylark-fuelux/fuelux',[
 
 define('skylark-fuelux/checkbox',[
   "skylark-langx/langx",
-  "skylark-utils-dom/browser",
-  "skylark-utils-dom/eventer",
-  "skylark-utils-dom/noder",
-  "skylark-utils-dom/geom",
-  "skylark-utils-dom/query",
+  "skylark-domx/browser",
+  "skylark-domx/eventer",
+  "skylark-domx/noder",
+  "skylark-domx/geom",
+  "skylark-domx/query",
   "./fuelux"
 ],function(langx,browser,eventer,noder,geom,$,fuelux){
 
@@ -380,11 +386,11 @@ define('skylark-fuelux/checkbox',[
 
 define('skylark-fuelux/combobox',[
   "skylark-langx/langx",
-  "skylark-utils-dom/browser",
-  "skylark-utils-dom/eventer",
-  "skylark-utils-dom/noder",
-  "skylark-utils-dom/geom",
-  "skylark-utils-dom/query",
+  "skylark-domx/browser",
+  "skylark-domx/eventer",
+  "skylark-domx/noder",
+  "skylark-domx/geom",
+  "skylark-domx/query",
   "./fuelux"
 ],function(langx,browser,eventer,noder,geom,$,fuelux){
 
@@ -765,11 +771,11 @@ define('skylark-fuelux/combobox',[
 
 define('skylark-fuelux/datepicker',[
     "skylark-langx/langx",
-    "skylark-utils-dom/browser",
-    "skylark-utils-dom/eventer",
-    "skylark-utils-dom/noder",
-    "skylark-utils-dom/geom",
-    "skylark-utils-dom/query",
+    "skylark-domx/browser",
+    "skylark-domx/eventer",
+    "skylark-domx/noder",
+    "skylark-domx/geom",
+    "skylark-domx/query",
     "./fuelux"
 ], function(langx, browser, eventer, noder, geom, $, fuelux) {
 
@@ -1588,11 +1594,11 @@ define('skylark-fuelux/datepicker',[
 });
 define('skylark-fuelux/dropdown-autoflip',[
   "skylark-langx/langx",
-  "skylark-utils-dom/browser",
-  "skylark-utils-dom/eventer",
-  "skylark-utils-dom/noder",
-  "skylark-utils-dom/geom",
-  "skylark-utils-dom/query"
+  "skylark-domx/browser",
+  "skylark-domx/eventer",
+  "skylark-domx/noder",
+  "skylark-domx/geom",
+  "skylark-domx/query"
 ],function(langx,browser,eventer,noder,geom,$){
 
 	/*
@@ -1713,11 +1719,11 @@ define('skylark-fuelux/dropdown-autoflip',[
 
 define('skylark-fuelux/infinite-scroll',[
   "skylark-langx/langx",
-  "skylark-utils-dom/browser",
-  "skylark-utils-dom/eventer",
-  "skylark-utils-dom/noder",
-  "skylark-utils-dom/geom",
-  "skylark-utils-dom/query"
+  "skylark-domx/browser",
+  "skylark-domx/eventer",
+  "skylark-domx/noder",
+  "skylark-domx/geom",
+  "skylark-domx/query"
 ],function(langx,browser,eventer,noder,geom,$){
 
 	/*
@@ -1886,11 +1892,11 @@ define('skylark-fuelux/infinite-scroll',[
 
 define('skylark-fuelux/loader',[
   "skylark-langx/langx",
-  "skylark-utils-dom/browser",
-  "skylark-utils-dom/eventer",
-  "skylark-utils-dom/noder",
-  "skylark-utils-dom/geom",
-  "skylark-utils-dom/query",
+  "skylark-domx/browser",
+  "skylark-domx/eventer",
+  "skylark-domx/noder",
+  "skylark-domx/geom",
+  "skylark-domx/query",
   "./fuelux"
 ],function(langx,browser,eventer,noder,geom,$,fuelux){
 
@@ -1989,11 +1995,11 @@ define('skylark-fuelux/loader',[
 
 define('skylark-fuelux/picker',[
   "skylark-langx/langx",
-  "skylark-utils-dom/browser",
-  "skylark-utils-dom/eventer",
-  "skylark-utils-dom/noder",
-  "skylark-utils-dom/geom",
-  "skylark-utils-dom/query",
+  "skylark-domx/browser",
+  "skylark-domx/eventer",
+  "skylark-domx/noder",
+  "skylark-domx/geom",
+  "skylark-domx/query",
   "./fuelux"
 ],function(langx,browser,eventer,noder,geom,$,fuelux){
 
@@ -2273,11 +2279,11 @@ define('skylark-fuelux/picker',[
 
 define('skylark-fuelux/pillbox',[
   "skylark-langx/langx",
-  "skylark-utils-dom/browser",
-  "skylark-utils-dom/eventer",
-  "skylark-utils-dom/noder",
-  "skylark-utils-dom/geom",
-  "skylark-utils-dom/query",
+  "skylark-domx/browser",
+  "skylark-domx/eventer",
+  "skylark-domx/noder",
+  "skylark-domx/geom",
+  "skylark-domx/query",
   "./fuelux",
   "./dropdown-autoflip"
 ],function(langx,browser,eventer,noder,geom,$,fuelux){
@@ -3041,11 +3047,11 @@ define('skylark-fuelux/pillbox',[
 
 define('skylark-fuelux/placard',[
   "skylark-langx/langx",
-  "skylark-utils-dom/browser",
-  "skylark-utils-dom/eventer",
-  "skylark-utils-dom/noder",
-  "skylark-utils-dom/geom",
-  "skylark-utils-dom/query",
+  "skylark-domx/browser",
+  "skylark-domx/eventer",
+  "skylark-domx/noder",
+  "skylark-domx/geom",
+  "skylark-domx/query",
   "./fuelux"
 ],function(langx,browser,eventer,noder,geom,$,fuelux){
 
@@ -3391,11 +3397,11 @@ define('skylark-fuelux/placard',[
 
 define('skylark-fuelux/radio',[
   "skylark-langx/langx",
-  "skylark-utils-dom/browser",
-  "skylark-utils-dom/eventer",
-  "skylark-utils-dom/noder",
-  "skylark-utils-dom/geom",
-  "skylark-utils-dom/query",
+  "skylark-domx/browser",
+  "skylark-domx/eventer",
+  "skylark-domx/noder",
+  "skylark-domx/geom",
+  "skylark-domx/query",
   "./fuelux"
 ],function(langx,browser,eventer,noder,geom,$,fuelux){
 
@@ -3611,11 +3617,11 @@ define('skylark-fuelux/radio',[
 
 define('skylark-fuelux/selectlist',[
   "skylark-langx/langx",
-  "skylark-utils-dom/browser",
-  "skylark-utils-dom/eventer",
-  "skylark-utils-dom/noder",
-  "skylark-utils-dom/geom",
-  "skylark-utils-dom/query",
+  "skylark-domx/browser",
+  "skylark-domx/eventer",
+  "skylark-domx/noder",
+  "skylark-domx/geom",
+  "skylark-domx/query",
   "./fuelux",
   "skylark-bootstrap3/dropdown"
 ],function(langx,browser,eventer,noder,geom,$,fuelux){
@@ -3898,11 +3904,11 @@ define('skylark-fuelux/selectlist',[
 
 define('skylark-fuelux/spinbox',[
   "skylark-langx/langx",
-  "skylark-utils-dom/browser",
-  "skylark-utils-dom/eventer",
-  "skylark-utils-dom/noder",
-  "skylark-utils-dom/geom",
-  "skylark-utils-dom/query",
+  "skylark-domx/browser",
+  "skylark-domx/eventer",
+  "skylark-domx/noder",
+  "skylark-domx/geom",
+  "skylark-domx/query",
   "./fuelux"
 ],function(langx,browser,eventer,noder,geom,$,fuelux){
 
@@ -4326,11 +4332,11 @@ define('skylark-fuelux/spinbox',[
 
 define('skylark-fuelux/scheduler',[
   "skylark-langx/langx",
-  "skylark-utils-dom/browser",
-  "skylark-utils-dom/eventer",
-  "skylark-utils-dom/noder",
-  "skylark-utils-dom/geom",
-  "skylark-utils-dom/query",
+  "skylark-domx/browser",
+  "skylark-domx/eventer",
+  "skylark-domx/noder",
+  "skylark-domx/geom",
+  "skylark-domx/query",
   "./fuelux",
   "./combobox",
   "./datepicker",
@@ -5117,11 +5123,11 @@ define('skylark-fuelux/scheduler',[
 
 define('skylark-fuelux/search',[
   "skylark-langx/langx",
-  "skylark-utils-dom/browser",
-  "skylark-utils-dom/eventer",
-  "skylark-utils-dom/noder",
-  "skylark-utils-dom/geom",
-  "skylark-utils-dom/query",
+  "skylark-domx/browser",
+  "skylark-domx/eventer",
+  "skylark-domx/noder",
+  "skylark-domx/geom",
+  "skylark-domx/query",
   "./fuelux"
 ],function(langx,browser,eventer,noder,geom,$,fuelux){
 
@@ -5329,11 +5335,11 @@ define('skylark-fuelux/search',[
 
 define('skylark-fuelux/tree',[
   "skylark-langx/langx",
-  "skylark-utils-dom/browser",
-  "skylark-utils-dom/eventer",
-  "skylark-utils-dom/noder",
-  "skylark-utils-dom/geom",
-  "skylark-utils-dom/query",
+  "skylark-domx/browser",
+  "skylark-domx/eventer",
+  "skylark-domx/noder",
+  "skylark-domx/geom",
+  "skylark-domx/query",
   "./fuelux"
 ],function(langx,browser,eventer,noder,geom,$,fuelux){
 
@@ -6242,11 +6248,11 @@ define('skylark-fuelux/tree',[
 });
 define('skylark-fuelux/wizard',[
   "skylark-langx/langx",
-  "skylark-utils-dom/browser",
-  "skylark-utils-dom/eventer",
-  "skylark-utils-dom/noder",
-  "skylark-utils-dom/geom",
-  "skylark-utils-dom/query",
+  "skylark-domx/browser",
+  "skylark-domx/eventer",
+  "skylark-domx/noder",
+  "skylark-domx/geom",
+  "skylark-domx/query",
   "./fuelux"
 ],function(langx,browser,eventer,noder,geom,$,fuelux){
 
@@ -6693,13 +6699,13 @@ define('skylark-fuelux/wizard',[
 });
 
 define('skylark-fuelux/repeater',[
-  "skylark-utils-dom/skylark",
+  "skylark-langx/skylark",
   "skylark-langx/langx",
-  "skylark-utils-dom/browser",
-  "skylark-utils-dom/eventer",
-  "skylark-utils-dom/noder",
-  "skylark-utils-dom/geom",
-  "skylark-utils-dom/query",
+  "skylark-domx/browser",
+  "skylark-domx/eventer",
+  "skylark-domx/noder",
+  "skylark-domx/geom",
+  "skylark-domx/query",
   "./fuelux",
   "./loader",
   "./selectlist",
@@ -7610,11 +7616,11 @@ define('skylark-fuelux/repeater',[
 
 define('skylark-fuelux/repeater-list',[
   "skylark-langx/langx",
-  "skylark-utils-dom/browser",
-  "skylark-utils-dom/eventer",
-  "skylark-utils-dom/noder",
-  "skylark-utils-dom/geom",
-  "skylark-utils-dom/query",
+  "skylark-domx/browser",
+  "skylark-domx/eventer",
+  "skylark-domx/noder",
+  "skylark-domx/geom",
+  "skylark-domx/query",
   "./repeater"
 ],function(langx,browser,eventer,noder,geom,$){
 
@@ -8625,11 +8631,11 @@ define('skylark-fuelux/repeater-list',[
 
 define('skylark-fuelux/repeater-thumbnail',[
     "skylark-langx/langx",
-    "skylark-utils-dom/browser",
-    "skylark-utils-dom/eventer",
-    "skylark-utils-dom/noder",
-    "skylark-utils-dom/geom",
-    "skylark-utils-dom/query",
+    "skylark-domx/browser",
+    "skylark-domx/eventer",
+    "skylark-domx/noder",
+    "skylark-domx/geom",
+    "skylark-domx/query",
     "./repeater"
 ], function(langx, browser, eventer, noder, geom, $) {
 
@@ -8852,7 +8858,7 @@ define('skylark-fuelux/repeater-thumbnail',[
 
 });
 define('skylark-fuelux/main',[
-    "skylark-utils-dom/query",
+    "skylark-domx/query",
     "./checkbox",
     "./combobox",
     "./datepicker",
@@ -8881,3 +8887,4 @@ define('skylark-fuelux', ['skylark-fuelux/main'], function (main) { return main;
 
 
 },this);
+//# sourceMappingURL=sourcemaps/skylark-fuelux.js.map
