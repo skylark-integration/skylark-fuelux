@@ -12331,7 +12331,7 @@ define('skylark-domx-panels/Collapse',[
 
   plugins.register(Collapse);
 
-  return Collapse;
+  return panels.Collapse = Collapse;
 
 });
 
@@ -15242,6 +15242,161 @@ define('skylark-domx/noder',[
 
     return noder;
 });
+define('skylark-domx-toggles/toggles',[
+	"skylark-langx/skylark"
+],function(skylark){
+	return skylark.attach("domx.toggles",{});
+});
+define('skylark-domx-toggles/Checkbox',[
+  "skylark-langx/langx",
+  "skylark-domx/browser",
+  "skylark-domx/eventer",
+  "skylark-domx/noder",
+  "skylark-domx/geom",
+  "skylark-domx/query",
+  "skylark-domx-plugins",  
+  "./toggles"
+],function(langx,browser,eventer,noder,geom,$,fuelux){
+
+  var Checkbox = plugins.Plugin.inherit({
+    klassName: "Checkbox",
+
+    pluginName : "lark.radio",
+
+    options : {
+      ignoreVisibilityCheck: false
+    },
+
+    _construct : function(elm,options) {
+      this.overrided(elm,options);
+      var $element = this.$();
+
+      if (elm.tagName.toLowerCase() !== 'label') {
+        throw new Error('Checkbox must be initialized on the `label` that wraps the `input` element. See https://github.com/ExactTarget/fuelux/blob/master/reference/markup/checkbox.html for example of proper markup. Call `.checkbox()` on the `<label>` not the `<input>`');
+        return;
+      }
+
+      // cache elements
+      this.$label = $element;
+      this.$chk = this.$label.find('input[type="checkbox"]');
+      this.$container = $element.parent('.checkbox'); // the container div
+
+      if (!this.options.ignoreVisibilityCheck && this.$chk.css('visibility').match(/hidden|collapse/)) {
+        throw new Error('For accessibility reasons, in order for tab and space to function on checkbox, checkbox `<input />`\'s `visibility` must not be set to `hidden` or `collapse`. See https://github.com/ExactTarget/fuelux/pull/1996 for more details.');
+      }
+
+      // determine if a toggle container is specified
+      var containerSelector = this.$chk.attr('data-toggle');
+      this.$toggleContainer = $(containerSelector);
+
+      // handle internal events
+      this.$chk.on('change', langx.proxy(this.itemchecked, this));
+
+      // set default state
+      this.setInitialState();
+    },
+
+    setInitialState: function setInitialState () {
+      var $chk = this.$chk;
+
+      // get current state of input
+      var checked = $chk.prop('checked');
+      var disabled = $chk.prop('disabled');
+
+      // sync label class with input state
+      this.setCheckedState($chk, checked);
+      this.setDisabledState($chk, disabled);
+    },
+
+    setCheckedState: function setCheckedState (element, checked) {
+      var $chk = element;
+      var $lbl = this.$label;
+      var $containerToggle = this.$toggleContainer;
+
+      if (checked) {
+        $chk.prop('checked', true);
+        $lbl.addClass('checked');
+        $containerToggle.removeClass('hide hidden');
+        $lbl.trigger('checked.fu.checkbox');
+      } else {
+        $chk.prop('checked', false);
+        $lbl.removeClass('checked');
+        $containerToggle.addClass('hidden');
+        $lbl.trigger('unchecked.fu.checkbox');
+      }
+
+      $lbl.trigger('changed.fu.checkbox', checked);
+    },
+
+    setDisabledState: function (element, disabled) {
+      var $chk = $(element);
+      var $lbl = this.$label;
+
+      if (disabled) {
+        $chk.prop('disabled', true);
+        $lbl.addClass('disabled');
+        $lbl.trigger('disabled.fu.checkbox');
+      } else {
+        $chk.prop('disabled', false);
+        $lbl.removeClass('disabled');
+        $lbl.trigger('enabled.fu.checkbox');
+      }
+
+      return $chk;
+    },
+
+    itemchecked: function (evt) {
+      var $chk = $(evt.target);
+      var checked = $chk.prop('checked');
+
+      this.setCheckedState($chk, checked);
+    },
+
+    toggle: function () {
+      var checked = this.isChecked();
+
+      if (checked) {
+        this.uncheck();
+      } else {
+        this.check();
+      }
+    },
+
+    check: function () {
+      this.setCheckedState(this.$chk, true);
+    },
+
+    uncheck: function () {
+      this.setCheckedState(this.$chk, false);
+    },
+
+    isChecked: function () {
+      var checked = this.$chk.prop('checked');
+      return checked;
+    },
+
+    enable: function () {
+      this.setDisabledState(this.$chk, false);
+    },
+
+    disable: function () {
+      this.setDisabledState(this.$chk, true);
+    },
+
+    destroy: function () {
+      this.$label.remove();
+      return this.$label[0].outerHTML;
+    }
+  });
+
+
+  Checkbox.prototype.getValue = Checkbox.prototype.isChecked;
+
+  plugins.register(Checkbox);
+
+  return toggles.Checkbox = Checkbox;
+});
+
 define('skylark-fuelux/fuelux',[
   "skylark-langx/skylark",
   "skylark-langx/langx",
@@ -15324,14 +15479,11 @@ define('skylark-fuelux/fuelux',[
 });
 
 define('skylark-fuelux/checkbox',[
-  "skylark-langx/langx",
-  "skylark-domx/browser",
-  "skylark-domx/eventer",
-  "skylark-domx/noder",
-  "skylark-domx/geom",
-  "skylark-domx/query",
-  "./fuelux"
-],function(langx,browser,eventer,noder,geom,$,fuelux){
+  "skylark-domx-query",
+  "skylark-domx-plugins",
+  "skylark-domx-toggles/Checkbox",
+   "./fuelux"
+],function($,plugins,_Checkbox,fuelux){
 
 
 	/*
@@ -15344,172 +15496,15 @@ define('skylark-fuelux/checkbox',[
 
 	var old = $.fn.checkbox;
 
-	// CHECKBOX CONSTRUCTOR AND PROTOTYPE
 
-	var logError = function logError (error) {
-		if (window && window.console && window.console.error) {
-			window.console.error(error);
-		}
-	};
+	var Checkbox = fuelux.Checkbox = _Checkbox.inherit({
+	    klassName: "Checkbox",
 
-
-	var Checkbox = fuelux.Checkbox = fuelux.WidgetBase.inherit({
-		klassName: "Checkbox",
-
-		init : function(element,options) {
-			this.options = langx.mixin({}, $.fn.checkbox.defaults, options);
-			var $element = $(element);
-
-			if (element.tagName.toLowerCase() !== 'label') {
-				logError('Checkbox must be initialized on the `label` that wraps the `input` element. See https://github.com/ExactTarget/fuelux/blob/master/reference/markup/checkbox.html for example of proper markup. Call `.checkbox()` on the `<label>` not the `<input>`');
-				return;
-			}
-
-			// cache elements
-			this.$label = $element;
-			this.$chk = this.$label.find('input[type="checkbox"]');
-			this.$container = $element.parent('.checkbox'); // the container div
-
-			if (!this.options.ignoreVisibilityCheck && this.$chk.css('visibility').match(/hidden|collapse/)) {
-				logError('For accessibility reasons, in order for tab and space to function on checkbox, checkbox `<input />`\'s `visibility` must not be set to `hidden` or `collapse`. See https://github.com/ExactTarget/fuelux/pull/1996 for more details.');
-			}
-
-			// determine if a toggle container is specified
-			var containerSelector = this.$chk.attr('data-toggle');
-			this.$toggleContainer = $(containerSelector);
-
-			// handle internal events
-			this.$chk.on('change', langx.proxy(this.itemchecked, this));
-
-			// set default state
-			this.setInitialState();
-		},
-
-		setInitialState: function setInitialState () {
-			var $chk = this.$chk;
-
-			// get current state of input
-			var checked = $chk.prop('checked');
-			var disabled = $chk.prop('disabled');
-
-			// sync label class with input state
-			this.setCheckedState($chk, checked);
-			this.setDisabledState($chk, disabled);
-		},
-
-		setCheckedState: function setCheckedState (element, checked) {
-			var $chk = element;
-			var $lbl = this.$label;
-			var $containerToggle = this.$toggleContainer;
-
-			if (checked) {
-				$chk.prop('checked', true);
-				$lbl.addClass('checked');
-				$containerToggle.removeClass('hide hidden');
-				$lbl.trigger('checked.fu.checkbox');
-			} else {
-				$chk.prop('checked', false);
-				$lbl.removeClass('checked');
-				$containerToggle.addClass('hidden');
-				$lbl.trigger('unchecked.fu.checkbox');
-			}
-
-			$lbl.trigger('changed.fu.checkbox', checked);
-		},
-
-		setDisabledState: function setDisabledState (element, disabled) {
-			var $chk = $(element);
-			var $lbl = this.$label;
-
-			if (disabled) {
-				$chk.prop('disabled', true);
-				$lbl.addClass('disabled');
-				$lbl.trigger('disabled.fu.checkbox');
-			} else {
-				$chk.prop('disabled', false);
-				$lbl.removeClass('disabled');
-				$lbl.trigger('enabled.fu.checkbox');
-			}
-
-			return $chk;
-		},
-
-		itemchecked: function itemchecked (evt) {
-			var $chk = $(evt.target);
-			var checked = $chk.prop('checked');
-
-			this.setCheckedState($chk, checked);
-		},
-
-		toggle: function toggle () {
-			var checked = this.isChecked();
-
-			if (checked) {
-				this.uncheck();
-			} else {
-				this.check();
-			}
-		},
-
-		check: function check () {
-			this.setCheckedState(this.$chk, true);
-		},
-
-		uncheck: function uncheck () {
-			this.setCheckedState(this.$chk, false);
-		},
-
-		isChecked: function isChecked () {
-			var checked = this.$chk.prop('checked');
-			return checked;
-		},
-
-		enable: function enable () {
-			this.setDisabledState(this.$chk, false);
-		},
-
-		disable: function disable () {
-			this.setDisabledState(this.$chk, true);
-		},
-
-		destroy: function destroy () {
-			this.$label.remove();
-			return this.$label[0].outerHTML;
-		}
+	    pluginName : "fuelux.checkbox"
 	});
 
 
-
-	Checkbox.prototype.getValue = Checkbox.prototype.isChecked;
-
-	// CHECKBOX PLUGIN DEFINITION
-
-	$.fn.checkbox = function checkbox (option) {
-		var args = Array.prototype.slice.call(arguments, 1);
-		var methodReturn;
-
-		var $set = this.each(function applyData () {
-			var $this = $(this);
-			var data = $this.data('fu.checkbox');
-			var options = typeof option === 'object' && option;
-
-			if (!data) {
-				$this.data('fu.checkbox', (data = new Checkbox(this, options)));
-			}
-
-			if (typeof option === 'string') {
-				methodReturn = data[option].apply(data, args);
-			}
-		});
-
-		return (methodReturn === undefined) ? $set : methodReturn;
-	};
-
-	$.fn.checkbox.defaults = {
-		ignoreVisibilityCheck: false
-	};
-
-	$.fn.checkbox.Constructor = Checkbox;
+    plugins.register(Checkbox,"checkbox");
 
 	$.fn.checkbox.noConflict = function noConflict () {
 		$.fn.checkbox = old;
@@ -15553,7 +15548,7 @@ define('skylark-fuelux/combobox',[
 
 
 	/*
-	 * Fuel UX Checkbox
+	 * Fuel UX Combobox
 	 * https://github.com/ExactTarget/fuelux
 	 *
 	 * Copyright (c) 2014 ExactTarget
@@ -15939,7 +15934,7 @@ define('skylark-fuelux/datepicker',[
 
 
     /*
-     * Fuel UX Checkbox
+     * Fuel UX Datepicker
      * https://github.com/ExactTarget/fuelux
      *
      * Copyright (c) 2014 ExactTarget
@@ -16887,7 +16882,7 @@ define('skylark-fuelux/infinite-scroll',[
 ],function(langx,browser,eventer,noder,geom,$){
 
 	/*
-	 * Fuel UX Checkbox
+	 * Fuel UX infinitescroll
 	 * https://github.com/ExactTarget/fuelux
 	 *
 	 * Copyright (c) 2014 ExactTarget
@@ -17062,7 +17057,7 @@ define('skylark-fuelux/loader',[
 
 
 	/*
-	 * Fuel UX Checkbox
+	 * Fuel UX Loader
 	 * https://github.com/ExactTarget/fuelux
 	 *
 	 * Copyright (c) 2014 ExactTarget
@@ -17165,7 +17160,7 @@ define('skylark-fuelux/picker',[
 
 
 	/*
-	 * Fuel UX Checkbox
+	 * Fuel UX Picker
 	 * https://github.com/ExactTarget/fuelux
 	 *
 	 * Copyright (c) 2014 ExactTarget
@@ -17449,7 +17444,7 @@ define('skylark-fuelux/pillbox',[
 ],function(langx,browser,eventer,noder,geom,$,fuelux){
 
 	/*
-	 * Fuel UX Checkbox
+	 * Fuel UX Pillbox
 	 * https://github.com/ExactTarget/fuelux
 	 *
 	 * Copyright (c) 2014 ExactTarget
@@ -18217,7 +18212,7 @@ define('skylark-fuelux/placard',[
 
 
 	/*
-	 * Fuel UX Checkbox
+	 * Fuel UX Placard
 	 * https://github.com/ExactTarget/fuelux
 	 *
 	 * Copyright (c) 2014 ExactTarget
@@ -18555,19 +18550,171 @@ define('skylark-fuelux/placard',[
 
 });
 
-define('skylark-fuelux/radio',[
+define('skylark-domx-toggles/Radio',[
   "skylark-langx/langx",
   "skylark-domx/browser",
   "skylark-domx/eventer",
   "skylark-domx/noder",
   "skylark-domx/geom",
   "skylark-domx/query",
-  "./fuelux"
+  "skylark-domx-plugins",  
+  "./toggles"
 ],function(langx,browser,eventer,noder,geom,$,fuelux){
 
 
+  var Radio = plugins.Plugin.inherit({
+    klassName: "Radio",
+
+    pluginName : "domx.radio",
+
+    options : {
+      ignoreVisibilityCheck: false
+    },
+
+    _construct : function(elm,options) {
+      this.overrided(elm,options);
+      if (elm.tagName.toLowerCase() !== 'label') {
+        throw new Error('Radio must be initialized on the `label` that wraps the `input` element. See https://github.com/ExactTarget/fuelux/blob/master/reference/markup/radio.html for example of proper markup. Call `.radio()` on the `<label>` not the `<input>`');
+      }
+
+      // cache elements
+      this.$label = this.$();
+      this.$radio = this.$label.find('input[type="radio"]');
+      this.groupName = this.$radio.attr('name'); // don't cache group itself since items can be added programmatically
+
+      if (!this.options.ignoreVisibilityCheck && this.$radio.css('visibility').match(/hidden|collapse/)) {
+        throw new Error('For accessibility reasons, in order for tab and space to function on radio, `visibility` must not be set to `hidden` or `collapse`. See https://github.com/ExactTarget/fuelux/pull/1996 for more details.');
+      }
+
+      // determine if a toggle container is specified
+      var containerSelector = this.$radio.attr('data-toggle');
+      this.$toggleContainer = $(containerSelector);
+
+      // handle internal events
+      this.$radio.on('change', langx.proxy(this.itemchecked, this));
+
+      // set default state
+      this.setInitialState();
+    },
+
+    setInitialState: function setInitialState () {
+      var $radio = this.$radio;
+
+      // get current state of input
+      var checked = $radio.prop('checked');
+      var disabled = $radio.prop('disabled');
+
+      // sync label class with input state
+      this.setCheckedState($radio, checked);
+      this.setDisabledState($radio, disabled);
+    },
+
+    resetGroup: function resetGroup () {
+      var $radios = $('input[name="' + this.groupName + '"]');
+      $radios.each(function resetRadio (index, item) {
+        var $radio = $(item);
+        var $lbl = $radio.parent();
+        var containerSelector = $radio.attr('data-toggle');
+        var $containerToggle = $(containerSelector);
+
+
+        $lbl.removeClass('checked');
+        $containerToggle.addClass('hidden');
+      });
+    },
+
+    setCheckedState: function setCheckedState (element, checked) {
+      var $radio = element;
+      var $lbl = $radio.parent();
+      var containerSelector = $radio.attr('data-toggle');
+      var $containerToggle = $(containerSelector);
+
+      if (checked) {
+        // reset all items in group
+        this.resetGroup();
+
+        $radio.prop('checked', true);
+        $lbl.addClass('checked');
+        $containerToggle.removeClass('hide hidden');
+        $lbl.trigger('checked.fu.radio');
+      } else {
+        $radio.prop('checked', false);
+        $lbl.removeClass('checked');
+        $containerToggle.addClass('hidden');
+        $lbl.trigger('unchecked.fu.radio');
+      }
+
+      $lbl.trigger('changed.fu.radio', checked);
+    },
+
+    setDisabledState: function setDisabledState (element, disabled) {
+      var $radio = $(element);
+      var $lbl = this.$label;
+
+      if (disabled) {
+        $radio.prop('disabled', true);
+        $lbl.addClass('disabled');
+        $lbl.trigger('disabled.fu.radio');
+      } else {
+        $radio.prop('disabled', false);
+        $lbl.removeClass('disabled');
+        $lbl.trigger('enabled.fu.radio');
+      }
+
+      return $radio;
+    },
+
+    itemchecked: function itemchecked (evt) {
+      var $radio = $(evt.target);
+      this.setCheckedState($radio, true);
+    },
+
+    check: function check () {
+      this.setCheckedState(this.$radio, true);
+    },
+
+    uncheck: function uncheck () {
+      this.setCheckedState(this.$radio, false);
+    },
+
+    isChecked: function isChecked () {
+      var checked = this.$radio.prop('checked');
+      return checked;
+    },
+
+    enable: function enable () {
+      this.setDisabledState(this.$radio, false);
+    },
+
+    disable: function disable () {
+      this.setDisabledState(this.$radio, true);
+    },
+
+    destroy: function destroy () {
+      this.$label.remove();
+      return this.$label[0].outerHTML;
+    }
+
+  });
+
+
+  Radio.prototype.getValue = Radio.prototype.isChecked;
+
+  plugins.register(Radio);
+
+  return toggles.Radio = Radio;
+});
+
+define('skylark-fuelux/radio',[
+  "skylark-domx-query",
+  "skylark-domx-plugins",
+  "skylark-domx-toggles/Radio",
+   "./fuelux"
+],function($,plugins,_Radio,fuelux){
+
+
 	/*
-	 * Fuel UX Checkbox
+	 * Fuel UX Radio
 	 * https://github.com/ExactTarget/fuelux
 	 *
 	 * Copyright (c) 2014 ExactTarget
@@ -18576,176 +18723,15 @@ define('skylark-fuelux/radio',[
 
 	var old = $.fn.radio;
 
-	// RADIO CONSTRUCTOR AND PROTOTYPE
-	var logError = function logError (error) {
-		if (window && window.console && window.console.error) {
-			window.console.error(error);
-		}
-	};
+	var Radio = fuelux.Radio = _Radio.inherit({
+	    klassName: "Radio",
 
-	var Radio = fuelux.Radio = fuelux.WidgetBase.inherit({
-		klassName: "Radio",
-
-		init : function(element,options) {
-			this.options = langx.mixin({}, $.fn.radio.defaults, options);
-
-			if (element.tagName.toLowerCase() !== 'label') {
-				logError('Radio must be initialized on the `label` that wraps the `input` element. See https://github.com/ExactTarget/fuelux/blob/master/reference/markup/radio.html for example of proper markup. Call `.radio()` on the `<label>` not the `<input>`');
-				return;
-			}
-
-			// cache elements
-			this.$label = $(element);
-			this.$radio = this.$label.find('input[type="radio"]');
-			this.groupName = this.$radio.attr('name'); // don't cache group itself since items can be added programmatically
-
-			if (!this.options.ignoreVisibilityCheck && this.$radio.css('visibility').match(/hidden|collapse/)) {
-				logError('For accessibility reasons, in order for tab and space to function on radio, `visibility` must not be set to `hidden` or `collapse`. See https://github.com/ExactTarget/fuelux/pull/1996 for more details.');
-			}
-
-			// determine if a toggle container is specified
-			var containerSelector = this.$radio.attr('data-toggle');
-			this.$toggleContainer = $(containerSelector);
-
-			// handle internal events
-			this.$radio.on('change', langx.proxy(this.itemchecked, this));
-
-			// set default state
-			this.setInitialState();
-		},
-
-		setInitialState: function setInitialState () {
-			var $radio = this.$radio;
-
-			// get current state of input
-			var checked = $radio.prop('checked');
-			var disabled = $radio.prop('disabled');
-
-			// sync label class with input state
-			this.setCheckedState($radio, checked);
-			this.setDisabledState($radio, disabled);
-		},
-
-		resetGroup: function resetGroup () {
-			var $radios = $('input[name="' + this.groupName + '"]');
-			$radios.each(function resetRadio (index, item) {
-				var $radio = $(item);
-				var $lbl = $radio.parent();
-				var containerSelector = $radio.attr('data-toggle');
-				var $containerToggle = $(containerSelector);
-
-
-				$lbl.removeClass('checked');
-				$containerToggle.addClass('hidden');
-			});
-		},
-
-		setCheckedState: function setCheckedState (element, checked) {
-			var $radio = element;
-			var $lbl = $radio.parent();
-			var containerSelector = $radio.attr('data-toggle');
-			var $containerToggle = $(containerSelector);
-
-			if (checked) {
-				// reset all items in group
-				this.resetGroup();
-
-				$radio.prop('checked', true);
-				$lbl.addClass('checked');
-				$containerToggle.removeClass('hide hidden');
-				$lbl.trigger('checked.fu.radio');
-			} else {
-				$radio.prop('checked', false);
-				$lbl.removeClass('checked');
-				$containerToggle.addClass('hidden');
-				$lbl.trigger('unchecked.fu.radio');
-			}
-
-			$lbl.trigger('changed.fu.radio', checked);
-		},
-
-		setDisabledState: function setDisabledState (element, disabled) {
-			var $radio = $(element);
-			var $lbl = this.$label;
-
-			if (disabled) {
-				$radio.prop('disabled', true);
-				$lbl.addClass('disabled');
-				$lbl.trigger('disabled.fu.radio');
-			} else {
-				$radio.prop('disabled', false);
-				$lbl.removeClass('disabled');
-				$lbl.trigger('enabled.fu.radio');
-			}
-
-			return $radio;
-		},
-
-		itemchecked: function itemchecked (evt) {
-			var $radio = $(evt.target);
-			this.setCheckedState($radio, true);
-		},
-
-		check: function check () {
-			this.setCheckedState(this.$radio, true);
-		},
-
-		uncheck: function uncheck () {
-			this.setCheckedState(this.$radio, false);
-		},
-
-		isChecked: function isChecked () {
-			var checked = this.$radio.prop('checked');
-			return checked;
-		},
-
-		enable: function enable () {
-			this.setDisabledState(this.$radio, false);
-		},
-
-		disable: function disable () {
-			this.setDisabledState(this.$radio, true);
-		},
-
-		destroy: function destroy () {
-			this.$label.remove();
-			return this.$label[0].outerHTML;
-		}
-
+	    pluginName : "fuelux.radio"
 	});
 
 
-	Radio.prototype.getValue = Radio.prototype.isChecked;
-
-	// RADIO PLUGIN DEFINITION
-
-	$.fn.radio = function radio (option) {
-		var args = Array.prototype.slice.call(arguments, 1);
-		var methodReturn;
-
-		var $set = this.each(function applyData () {
-			var $this = $(this);
-			var data = $this.data('fu.radio');
-			var options = typeof option === 'object' && option;
-
-			if (!data) {
-				$this.data('fu.radio', (data = new Radio(this, options)));
-			}
-
-			if (typeof option === 'string') {
-				methodReturn = data[option].apply(data, args);
-			}
-		});
-
-		return (methodReturn === undefined) ? $set : methodReturn;
-	};
-
-	$.fn.radio.defaults = {
-		ignoreVisibilityCheck: false
-	};
-
-	$.fn.radio.Constructor = Radio;
-
+    plugins.register(Radio,"radio");
+    
 	$.fn.radio.noConflict = function noConflict () {
 		$.fn.radio = old;
 		return this;
@@ -18775,35 +18761,35 @@ define('skylark-fuelux/radio',[
 	return $.fn.radio;
 });
 
-define('skylark-fuelux/selectlist',[
+define('skylark-domx-popups/Selectlist',[
   "skylark-langx/langx",
-  "skylark-domx/browser",
-  "skylark-domx/eventer",
-  "skylark-domx/noder",
-  "skylark-domx/geom",
-  "skylark-domx/query",
-  "./fuelux",
-  "skylark-bootstrap3/dropdown"
-],function(langx,browser,eventer,noder,geom,$,fuelux){
+  "skylark-domx-browser",
+  "skylark-domx-eventer",
+  "skylark-domx-noder",
+  "skylark-domx-geom",
+  "skylark-domx-query",
+  "skylark-domx-plugins",
+  "./popups",
+  "./Dropdown"
+],function(langx,browser,eventer,noder,geom,$,plugins,popups,Dropdown){
 
 
-	/*
-	 * Fuel UX Checkbox
-	 * https://github.com/ExactTarget/fuelux
-	 *
-	 * Copyright (c) 2014 ExactTarget
-	 * Licensed under the BSD New license.
-	 */
-
-	var old = $.fn.selectlist;
 	// SELECT CONSTRUCTOR AND PROTOTYPE
 
-	var Selectlist = fuelux.Selectlist = fuelux.WidgetBase.inherit({
-		klassName: "Selectlist",
+	var SelectList = plugins.Plugin.inherit({
+		klassName: "SelectList",
 
-		init : function(element,options) {
-			this.$element = $(element);
-			this.options = langx.mixin({}, $.fn.selectlist.defaults, options);
+		pluginName : "domx.selectlist",
+	
+		options : {
+			emptyLabelHTML: '<li data-value=""><a href="#">No items</a></li>'
+
+		},
+
+    	_construct : function(elm,options) {
+      		this.overrided(elm,options);
+      		this.$element = $(this._elm);
+			//this.options = langx.mixin({}, $.fn.selectlist.defaults, options);
 
 
 			this.$button = this.$element.find('.btn.dropdown-toggle');
@@ -18811,12 +18797,12 @@ define('skylark-fuelux/selectlist',[
 			this.$label = this.$element.find('.selected-label');
 			this.$dropdownMenu = this.$element.find('.dropdown-menu');
 
-			this.$button.dropdown();
+			this.$button.plugin("domx.dropdown");
 
-			this.$element.on('click.fu.selectlist', '.dropdown-menu a', langx.proxy(this.itemClicked, this));
+			this.$element.on('click.selectlist', '.dropdown-menu a', langx.proxy(this.itemClicked, this));
 			this.setDefaultSelection();
 
-			if (options.resize === 'auto' || this.$element.attr('data-resize') === 'auto') {
+			if (this.options.resize === 'auto' || this.$element.attr('data-resize') === 'auto') {
 				this.resize();
 			}
 
@@ -18828,10 +18814,10 @@ define('skylark-fuelux/selectlist',[
 			}
 
 			// support jumping focus to first letter in dropdown when key is pressed
-			this.$element.on('shown.bs.dropdown', function () {
+			this.$element.on('shown.dropdown', function () {
 					var $this = $(this);
 					// attach key listener when dropdown is shown
-					$(document).on('keypress.fu.selectlist', function(e){
+					$(document).on('keypress.selectlist', function(e){
 
 						// get the key that was pressed
 						var key = String.fromCharCode(e.which);
@@ -18847,12 +18833,12 @@ define('skylark-fuelux/selectlist',[
 			});
 
 			// unbind key event when dropdown is hidden
-			this.$element.on('hide.bs.dropdown', function () {
-					$(document).off('keypress.fu.selectlist');
+			this.$element.on('hide.dropdown', function () {
+					$(document).off('keypress.selectlist');
 			});
 		},
 
-		destroy: function () {
+		_destroy: function () {
 			this.$element.remove();
 			// any external bindings
 			// [none]
@@ -18881,7 +18867,7 @@ define('skylark-fuelux/selectlist',[
 		},
 
 		itemClicked: function (e) {
-			this.$element.trigger('clicked.fu.selectlist', this.$selectedItem);
+			this.$element.trigger('clicked.selectlist', this.$selectedItem);
 
 			e.preventDefault();
 			// ignore if a disabled item is clicked
@@ -18904,7 +18890,7 @@ define('skylark-fuelux/selectlist',[
 			// to onchange event
 			var data = this.selectedItem();
 			// trigger changed event
-			this.$element.trigger('changed.fu.selectlist', data);
+			this.$element.trigger('changed.selectlist', data);
 		},
 
 		resize: function () {
@@ -18999,35 +18985,42 @@ define('skylark-fuelux/selectlist',[
 	});	
 
 
-	Selectlist.prototype.getValue = Selectlist.prototype.selectedItem;
+	SelectList.prototype.getValue = SelectList.prototype.selectedItem;
 
 
-	// SELECT PLUGIN DEFINITION
+    plugins.register(SelectList);
 
-	$.fn.selectlist = function (option) {
-		var args = Array.prototype.slice.call(arguments, 1);
-		var methodReturn;
+	return popups.SelectList = SelectList;
+});
 
-		var $set = this.each(function () {
-			var $this = $(this);
-			var data = $this.data('fu.selectlist');
-			var options = typeof option === 'object' && option;
+define('skylark-fuelux/selectlist',[
+  "skylark-domx-query",
+  "skylark-domx-plugins",
+  "skylark-domx-popups/Selectlist",
+   "./fuelux"
+],function($,plugins,_Selectlist,fuelux){
 
-			if (!data) {
-				$this.data('fu.selectlist', (data = new Selectlist(this, options)));
-			}
 
-			if (typeof option === 'string') {
-				methodReturn = data[option].apply(data, args);
-			}
-		});
 
-		return (methodReturn === undefined) ? $set : methodReturn;
-	};
+	/*
+	 * Fuel UX Selectlist
+	 * https://github.com/ExactTarget/fuelux
+	 *
+	 * Copyright (c) 2014 ExactTarget
+	 * Licensed under the BSD New license.
+	 */
 
-	$.fn.selectlist.defaults = {
-		emptyLabelHTML: '<li data-value=""><a href="#">No items</a></li>'
-	};
+	var old = $.fn.selectlist;
+	
+	var Selectlist = fuelux.Selectlist = _Selectlist.inherit({
+	    klassName: "Selectlist",
+
+	    pluginName : "fuelux.selectlist"
+	});
+
+
+    plugins.register(Selectlist,"selectlist");
+
 
 	$.fn.selectlist.Constructor = Selectlist;
 
@@ -19074,7 +19067,7 @@ define('skylark-fuelux/spinbox',[
 
 
 	/*
-	 * Fuel UX Checkbox
+	 * Fuel UX Spinbox
 	 * https://github.com/ExactTarget/fuelux
 	 *
 	 * Copyright (c) 2014 ExactTarget
@@ -19506,7 +19499,7 @@ define('skylark-fuelux/scheduler',[
 ],function(langx,browser,eventer,noder,geom,$,fuelux){
 
 	/*
-	 * Fuel UX Checkbox
+	 * Fuel UX Scheduler
 	 * https://github.com/ExactTarget/fuelux
 	 *
 	 * Copyright (c) 2014 ExactTarget
@@ -20294,7 +20287,7 @@ define('skylark-fuelux/search',[
 
 
 	/*
-	 * Fuel UX Checkbox
+	 * Fuel UX Search
 	 * https://github.com/ExactTarget/fuelux
 	 *
 	 * Copyright (c) 2014 ExactTarget
@@ -20506,7 +20499,7 @@ define('skylark-fuelux/tree',[
 
 
 	/*
-	 * Fuel UX Checkbox
+	 * Fuel UX Tree
 	 * https://github.com/ExactTarget/fuelux
 	 *
 	 * Copyright (c) 2014 ExactTarget
@@ -21407,34 +21400,34 @@ define('skylark-fuelux/tree',[
 
 	return $.fn.tree;
 });
-define('skylark-fuelux/wizard',[
+define('skylark-domx-panels/Wizard',[
   "skylark-langx/langx",
-  "skylark-domx/browser",
-  "skylark-domx/eventer",
-  "skylark-domx/noder",
-  "skylark-domx/geom",
-  "skylark-domx/query",
-  "./fuelux"
-],function(langx,browser,eventer,noder,geom,$,fuelux){
+  "skylark-domx-browser",
+  "skylark-domx-eventer",
+  "skylark-domx-noder",
+  "skylark-domx-geom",
+  "skylark-domx-query",
+  "skylark-domx-plugins",
+  "./panels"
+],function(langx,browser,eventer,noder,geom,$,plugins,panels){
 
-	/*
-	 * Fuel UX Checkbox
-	 * https://github.com/ExactTarget/fuelux
-	 *
-	 * Copyright (c) 2014 ExactTarget
-	 * Licensed under the BSD New license.
-	 */
 
-	var old = $.fn.wizard;
-
-	// WIZARD CONSTRUCTOR AND PROTOTYPE
-
-	var Wizard = fuelux.Wizard = fuelux.WidgetBase.inherit({
+	var Wizard = plugins.Plugin.inherit({
 		klassName: "Wizard",
 
-		init : function(element,options) {
-			this.$element = $(element);
-			this.options = langx.mixin({}, $.fn.wizard.defaults, options);
+	    pluginName : "domx.wizard",
+
+	    options : {
+			disablePreviousStep: false,
+			selectedItem: {
+				step: -1
+			}//-1 means it will attempt to look for "active" class in order to set the step
+	    },
+
+	    _construct : function(elm,options) {
+		    this.overrided(elm,options);
+
+			this.$element = this.$();
 			this.options.disablePreviousStep = (this.$element.attr('data-restrict') === 'previous') ? true : this.options.disablePreviousStep;
 			this.currentStep = this.options.selectedItem.step;
 			this.numSteps = this.$element.find('.steps li').length;
@@ -21796,38 +21789,39 @@ define('skylark-fuelux/wizard',[
 
 	});
 
+   plugins.register(Wizard);
 
-	// WIZARD PLUGIN DEFINITION
+	return panels.Wizard = Wizard;
 
-	$.fn.wizard = function (option) {
-		var args = Array.prototype.slice.call(arguments, 1);
-		var methodReturn;
+});
 
-		var $set = this.each(function () {
-			var $this = $(this);
-			var data = $this.data('fu.wizard');
-			var options = typeof option === 'object' && option;
+define('skylark-fuelux/wizard',[
+  "skylark-domx-query",
+  "skylark-domx-plugins",
+  "skylark-domx-panels/Wizard",
+   "./fuelux"
+],function($,plugins,_Wizard,fuelux){
 
-			if (!data) {
-				$this.data('fu.wizard', (data = new Wizard(this, options)));
-			}
+	/*
+	 * Fuel UX Checkbox
+	 * https://github.com/ExactTarget/fuelux
+	 *
+	 * Copyright (c) 2014 ExactTarget
+	 * Licensed under the BSD New license.
+	 */
 
-			if (typeof option === 'string') {
-				methodReturn = data[option].apply(data, args);
-			}
-		});
+	var old = $.fn.wizard;
 
-		return (methodReturn === undefined) ? $set : methodReturn;
-	};
 
-	$.fn.wizard.defaults = {
-		disablePreviousStep: false,
-		selectedItem: {
-			step: -1
-		}//-1 means it will attempt to look for "active" class in order to set the step
-	};
+	var Wizard = fuelux.Wizard = _Wizard.inherit({
+	    klassName: "Checkbox",
 
-	$.fn.wizard.Constructor = Wizard;
+	    pluginName : "fuelux.wizard"
+	});
+
+
+    plugins.register(Wizard,"wizard");
+    
 
 	$.fn.wizard.noConflict = function () {
 		$.fn.wizard = old;
@@ -23801,7 +23795,7 @@ define('skylark-fuelux/repeater-thumbnail',[
 ], function(langx, browser, eventer, noder, geom, $) {
 
     /*
-     * Fuel UX Checkbox
+     * Fuel UX Repeater
      * https://github.com/ExactTarget/fuelux
      *
      * Copyright (c) 2014 ExactTarget

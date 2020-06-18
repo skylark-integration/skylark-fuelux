@@ -14,7 +14,7 @@ define([
 ],function(langx,browser,eventer,noder,geom,$,fuelux){
 
 	/*
-	 * Fuel UX Checkbox
+	 * Fuel UX Scheduler
 	 * https://github.com/ExactTarget/fuelux
 	 *
 	 * Copyright (c) 2014 ExactTarget

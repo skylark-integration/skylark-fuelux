@@ -11,7 +11,7 @@ define([
 
 
     /*
-     * Fuel UX Checkbox
+     * Fuel UX Datepicker
      * https://github.com/ExactTarget/fuelux
      *
      * Copyright (c) 2014 ExactTarget

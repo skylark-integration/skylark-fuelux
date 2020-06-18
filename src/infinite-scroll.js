@@ -8,7 +8,7 @@ define([
 ],function(langx,browser,eventer,noder,geom,$){
 
 	/*
-	 * Fuel UX Checkbox
+	 * Fuel UX infinitescroll
 	 * https://github.com/ExactTarget/fuelux
 	 *
 	 * Copyright (c) 2014 ExactTarget

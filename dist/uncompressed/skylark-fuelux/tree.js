@@ -10,7 +10,7 @@ define([
 
 
 	/*
-	 * Fuel UX Checkbox
+	 * Fuel UX Tree
 	 * https://github.com/ExactTarget/fuelux
 	 *
 	 * Copyright (c) 2014 ExactTarget

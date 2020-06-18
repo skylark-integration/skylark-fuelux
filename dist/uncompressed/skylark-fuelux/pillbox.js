@@ -10,7 +10,7 @@ define([
 ],function(langx,browser,eventer,noder,geom,$,fuelux){
 
 	/*
-	 * Fuel UX Checkbox
+	 * Fuel UX Pillbox
 	 * https://github.com/ExactTarget/fuelux
 	 *
 	 * Copyright (c) 2014 ExactTarget
