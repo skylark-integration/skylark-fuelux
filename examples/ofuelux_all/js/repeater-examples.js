@@ -7,7 +7,7 @@
 
 define([
 	"skylark-langx/langx",
-	"skylark-utils-dom/query",
+	"skylark-domx/query",
 	"underscore",
 	"./data/pokemon",
 	"./data/colors"

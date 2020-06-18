@@ -6,7 +6,7 @@
  */
 
 define([
-	"skylark-utils-dom/query",
+	"skylark-domx/query",
 	"skylark-bootstrap3/affix",
 	"skylark-bootstrap3/scrollspy",
 	"./repeater-examples",

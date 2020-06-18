@@ -1,6 +1,6 @@
 define([
-    "skylark-utils-dom/query",
-    "skylark-utils-dom/eventer"
+    "skylark-domx/query",
+    "skylark-domx/eventer"
 ],function($,eventer){
     eventer.ready(function() {
     var COPY_PROMPT_TEXT = 'copy';
