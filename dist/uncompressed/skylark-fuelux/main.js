@@ -18,9 +18,7 @@ define([
     "./tree",
     "./wizard",
 
-    "./repeater",
-    "./repeater-list",
-    "./repeater-thumbnail"
+    "./repeater"
 
 ], function($) {
     return $;
