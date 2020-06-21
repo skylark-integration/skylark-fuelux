@@ -11239,7 +11239,7 @@ define('skylark-domx-spy/Affix',[
   // AFFIX CLASS DEFINITION
   // ======================
 
-  var Affix = spy.Affix = plugins.Plugin.inherit({
+  var Affix = plugins.Plugin.inherit({
         klassName: "Affix",
 
         pluginName : "domx.affix",
@@ -12079,78 +12079,19 @@ define('skylark-bootstrap3/carousel',[
     return Carousel;
 
 });
-define('skylark-domx-panels/panels',[
-  "skylark-langx/skylark",
-  "skylark-langx/langx",
-  "skylark-domx-browser",
-  "skylark-domx-eventer",
-  "skylark-domx-noder",
-  "skylark-domx-geom",
-  "skylark-domx-query"
-],function(skylark,langx,browser,eventer,noder,geom,$){
-	var panels = {};
-
-	var CONST = {
-		BACKSPACE_KEYCODE: 8,
-		COMMA_KEYCODE: 188, // `,` & `<`
-		DELETE_KEYCODE: 46,
-		DOWN_ARROW_KEYCODE: 40,
-		ENTER_KEYCODE: 13,
-		TAB_KEYCODE: 9,
-		UP_ARROW_KEYCODE: 38
-	};
-
-	var isShiftHeld = function isShiftHeld (e) { return e.shiftKey === true; };
-
-	var isKey = function isKey (keyCode) {
-		return function compareKeycodes (e) {
-			return e.keyCode === keyCode;
-		};
-	};
-
-	var isBackspaceKey = isKey(CONST.BACKSPACE_KEYCODE);
-	var isDeleteKey = isKey(CONST.DELETE_KEYCODE);
-	var isTabKey = isKey(CONST.TAB_KEYCODE);
-	var isUpArrow = isKey(CONST.UP_ARROW_KEYCODE);
-	var isDownArrow = isKey(CONST.DOWN_ARROW_KEYCODE);
-
-	var ENCODED_REGEX = /&[^\s]*;/;
-	/*
-	 * to prevent double encoding decodes content in loop until content is encoding free
-	 */
-	var cleanInput = function cleanInput (questionableMarkup) {
-		// check for encoding and decode
-		while (ENCODED_REGEX.test(questionableMarkup)) {
-			questionableMarkup = $('<i>').html(questionableMarkup).text();
-		}
-
-		// string completely decoded now encode it
-		return $('<i>').text(questionableMarkup).html();
-	};
-
-	langx.mixin(panels, {
-		CONST: CONST,
-		cleanInput: cleanInput,
-		isBackspaceKey: isBackspaceKey,
-		isDeleteKey: isDeleteKey,
-		isShiftHeld: isShiftHeld,
-		isTabKey: isTabKey,
-		isUpArrow: isUpArrow,
-		isDownArrow: isDownArrow
-	});
-
-	return skylark.attach("domx.panels",panels);
-
+define('skylark-domx-toggles/toggles',[
+	"skylark-langx/skylark"
+],function(skylark){
+	return skylark.attach("domx.toggles",{});
 });
-
-define('skylark-domx-panels/Collapse',[
+define('skylark-domx-toggles/Collapsable',[
     "skylark-langx/langx",
     "skylark-domx-browser",
     "skylark-domx-eventer",
     "skylark-domx-query",
     "skylark-domx-plugins",
-    "./panels"
-], function(langx, browser, eventer,  $, plugins, panels) {
+    "./toggles"
+], function(langx, browser, eventer,  $, plugins, toggles) {
 
 
   'use strict';
@@ -12158,10 +12099,10 @@ define('skylark-domx-panels/Collapse',[
   // COLLAPSE PUBLIC CLASS DEFINITION
   // ================================
 
-  var Collapse =  plugins.Plugin.inherit({
-    klassName: "Collapse",
+  var Collapsable =  plugins.Plugin.inherit({
+    klassName: "Collapsable",
 
-    pluginName : "domx.collapse",
+    pluginName : "domx.toggles.collapsable",
 
     options : {
       toggle: true
@@ -12197,7 +12138,7 @@ define('skylark-domx-panels/Collapse',[
       }
 
       //var activesData;
-      //var actives = this.$parent && this.$parent.children('.panel').children('.in, .collapsing')
+      //var actives = this.$parent && this.$parent.children('.collapsable').children('.in, .collapsing')
 
       //if (actives && actives.length) {
       //  activesData = actives.data('collapse')
@@ -12244,7 +12185,7 @@ define('skylark-domx-panels/Collapse',[
 
       this.$element
         .one('transitionEnd', langx.proxy(complete, this))
-        .emulateTransitionEnd(Collapse.TRANSITION_DURATION)[dimension](this.$element[0][scrollSize]);
+        .emulateTransitionEnd(Collapsable.TRANSITION_DURATION)[dimension](this.$element[0][scrollSize]);
     },
 
     hide : function () {
@@ -12288,7 +12229,7 @@ define('skylark-domx-panels/Collapse',[
       this.$element
         [dimension](0)
         .one('transitionEnd', langx.proxy(complete, this))
-        .emulateTransitionEnd(Collapse.TRANSITION_DURATION)
+        .emulateTransitionEnd(Collapsable.TRANSITION_DURATION)
     },
 
     toggle : function () {
@@ -12317,7 +12258,7 @@ define('skylark-domx-panels/Collapse',[
     */
   });
 
-  Collapse.TRANSITION_DURATION = 350;
+  Collapsable.TRANSITION_DURATION = 350;
 
   /*
   function getTargetFromTrigger($trigger) {
@@ -12329,9 +12270,9 @@ define('skylark-domx-panels/Collapse',[
   }
   */
 
-  plugins.register(Collapse);
+  plugins.register(Collapsable);
 
-  return panels.Collapse = Collapse;
+  return toggles.Collapsable = Collapsable;
 
 });
 
@@ -12343,7 +12284,7 @@ define('skylark-bootstrap3/collapse',[
     "skylark-domx-geom",
     "skylark-domx-query",
     "skylark-domx-plugins",
-    "skylark-domx-panels/Collapse",
+    "skylark-domx-toggles/Collapsable",
    "./bs3",
     "./transition"
 ], function(langx, browser, eventer, noder, geom, $, plugins,_Collapse, bs3) {
@@ -14145,7 +14086,7 @@ define('skylark-bootstrap3/scrollspy',[
 
 });
 
-define('skylark-domx-panels/Tab',[
+define('skylark-domx-toggles/TabButton',[
   "skylark-langx/langx",
   "skylark-domx-browser",
   "skylark-domx-eventer",
@@ -14153,8 +14094,8 @@ define('skylark-domx-panels/Tab',[
   "skylark-domx-geom",
   "skylark-domx-query",
   "skylark-domx-plugins",
-  "./panels"
-],function(langx,browser,eventer,noder,geom,$,plugins,panels){
+  "./toggles"
+],function(langx,browser,eventer,noder,geom,$,plugins,toggles){
 
   'use strict';
 
@@ -14162,10 +14103,10 @@ define('skylark-domx-panels/Tab',[
   // ====================
 
 
-  var Tab =  plugins.Plugin.inherit({
-    klassName: "Tab",
+  var TabButton =  plugins.Plugin.inherit({
+    klassName: "TabButton",
 
-    pluginName : "domx.tab",
+    pluginName : "domx.toggles.tabButton",
 
     _construct : function(element,options) {
       // jscs:disable requireDollarBeforejQueryAssignment
@@ -14173,7 +14114,7 @@ define('skylark-domx-panels/Tab',[
       this.target = options && options.target;
 
       // jscs:enable requireDollarBeforejQueryAssignment
-      this.element.on("click.bs.tab.data-api",langx.proxy(function(e){
+      this.element.on("click.domx.toggles.tabButton",langx.proxy(function(e){
         e.preventDefault()
         this.show();
       },this));    
@@ -14261,7 +14202,7 @@ define('skylark-domx-panels/Tab',[
       $active.length && transition ?
         $active
           .one('transitionEnd', next)
-          .emulateTransitionEnd(Tab.TRANSITION_DURATION) :
+          .emulateTransitionEnd(TabButton.TRANSITION_DURATION) :
         next()
 
       $active.removeClass('in')
@@ -14271,17 +14212,17 @@ define('skylark-domx-panels/Tab',[
   });
 
 
-  Tab.TRANSITION_DURATION = 150
+  TabButton.TRANSITION_DURATION = 150
 
 
-  plugins.register(Tab);
+  plugins.register(TabButton);
 
-  return panels.Tab = Tab;
+  return toggles.TabButton = TabButton;
 });
 
 define('skylark-bootstrap3/tab',[
   "skylark-domx-plugins",
-  "skylark-domx-panels/Tab",
+  "skylark-domx-toggles/TabButton",
   "./bs3"
 ],function(plugins,_Tab,bs3){
 
@@ -15242,11 +15183,6 @@ define('skylark-domx/noder',[
 
     return noder;
 });
-define('skylark-domx-toggles/toggles',[
-	"skylark-langx/skylark"
-],function(skylark){
-	return skylark.attach("domx.toggles",{});
-});
 define('skylark-domx-toggles/Checkbox',[
   "skylark-langx/langx",
   "skylark-domx/browser",
@@ -15261,7 +15197,7 @@ define('skylark-domx-toggles/Checkbox',[
   var Checkbox = plugins.Plugin.inherit({
     klassName: "Checkbox",
 
-    pluginName : "domx.checkbox",
+    pluginName : "domx.toggles.checkbox",
 
     options : {
       ignoreVisibilityCheck: false
@@ -15535,48 +15471,72 @@ define('skylark-fuelux/checkbox',[
 	return $.fn.checkbox;
 });
 
-define('skylark-fuelux/combobox',[
+define('skylark-domx-popups/Combobox',[
   "skylark-langx/langx",
-  "skylark-domx/browser",
-  "skylark-domx/eventer",
-  "skylark-domx/noder",
-  "skylark-domx/geom",
-  "skylark-domx/query",
-  "./fuelux",
-  "skylark-bootstrap3/dropdown"  
-],function(langx,browser,eventer,noder,geom,$,fuelux){
-
-
-	/*
-	 * Fuel UX Combobox
-	 * https://github.com/ExactTarget/fuelux
-	 *
-	 * Copyright (c) 2014 ExactTarget
-	 * Licensed under the BSD New license.
-	 */
-
-	var old = $.fn.combobox;
+  "skylark-domx-browser",
+  "skylark-domx-eventer",
+  "skylark-domx-noder",
+  "skylark-domx-geom",
+  "skylark-domx-query",
+  "skylark-domx-plugins",
+  "./popups",
+  "./Dropdown"
+],function(langx,browser,eventer,noder,geom,$,plugins,popups,Dropdown){
 
 
 	// COMBOBOX CONSTRUCTOR AND PROTOTYPE
 
-	var Combobox = fuelux.Combobox = fuelux.WidgetBase.inherit({
-		klassName: "Combobox",
+	var ComboBox = plugins.Plugin.inherit({
+		klassName: "ComboBox",
 
-		init : function(element,options) {
-			this.$element = $(element);
-			this.options = langx.mixin({}, $.fn.combobox.defaults, options);
+		pluginName : "domx.combobox",
+
+		options : {
+
+			autoResizeMenu: true,
+			filterOnKeypress: false,
+			showOptionsOnKeypress: false,
+			filter: function filter (list, predicate, self) {
+				var visible = 0;
+				self.$dropMenu.find('.empty-indicator').remove();
+
+				list.each(function (i) {
+					var $li = $(this);
+					var text = $(this).text().trim();
+
+					$li.removeClass();
+
+					if (text === predicate) {
+						$li.addClass('text-success');
+						visible++;
+					} else if (text.substr(0, predicate.length) === predicate) {
+						$li.addClass('text-info');
+						visible++;
+					} else {
+						$li.addClass('hidden');
+					}
+				});
+
+				if (visible === 0) {
+					self.$dropMenu.append('<li class="empty-indicator text-muted"><em>No Matches</em></li>');
+				}
+			}
+		},
+
+    	_construct : function(elm,options) {
+      		this.overrided(elm,options);
+      		this.$element = this.$();
 
 			this.$dropMenu = this.$element.find('.dropdown-menu');
 			this.$input = this.$element.find('input');
 			this.$button = this.$element.find('.btn');
-			this.$button.dropdown();
+			this.$button.plugin("domx.dropdown");
 			this.$inputGroupBtn = this.$element.find('.input-group-btn');
 
-			this.$element.on('click.fu.combobox', 'a', langx.proxy(this.itemclicked, this));
-			this.$element.on('change.fu.combobox', 'input', langx.proxy(this.inputchanged, this));
+			this.$element.on('click.lark', 'a', langx.proxy(this.itemclicked, this));
+			this.$element.on('change.lark', 'input', langx.proxy(this.inputchanged, this));
 			this.$element.on('shown.bs.dropdown', langx.proxy(this.menuShown, this));
-			this.$input.on('keyup.fu.combobox', langx.proxy(this.keypress, this));
+			this.$input.on('keyup.lark', langx.proxy(this.keypress, this));
 
 			// set default selection
 			this.setDefaultSelection();
@@ -15593,7 +15553,7 @@ define('skylark-fuelux/combobox',[
 			}
 		},
 
-		destroy: function () {
+		_destroy: function () {
 			this.$element.remove();
 			// remove any external bindings
 			// [none]
@@ -15730,7 +15690,7 @@ define('skylark-fuelux/combobox',[
 			var data = this.selectedItem();
 
 			// trigger changed event
-			this.$element.trigger('changed.fu.combobox', data);
+			this.$element.trigger('changed.lark', data);
 
 			e.preventDefault();
 
@@ -15755,7 +15715,7 @@ define('skylark-fuelux/combobox',[
 			);
 
 			if(this.options.showOptionsOnKeypress && !this.$inputGroupBtn.hasClass('open')){
-				this.$button.dropdown('toggle');
+				this.$button.plugin("domx.dropdown").toggle();
 				this.$input.focus();
 			}
 
@@ -15825,71 +15785,47 @@ define('skylark-fuelux/combobox',[
 			}
 
 			// trigger changed event
-			this.$element.trigger('changed.fu.combobox', data);
+			this.$element.trigger('changed.lark', data);
 		}
 
 	});
 
 
 
-	Combobox.prototype.getValue = Combobox.prototype.selectedItem;
+	ComboBox.prototype.getValue = ComboBox.prototype.selectedItem;
 
-	// COMBOBOX PLUGIN DEFINITION
+    plugins.register(ComboBox);
 
-	$.fn.combobox = function (option) {
-		var args = Array.prototype.slice.call(arguments, 1);
-		var methodReturn;
+	return popups.ComboBox = ComboBox;
+});
 
-		var $set = this.each(function () {
-			var $this = $(this);
-			var data = $this.data('fu.combobox');
-			var options = typeof option === 'object' && option;
+define('skylark-fuelux/combobox',[
+  "skylark-domx-query",
+  "skylark-domx-plugins",
+  "skylark-domx-popups/Combobox",
+   "./fuelux"
+],function($,plugins,_Combobox,fuelux){
+	/*
+	 * Fuel UX Combobox
+	 * https://github.com/ExactTarget/fuelux
+	 *
+	 * Copyright (c) 2014 ExactTarget
+	 * Licensed under the BSD New license.
+	 */
 
-			if (!data) {
-				$this.data('fu.combobox', (data = new Combobox(this, options)));
-			}
+	var old = $.fn.combobox;
+	
+	var Combobox = fuelux.Combobox = _Combobox.inherit({
+	    klassName: "Combobox",
 
-			if (typeof option === 'string') {
-				methodReturn = data[option].apply(data, args);
-			}
-		});
+	    pluginName : "fuelux.combobox"
+	});
 
-		return (methodReturn === undefined) ? $set : methodReturn;
-	};
 
-	$.fn.combobox.defaults = {
+    plugins.register(Combobox,"combobox");
 
-		autoResizeMenu: true,
-		filterOnKeypress: false,
-		showOptionsOnKeypress: false,
-		filter: function filter (list, predicate, self) {
-			var visible = 0;
-			self.$dropMenu.find('.empty-indicator').remove();
 
-			list.each(function (i) {
-				var $li = $(this);
-				var text = $(this).text().trim();
-
-				$li.removeClass();
-
-				if (text === predicate) {
-					$li.addClass('text-success');
-					visible++;
-				} else if (text.substr(0, predicate.length) === predicate) {
-					$li.addClass('text-info');
-					visible++;
-				} else {
-					$li.addClass('hidden');
-				}
-			});
-
-			if (visible === 0) {
-				self.$dropMenu.append('<li class="empty-indicator text-muted"><em>No Matches</em></li>');
-			}
-		}
-	};
-
-	$.fn.combobox.Constructor =  Combobox;
+	$.fn.combobox.Constructor = Combobox;
 
 	$.fn.combobox.noConflict = function () {
 		$.fn.combobox = old;
@@ -15920,6 +15856,7 @@ define('skylark-fuelux/combobox',[
 
 	return $.fn.combobox;
 });
+
 
 define('skylark-fuelux/datepicker',[
     "skylark-langx/langx",
@@ -16872,43 +16809,45 @@ define('skylark-fuelux/dropdown-autoflip',[
 
 });
 
-define('skylark-fuelux/infinite-scroll',[
+define('skylark-domx-spy/InfiniteScroll',[
   "skylark-langx/langx",
-  "skylark-domx/browser",
-  "skylark-domx/eventer",
-  "skylark-domx/noder",
-  "skylark-domx/geom",
-  "skylark-domx/query"
-],function(langx,browser,eventer,noder,geom,$){
+  "skylark-domx-browser",
+  "skylark-domx-eventer",
+  "skylark-domx-noder",
+  "skylark-domx-geom",
+  "skylark-domx-query",
+  "skylark-domx-plugins",
+  "./spy"
+],function(langx,browser,eventer,noder,geom,$,plugins,spy){
 
-	/*
-	 * Fuel UX infinitescroll
-	 * https://github.com/ExactTarget/fuelux
-	 *
-	 * Copyright (c) 2014 ExactTarget
-	 * Licensed under the BSD New license.
-	 */
-
-	var old = $.fn.infinitescroll;
+  'use strict';
 
 	// INFINITE SCROLL CONSTRUCTOR AND PROTOTYPE
 
-	var InfiniteScroll = function (element, options) {
-		this.$element = $(element);
-		this.$element.addClass('infinitescroll');
-		this.options = langx.mixin({}, $.fn.infinitescroll.defaults, options);
+  var InfiniteScroll = plugins.Plugin.inherit({
+        klassName: "InfiniteScroll",
 
-		this.curScrollTop = this.$element.scrollTop();
-		this.curPercentage = this.getPercentage();
-		this.fetchingData = false;
+        pluginName : "domx.infinitescroll",
 
-		this.$element.on('scroll.fu.infinitescroll', langx.proxy(this.onScroll, this));
-		this.onScroll();
-	};
+        options : {
+			dataSource: null,
+			hybrid: false,//can be true or an object with structure: { 'label': (markup or jQuery obj) }
+			percentage: 95//percentage scrolled to the bottom before more is loaded
+        },
 
-	InfiniteScroll.prototype = {
+        _construct : function(elm,options) {
+	        this.overrided(elm,options);
+			this.$element = this.$();
+			this.$element.addClass('infinitescroll');
+			//this.options = langx.mixin({}, $.fn.infinitescroll.defaults, options);
 
-		constructor: InfiniteScroll,
+			this.curScrollTop = this.$element.scrollTop();
+			this.curPercentage = this.getPercentage();
+			this.fetchingData = false;
+
+			this.$element.on('scroll.domx.infinitescroll', langx.proxy(this.onScroll, this));
+			this.onScroll();
+		},
 
 		destroy: function () {
 			this.$element.remove();
@@ -16922,11 +16861,11 @@ define('skylark-fuelux/infinite-scroll',[
 		},
 
 		disable: function () {
-			this.$element.off('scroll.fu.infinitescroll');
+			this.$element.off('scroll.domx.infinitescroll');
 		},
 
 		enable: function () {
-			this.$element.on('scroll.fu.infinitescroll', langx.proxy(this.onScroll, this));
+			this.$element.on('scroll.domx.infinitescroll', langx.proxy(this.onScroll, this));
 		},
 
 		end: function (content) {
@@ -16988,7 +16927,7 @@ define('skylark-fuelux/infinite-scroll',[
 					moreBtn.append('<span class="glyphicon glyphicon-repeat"></span>');
 				}
 
-				moreBtn.on('click.fu.infinitescroll', function () {
+				moreBtn.on('click.domx.infinitescroll', function () {
 					moreBtn.remove();
 					fetch();
 				});
@@ -17005,43 +16944,47 @@ define('skylark-fuelux/infinite-scroll',[
 				this.fetchData();
 			}
 		}
-	};
+  });
 
-	// INFINITE SCROLL PLUGIN DEFINITION
+  plugins.register(InfiniteScroll);
 
-	$.fn.infinitescroll = function (option) {
-		var args = Array.prototype.slice.call(arguments, 1);
-		var methodReturn;
+  return spy.InfiniteScroll = InfiniteScroll;	
+});
 
-		var $set = this.each(function () {
-			var $this = $(this);
-			var data = $this.data('fu.infinitescroll');
-			var options = typeof option === 'object' && option;
+define('skylark-fuelux/infinite-scroll',[
+  "skylark-domx-query",
+  "skylark-domx-plugins",
+  "skylark-domx-spy/InfiniteScroll",
+   "./fuelux"
+],function($,plugins,_InfiniteScroll,fuelux){
 
-			if (!data) {
-				$this.data('fu.infinitescroll', (data = new InfiniteScroll(this, options)));
-			}
+	/*
+	 * Fuel UX InfiniteScroll
+	 * https://github.com/ExactTarget/fuelux
+	 *
+	 * Copyright (c) 2014 ExactTarget
+	 * Licensed under the BSD New license.
+	 */
 
-			if (typeof option === 'string') {
-				methodReturn = data[option].apply(data, args);
-			}
-		});
+	var old = $.fn.infinitescroll;
 
-		return (methodReturn === undefined) ? $set : methodReturn;
-	};
+	var InfiniteScroll = fuelux.InfiniteScroll = _InfiniteScroll.inherit({
+	    klassName: "Checkbox",
 
-	$.fn.infinitescroll.defaults = {
-		dataSource: null,
-		hybrid: false,//can be true or an object with structure: { 'label': (markup or jQuery obj) }
-		percentage: 95//percentage scrolled to the bottom before more is loaded
-	};
+	    pluginName : "fuelux.infinitescroll"
+	});
 
-	$.fn.infinitescroll.Constructor = InfiniteScroll;
+
+    plugins.register(InfiniteScroll,"infinitescroll");
+    
 
 	$.fn.infinitescroll.noConflict = function () {
 		$.fn.infinitescroll = old;
 		return this;
 	};
+
+
+	return $.fn.infinitescroll ;
 
 });
 
@@ -18565,7 +18508,7 @@ define('skylark-domx-toggles/Radio',[
   var Radio = plugins.Plugin.inherit({
     klassName: "Radio",
 
-    pluginName : "domx.radio",
+    pluginName : "domx.toggles.radio",
 
     options : {
       ignoreVisibilityCheck: false
@@ -18788,7 +18731,7 @@ define('skylark-domx-popups/Selectlist',[
 
     	_construct : function(elm,options) {
       		this.overrided(elm,options);
-      		this.$element = $(this._elm);
+      		this.$element = this.$();
 			//this.options = langx.mixin({}, $.fn.selectlist.defaults, options);
 
 
@@ -21400,6 +21343,70 @@ define('skylark-fuelux/tree',[
 
 	return $.fn.tree;
 });
+define('skylark-domx-panels/panels',[
+  "skylark-langx/skylark",
+  "skylark-langx/langx",
+  "skylark-domx-browser",
+  "skylark-domx-eventer",
+  "skylark-domx-noder",
+  "skylark-domx-geom",
+  "skylark-domx-query"
+],function(skylark,langx,browser,eventer,noder,geom,$){
+	var panels = {};
+
+	var CONST = {
+		BACKSPACE_KEYCODE: 8,
+		COMMA_KEYCODE: 188, // `,` & `<`
+		DELETE_KEYCODE: 46,
+		DOWN_ARROW_KEYCODE: 40,
+		ENTER_KEYCODE: 13,
+		TAB_KEYCODE: 9,
+		UP_ARROW_KEYCODE: 38
+	};
+
+	var isShiftHeld = function isShiftHeld (e) { return e.shiftKey === true; };
+
+	var isKey = function isKey (keyCode) {
+		return function compareKeycodes (e) {
+			return e.keyCode === keyCode;
+		};
+	};
+
+	var isBackspaceKey = isKey(CONST.BACKSPACE_KEYCODE);
+	var isDeleteKey = isKey(CONST.DELETE_KEYCODE);
+	var isTabKey = isKey(CONST.TAB_KEYCODE);
+	var isUpArrow = isKey(CONST.UP_ARROW_KEYCODE);
+	var isDownArrow = isKey(CONST.DOWN_ARROW_KEYCODE);
+
+	var ENCODED_REGEX = /&[^\s]*;/;
+	/*
+	 * to prevent double encoding decodes content in loop until content is encoding free
+	 */
+	var cleanInput = function cleanInput (questionableMarkup) {
+		// check for encoding and decode
+		while (ENCODED_REGEX.test(questionableMarkup)) {
+			questionableMarkup = $('<i>').html(questionableMarkup).text();
+		}
+
+		// string completely decoded now encode it
+		return $('<i>').text(questionableMarkup).html();
+	};
+
+	langx.mixin(panels, {
+		CONST: CONST,
+		cleanInput: cleanInput,
+		isBackspaceKey: isBackspaceKey,
+		isDeleteKey: isDeleteKey,
+		isShiftHeld: isShiftHeld,
+		isTabKey: isTabKey,
+		isUpArrow: isUpArrow,
+		isDownArrow: isDownArrow
+	});
+
+	return skylark.attach("domx.panels",panels);
+
+});
+
 define('skylark-domx-panels/Wizard',[
   "skylark-langx/langx",
   "skylark-domx-browser",
@@ -21415,7 +21422,7 @@ define('skylark-domx-panels/Wizard',[
 	var Wizard = plugins.Plugin.inherit({
 		klassName: "Wizard",
 
-	    pluginName : "domx.wizard",
+	    pluginName : "domx.panels.wizard",
 
 	    options : {
 			disablePreviousStep: false,
@@ -21880,7 +21887,7 @@ define('skylark-domx-popups/SelectList',[
 
     	_construct : function(elm,options) {
       		this.overrided(elm,options);
-      		this.$element = $(this._elm);
+      		this.$element = this.$();
 			//this.options = langx.mixin({}, $.fn.selectlist.defaults, options);
 
 
@@ -22083,6 +22090,334 @@ define('skylark-domx-popups/SelectList',[
     plugins.register(SelectList);
 
 	return popups.SelectList = SelectList;
+});
+
+define('skylark-domx-popups/ComboBox',[
+  "skylark-langx/langx",
+  "skylark-domx-browser",
+  "skylark-domx-eventer",
+  "skylark-domx-noder",
+  "skylark-domx-geom",
+  "skylark-domx-query",
+  "skylark-domx-plugins",
+  "./popups",
+  "./Dropdown"
+],function(langx,browser,eventer,noder,geom,$,plugins,popups,Dropdown){
+
+
+	// COMBOBOX CONSTRUCTOR AND PROTOTYPE
+
+	var ComboBox = plugins.Plugin.inherit({
+		klassName: "ComboBox",
+
+		pluginName : "domx.combobox",
+
+		options : {
+
+			autoResizeMenu: true,
+			filterOnKeypress: false,
+			showOptionsOnKeypress: false,
+			filter: function filter (list, predicate, self) {
+				var visible = 0;
+				self.$dropMenu.find('.empty-indicator').remove();
+
+				list.each(function (i) {
+					var $li = $(this);
+					var text = $(this).text().trim();
+
+					$li.removeClass();
+
+					if (text === predicate) {
+						$li.addClass('text-success');
+						visible++;
+					} else if (text.substr(0, predicate.length) === predicate) {
+						$li.addClass('text-info');
+						visible++;
+					} else {
+						$li.addClass('hidden');
+					}
+				});
+
+				if (visible === 0) {
+					self.$dropMenu.append('<li class="empty-indicator text-muted"><em>No Matches</em></li>');
+				}
+			}
+		},
+
+    	_construct : function(elm,options) {
+      		this.overrided(elm,options);
+      		this.$element = this.$();
+
+			this.$dropMenu = this.$element.find('.dropdown-menu');
+			this.$input = this.$element.find('input');
+			this.$button = this.$element.find('.btn');
+			this.$button.plugin("domx.dropdown");
+			this.$inputGroupBtn = this.$element.find('.input-group-btn');
+
+			this.$element.on('click.lark', 'a', langx.proxy(this.itemclicked, this));
+			this.$element.on('change.lark', 'input', langx.proxy(this.inputchanged, this));
+			this.$element.on('shown.bs.dropdown', langx.proxy(this.menuShown, this));
+			this.$input.on('keyup.lark', langx.proxy(this.keypress, this));
+
+			// set default selection
+			this.setDefaultSelection();
+
+			// if dropdown is empty, disable it
+			var items = this.$dropMenu.children('li');
+			if( items.length === 0) {
+				this.$button.addClass('disabled');
+			}
+
+			// filter on load in case the first thing they do is press navigational key to pop open the menu
+			if (this.options.filterOnKeypress) {
+				this.options.filter(this.$dropMenu.find('li'), this.$input.val(), this);
+			}
+		},
+
+		_destroy: function () {
+			this.$element.remove();
+			// remove any external bindings
+			// [none]
+
+			// set input value attrbute in markup
+			this.$element.find('input').each(function () {
+				$(this).attr('value', $(this).val());
+			});
+
+			// empty elements to return to original markup
+			// [none]
+
+			return this.$element[0].outerHTML;
+		},
+
+		doSelect: function ($item) {
+
+			if (typeof $item[0] !== 'undefined') {
+				// remove selection from old item, may result in remove and
+				// re-addition of class if item is the same
+				this.$element.find('li.selected:first').removeClass('selected');
+
+				// add selection to new item
+				this.$selectedItem = $item;
+				this.$selectedItem.addClass('selected');
+
+				// update input
+				this.$input.val(this.$selectedItem.text().trim());
+			} else {
+				// this is a custom input, not in the menu
+				this.$selectedItem = null;
+				this.$element.find('li.selected:first').removeClass('selected');
+			}
+		},
+
+		clearSelection: function () {
+			this.$selectedItem = null;
+			this.$input.val('');
+			this.$dropMenu.find('li').removeClass('selected');
+		},
+
+		menuShown: function () {
+			if (this.options.autoResizeMenu) {
+				this.resizeMenu();
+			}
+		},
+
+		resizeMenu: function () {
+			var width = this.$element.outerWidth();
+			this.$dropMenu.outerWidth(width);
+		},
+
+		selectedItem: function () {
+			var item = this.$selectedItem;
+			var data = {};
+
+			if (item) {
+				var txt = this.$selectedItem.text().trim();
+				data = langx.mixin({
+					text: txt
+				}, this.$selectedItem.data());
+			} else {
+				data = {
+					text: this.$input.val().trim(),
+					notFound: true
+				};
+			}
+
+			return data;
+		},
+
+		selectByText: function (text) {
+			var $item = $([]);
+			this.$element.find('li').each(function () {
+				if ((this.textContent || this.innerText || $(this).text() || '').trim().toLowerCase() === (text || '').trim().toLowerCase()) {
+					$item = $(this);
+					return false;
+				}
+			});
+
+			this.doSelect($item);
+		},
+
+		selectByValue: function (value) {
+			var selector = 'li[data-value="' + value + '"]';
+			this.selectBySelector(selector);
+		},
+
+		selectByIndex: function (index) {
+			// zero-based index
+			var selector = 'li:eq(' + index + ')';
+			this.selectBySelector(selector);
+		},
+
+		selectBySelector: function (selector) {
+			var $item = this.$element.find(selector);
+			this.doSelect($item);
+		},
+
+		setDefaultSelection: function () {
+			var selector = 'li[data-selected=true]:first';
+			var item = this.$element.find(selector);
+
+			if (item.length > 0) {
+				// select by data-attribute
+				this.selectBySelector(selector);
+				item.removeData('selected');
+				item.removeAttr('data-selected');
+			}
+		},
+
+		enable: function () {
+			this.$element.removeClass('disabled');
+			this.$input.removeAttr('disabled');
+			this.$button.removeClass('disabled');
+		},
+
+		disable: function () {
+			this.$element.addClass('disabled');
+			this.$input.attr('disabled', true);
+			this.$button.addClass('disabled');
+		},
+
+		itemclicked: function (e) {
+			this.$selectedItem = $(e.target).parent();
+
+			// set input text and trigger input change event marked as synthetic
+			this.$input.val(this.$selectedItem.text().trim()).trigger('change', {
+				synthetic: true
+			});
+
+			// pass object including text and any data-attributes
+			// to onchange event
+			var data = this.selectedItem();
+
+			// trigger changed event
+			this.$element.trigger('changed.lark', data);
+
+			e.preventDefault();
+
+			// return focus to control after selecting an option
+			this.$element.find('.dropdown-toggle').focus();
+		},
+
+		keypress: function (e) {
+			var ENTER = 13;
+			//var TAB = 9;
+			var ESC = 27;
+			var LEFT = 37;
+			var UP = 38;
+			var RIGHT = 39;
+			var DOWN = 40;
+
+			var IS_NAVIGATIONAL = (
+				e.which === UP ||
+				e.which === DOWN ||
+				e.which === LEFT ||
+				e.which === RIGHT
+			);
+
+			if(this.options.showOptionsOnKeypress && !this.$inputGroupBtn.hasClass('open')){
+				this.$button.plugin("domx.dropdown").toggle();
+				this.$input.focus();
+			}
+
+			if (e.which === ENTER) {
+				e.preventDefault();
+
+				var selected = this.$dropMenu.find('li.selected').text().trim();
+				if(selected.length > 0){
+					this.selectByText(selected);
+				}else{
+					this.selectByText(this.$input.val());
+				}
+
+				this.$inputGroupBtn.removeClass('open');
+			} else if (e.which === ESC) {
+				e.preventDefault();
+				this.clearSelection();
+				this.$inputGroupBtn.removeClass('open');
+			} else if (this.options.showOptionsOnKeypress) {
+				if (e.which === DOWN || e.which === UP) {
+					e.preventDefault();
+					var $selected = this.$dropMenu.find('li.selected');
+					if ($selected.length > 0) {
+						if (e.which === DOWN) {
+							$selected = $selected.next(':not(.hidden)');
+						} else {
+							$selected = $selected.prev(':not(.hidden)');
+						}
+					}
+
+					if ($selected.length === 0){
+						if (e.which === DOWN) {
+							$selected = this.$dropMenu.find('li:not(.hidden):first');
+						} else {
+							$selected = this.$dropMenu.find('li:not(.hidden):last');
+						}
+					}
+					this.doSelect($selected);
+				}
+			}
+
+			// Avoid filtering on navigation key presses
+			if (this.options.filterOnKeypress && !IS_NAVIGATIONAL) {
+				this.options.filter(this.$dropMenu.find('li'), this.$input.val(), this);
+			}
+
+			this.previousKeyPress = e.which;
+		},
+
+		inputchanged: function (e, extra) {
+			var val = $(e.target).val();
+			// skip processing for internally-generated synthetic event
+			// to avoid double processing
+			if (extra && extra.synthetic) {
+				this.selectByText(val);
+				return;
+			}
+			this.selectByText(val);
+
+			// find match based on input
+			// if no match, pass the input value
+			var data = this.selectedItem();
+			if (data.text.length === 0) {
+				data = {
+					text: val
+				};
+			}
+
+			// trigger changed event
+			this.$element.trigger('changed.lark', data);
+		}
+
+	});
+
+
+
+	ComboBox.prototype.getValue = ComboBox.prototype.selectedItem;
+
+    plugins.register(ComboBox);
+
+	return popups.ComboBox = ComboBox;
 });
 
 define('skylark-domx-files/files',[
@@ -24407,335 +24742,6 @@ define('skylark-widgets-base/Widget',[
   return base.Widget = Widget;
 });
 
-define('skylark-widgets-repeater/ComboBox',[
-  "skylark-langx/langx",
-  "skylark-domx-browser",
-  "skylark-domx-eventer",
-  "skylark-domx-noder",
-  "skylark-domx-geom",
-  "skylark-domx-query",
-  "skylark-domx-popups/Dropdown",
-  "skylark-widgets-base/Widget"
-],function(langx,browser,eventer,noder,geom,$,Dropdown,Widget){
-
-
-
-	// COMBOBOX CONSTRUCTOR AND PROTOTYPE
-
-	var ComboBox = Widget.inherit({
-		klassName: "ComboBox",
-
-		pluginName : "lark.combobox",
-
-		widgetClass : "lark-combobox",
-
-		options : {
-
-			autoResizeMenu: true,
-			filterOnKeypress: false,
-			showOptionsOnKeypress: false,
-			filter: function filter (list, predicate, self) {
-				var visible = 0;
-				self.$dropMenu.find('.empty-indicator').remove();
-
-				list.each(function (i) {
-					var $li = $(this);
-					var text = $(this).text().trim();
-
-					$li.removeClass();
-
-					if (text === predicate) {
-						$li.addClass('text-success');
-						visible++;
-					} else if (text.substr(0, predicate.length) === predicate) {
-						$li.addClass('text-info');
-						visible++;
-					} else {
-						$li.addClass('hidden');
-					}
-				});
-
-				if (visible === 0) {
-					self.$dropMenu.append('<li class="empty-indicator text-muted"><em>No Matches</em></li>');
-				}
-			}
-		},
-
-		_init : function() {
-			this.$element = $(this._elm);
-
-			this.$dropMenu = this.$element.find('.dropdown-menu');
-			this.$input = this.$element.find('input');
-			this.$button = this.$element.find('.btn');
-			this.$button.plugin("domx.dropdown");
-			this.$inputGroupBtn = this.$element.find('.input-group-btn');
-
-			this.$element.on('click.lark', 'a', langx.proxy(this.itemclicked, this));
-			this.$element.on('change.lark', 'input', langx.proxy(this.inputchanged, this));
-			this.$element.on('shown.bs.dropdown', langx.proxy(this.menuShown, this));
-			this.$input.on('keyup.lark', langx.proxy(this.keypress, this));
-
-			// set default selection
-			this.setDefaultSelection();
-
-			// if dropdown is empty, disable it
-			var items = this.$dropMenu.children('li');
-			if( items.length === 0) {
-				this.$button.addClass('disabled');
-			}
-
-			// filter on load in case the first thing they do is press navigational key to pop open the menu
-			if (this.options.filterOnKeypress) {
-				this.options.filter(this.$dropMenu.find('li'), this.$input.val(), this);
-			}
-		},
-
-		_destroy: function () {
-			this.$element.remove();
-			// remove any external bindings
-			// [none]
-
-			// set input value attrbute in markup
-			this.$element.find('input').each(function () {
-				$(this).attr('value', $(this).val());
-			});
-
-			// empty elements to return to original markup
-			// [none]
-
-			return this.$element[0].outerHTML;
-		},
-
-		doSelect: function ($item) {
-
-			if (typeof $item[0] !== 'undefined') {
-				// remove selection from old item, may result in remove and
-				// re-addition of class if item is the same
-				this.$element.find('li.selected:first').removeClass('selected');
-
-				// add selection to new item
-				this.$selectedItem = $item;
-				this.$selectedItem.addClass('selected');
-
-				// update input
-				this.$input.val(this.$selectedItem.text().trim());
-			} else {
-				// this is a custom input, not in the menu
-				this.$selectedItem = null;
-				this.$element.find('li.selected:first').removeClass('selected');
-			}
-		},
-
-		clearSelection: function () {
-			this.$selectedItem = null;
-			this.$input.val('');
-			this.$dropMenu.find('li').removeClass('selected');
-		},
-
-		menuShown: function () {
-			if (this.options.autoResizeMenu) {
-				this.resizeMenu();
-			}
-		},
-
-		resizeMenu: function () {
-			var width = this.$element.outerWidth();
-			this.$dropMenu.outerWidth(width);
-		},
-
-		selectedItem: function () {
-			var item = this.$selectedItem;
-			var data = {};
-
-			if (item) {
-				var txt = this.$selectedItem.text().trim();
-				data = langx.mixin({
-					text: txt
-				}, this.$selectedItem.data());
-			} else {
-				data = {
-					text: this.$input.val().trim(),
-					notFound: true
-				};
-			}
-
-			return data;
-		},
-
-		selectByText: function (text) {
-			var $item = $([]);
-			this.$element.find('li').each(function () {
-				if ((this.textContent || this.innerText || $(this).text() || '').trim().toLowerCase() === (text || '').trim().toLowerCase()) {
-					$item = $(this);
-					return false;
-				}
-			});
-
-			this.doSelect($item);
-		},
-
-		selectByValue: function (value) {
-			var selector = 'li[data-value="' + value + '"]';
-			this.selectBySelector(selector);
-		},
-
-		selectByIndex: function (index) {
-			// zero-based index
-			var selector = 'li:eq(' + index + ')';
-			this.selectBySelector(selector);
-		},
-
-		selectBySelector: function (selector) {
-			var $item = this.$element.find(selector);
-			this.doSelect($item);
-		},
-
-		setDefaultSelection: function () {
-			var selector = 'li[data-selected=true]:first';
-			var item = this.$element.find(selector);
-
-			if (item.length > 0) {
-				// select by data-attribute
-				this.selectBySelector(selector);
-				item.removeData('selected');
-				item.removeAttr('data-selected');
-			}
-		},
-
-		enable: function () {
-			this.$element.removeClass('disabled');
-			this.$input.removeAttr('disabled');
-			this.$button.removeClass('disabled');
-		},
-
-		disable: function () {
-			this.$element.addClass('disabled');
-			this.$input.attr('disabled', true);
-			this.$button.addClass('disabled');
-		},
-
-		itemclicked: function (e) {
-			this.$selectedItem = $(e.target).parent();
-
-			// set input text and trigger input change event marked as synthetic
-			this.$input.val(this.$selectedItem.text().trim()).trigger('change', {
-				synthetic: true
-			});
-
-			// pass object including text and any data-attributes
-			// to onchange event
-			var data = this.selectedItem();
-
-			// trigger changed event
-			this.$element.trigger('changed.lark', data);
-
-			e.preventDefault();
-
-			// return focus to control after selecting an option
-			this.$element.find('.dropdown-toggle').focus();
-		},
-
-		keypress: function (e) {
-			var ENTER = 13;
-			//var TAB = 9;
-			var ESC = 27;
-			var LEFT = 37;
-			var UP = 38;
-			var RIGHT = 39;
-			var DOWN = 40;
-
-			var IS_NAVIGATIONAL = (
-				e.which === UP ||
-				e.which === DOWN ||
-				e.which === LEFT ||
-				e.which === RIGHT
-			);
-
-			if(this.options.showOptionsOnKeypress && !this.$inputGroupBtn.hasClass('open')){
-				this.$button.plugin("domx.dropdown").toggle();
-				this.$input.focus();
-			}
-
-			if (e.which === ENTER) {
-				e.preventDefault();
-
-				var selected = this.$dropMenu.find('li.selected').text().trim();
-				if(selected.length > 0){
-					this.selectByText(selected);
-				}else{
-					this.selectByText(this.$input.val());
-				}
-
-				this.$inputGroupBtn.removeClass('open');
-			} else if (e.which === ESC) {
-				e.preventDefault();
-				this.clearSelection();
-				this.$inputGroupBtn.removeClass('open');
-			} else if (this.options.showOptionsOnKeypress) {
-				if (e.which === DOWN || e.which === UP) {
-					e.preventDefault();
-					var $selected = this.$dropMenu.find('li.selected');
-					if ($selected.length > 0) {
-						if (e.which === DOWN) {
-							$selected = $selected.next(':not(.hidden)');
-						} else {
-							$selected = $selected.prev(':not(.hidden)');
-						}
-					}
-
-					if ($selected.length === 0){
-						if (e.which === DOWN) {
-							$selected = this.$dropMenu.find('li:not(.hidden):first');
-						} else {
-							$selected = this.$dropMenu.find('li:not(.hidden):last');
-						}
-					}
-					this.doSelect($selected);
-				}
-			}
-
-			// Avoid filtering on navigation key presses
-			if (this.options.filterOnKeypress && !IS_NAVIGATIONAL) {
-				this.options.filter(this.$dropMenu.find('li'), this.$input.val(), this);
-			}
-
-			this.previousKeyPress = e.which;
-		},
-
-		inputchanged: function (e, extra) {
-			var val = $(e.target).val();
-			// skip processing for internally-generated synthetic event
-			// to avoid double processing
-			if (extra && extra.synthetic) {
-				this.selectByText(val);
-				return;
-			}
-			this.selectByText(val);
-
-			// find match based on input
-			// if no match, pass the input value
-			var data = this.selectedItem();
-			if (data.text.length === 0) {
-				data = {
-					text: val
-				};
-			}
-
-			// trigger changed event
-			this.$element.trigger('changed.lark', data);
-		}
-
-	});
-
-
-
-	ComboBox.prototype.getValue = ComboBox.prototype.selectedItem;
-
-
-
-	return ComboBox;
-});
-
 define('skylark-widgets-repeater/SearchBox',[
   "skylark-langx/langx",
   "skylark-domx-browser",
@@ -24904,10 +24910,10 @@ define('skylark-widgets-repeater/Repeater',[
   "skylark-domx-velm",
   "skylark-domx-query",
   "skylark-domx-popups/SelectList",
+  "skylark-domx-popups/ComboBox",
   "skylark-widgets-base/Widget",
-  "./ComboBox",
   "./SearchBox"  
-],function(skylark,langx,browser,eventer,noder,geom,elmx,$,SelectList,Widget){
+],function(skylark,langx,browser,eventer,noder,geom,elmx,$,SelectList,ComboBox,Widget){
 
 	// REPEATER CONSTRUCTOR AND PROTOTYPE
 
@@ -24980,7 +24986,7 @@ define('skylark-widgets-repeater/Repeater',[
 
 			this.$filters.plugin("domx.selectlist");
 			this.$pageSize.plugin("domx.selectlist");
-			this.$primaryPaging.find('.combobox').plugin("lark.combobox");
+			this.$primaryPaging.find('.combobox').plugin("domx.combobox");
 			this.$search.plugin("lark.searchbox",{
 				searchOnKeyPress: this.options.searchOnKeyPress,
 				allowCancel: this.options.allowCancel
@@ -25123,7 +25129,7 @@ define('skylark-widgets-repeater/Repeater',[
 			this.$filters.plugin("domx.selectlist").disable();
 			this.$views.find('label, input').addClass('disabled').attr('disabled', 'disabled');
 			this.$pageSize.plugin("domx.selectlist").disable();
-			this.$primaryPaging.find('.combobox').plugin("lark.combobox").disable();
+			this.$primaryPaging.find('.combobox').plugin("domx.combobox").disable();
 			this.$secondaryPaging.attr('disabled', 'disabled');
 			this.$prevBtn.attr('disabled', 'disabled');
 			this.$nextBtn.attr('disabled', 'disabled');
@@ -25153,7 +25159,7 @@ define('skylark-widgets-repeater/Repeater',[
 			this.$filters.plugin("domx.selectlist").enable()
 			this.$views.find('label, input').removeClass('disabled').removeAttr('disabled');
 			this.$pageSize.plugin("domx.selectlist").enable()
-			this.$primaryPaging.find('.combobox').plugin("lark.combobox").enable();
+			this.$primaryPaging.find('.combobox').plugin("domx.combobox").enable();
 			this.$secondaryPaging.removeAttr('disabled');
 
 			if (!this.$prevBtn.hasClass('page-end')) {
@@ -25166,7 +25172,7 @@ define('skylark-widgets-repeater/Repeater',[
 			// is 0 or 1 pages, if using $primaryPaging (combobox)
 			// if using selectlist allow user to use selectlist to select 0 or 1
 			if (this.$prevBtn.hasClass('page-end') && this.$nextBtn.hasClass('page-end')) {
-				this.$primaryPaging.plugin("lark.combobox").disable();
+				this.$primaryPaging.plugin("domx.combobox").disable();
 			}
 
 			// if there are no items

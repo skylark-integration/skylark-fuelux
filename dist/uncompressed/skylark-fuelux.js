@@ -111,7 +111,7 @@ define('skylark-domx-spy/Affix',[
   // AFFIX CLASS DEFINITION
   // ======================
 
-  var Affix = spy.Affix = plugins.Plugin.inherit({
+  var Affix = plugins.Plugin.inherit({
         klassName: "Affix",
 
         pluginName : "domx.affix",
@@ -951,262 +951,6 @@ define('skylark-bootstrap3/carousel',[
     return Carousel;
 
 });
-define('skylark-domx-panels/panels',[
-  "skylark-langx/skylark",
-  "skylark-langx/langx",
-  "skylark-domx-browser",
-  "skylark-domx-eventer",
-  "skylark-domx-noder",
-  "skylark-domx-geom",
-  "skylark-domx-query"
-],function(skylark,langx,browser,eventer,noder,geom,$){
-	var panels = {};
-
-	var CONST = {
-		BACKSPACE_KEYCODE: 8,
-		COMMA_KEYCODE: 188, // `,` & `<`
-		DELETE_KEYCODE: 46,
-		DOWN_ARROW_KEYCODE: 40,
-		ENTER_KEYCODE: 13,
-		TAB_KEYCODE: 9,
-		UP_ARROW_KEYCODE: 38
-	};
-
-	var isShiftHeld = function isShiftHeld (e) { return e.shiftKey === true; };
-
-	var isKey = function isKey (keyCode) {
-		return function compareKeycodes (e) {
-			return e.keyCode === keyCode;
-		};
-	};
-
-	var isBackspaceKey = isKey(CONST.BACKSPACE_KEYCODE);
-	var isDeleteKey = isKey(CONST.DELETE_KEYCODE);
-	var isTabKey = isKey(CONST.TAB_KEYCODE);
-	var isUpArrow = isKey(CONST.UP_ARROW_KEYCODE);
-	var isDownArrow = isKey(CONST.DOWN_ARROW_KEYCODE);
-
-	var ENCODED_REGEX = /&[^\s]*;/;
-	/*
-	 * to prevent double encoding decodes content in loop until content is encoding free
-	 */
-	var cleanInput = function cleanInput (questionableMarkup) {
-		// check for encoding and decode
-		while (ENCODED_REGEX.test(questionableMarkup)) {
-			questionableMarkup = $('<i>').html(questionableMarkup).text();
-		}
-
-		// string completely decoded now encode it
-		return $('<i>').text(questionableMarkup).html();
-	};
-
-	langx.mixin(panels, {
-		CONST: CONST,
-		cleanInput: cleanInput,
-		isBackspaceKey: isBackspaceKey,
-		isDeleteKey: isDeleteKey,
-		isShiftHeld: isShiftHeld,
-		isTabKey: isTabKey,
-		isUpArrow: isUpArrow,
-		isDownArrow: isDownArrow
-	});
-
-	return skylark.attach("domx.panels",panels);
-
-});
-
-define('skylark-domx-panels/Collapse',[
-    "skylark-langx/langx",
-    "skylark-domx-browser",
-    "skylark-domx-eventer",
-    "skylark-domx-query",
-    "skylark-domx-plugins",
-    "./panels"
-], function(langx, browser, eventer,  $, plugins, panels) {
-
-
-  'use strict';
-
-  // COLLAPSE PUBLIC CLASS DEFINITION
-  // ================================
-
-  var Collapse =  plugins.Plugin.inherit({
-    klassName: "Collapse",
-
-    pluginName : "domx.collapse",
-
-    options : {
-      toggle: true
-    },
-
-    _construct : function(elm,options) {
-      ////options = langx.mixin({}, Collapse.DEFAULTS, $(element).data(), options)
-      this.overrided(elm,options);
-      this.$element      = this.$();
-      //this.$trigger      = $('[data-toggle="collapse"][href="#' + elm.id + '"],' +
-      //                     '[data-toggle="collapse"][data-target="#' + elm.id + '"]')
-      this.transitioning = null
-
-      //if (this.options.parent) {
-      //  this.$parent = this.getParent()
-      //} else {
-      //  this.addAriaAndCollapsedClass(this.$element, this.$trigger)
-      //}
-
-      if (this.options.toggle) {
-        this.toggle();
-      }
-    },
-
-    dimension : function () {
-      var hasWidth = this.$element.hasClass('width');
-      return hasWidth ? 'width' : 'height';
-    },
-
-    show : function () {
-      if (this.transitioning || this.$element.hasClass('in')) {
-        return;
-      }
-
-      //var activesData;
-      //var actives = this.$parent && this.$parent.children('.panel').children('.in, .collapsing')
-
-      //if (actives && actives.length) {
-      //  activesData = actives.data('collapse')
-      //  if (activesData && activesData.transitioning) return
-      //}
-
-      var startEvent = eventer.create('show.collapse');
-      this.$element.trigger(startEvent)
-      if (startEvent.isDefaultPrevented()) return
-
-      //if (actives && actives.length) {
-      //  //Plugin.call(actives, 'hide')
-      //  actives.plugin("domx.collapse").hide();
-      //  activesData || actives.data('collapse', null)
-      //}
-
-      var dimension = this.dimension();
-
-      this.$element
-        .removeClass('collapse')
-        .addClass('collapsing')[dimension](0)
-        .attr('aria-expanded', true)
-
-      //this.$trigger
-      //  .removeClass('collapsed')
-      //  .attr('aria-expanded', true)
-
-      this.transitioning = 1
-
-      var complete = function () {
-        this.$element
-          .removeClass('collapsing')
-          .addClass('collapse in')[dimension]('')
-        this.transitioning = 0
-        this.$element
-          .trigger('shown.collapse')
-      }
-
-      if (!browser.support.transition) {
-        return complete.call(this);
-      }
-
-      var scrollSize = langx.camelCase(['scroll', dimension].join('-'));
-
-      this.$element
-        .one('transitionEnd', langx.proxy(complete, this))
-        .emulateTransitionEnd(Collapse.TRANSITION_DURATION)[dimension](this.$element[0][scrollSize]);
-    },
-
-    hide : function () {
-      if (this.transitioning || !this.$element.hasClass('in')) {
-        return ;
-      }
-
-      var startEvent = eventer.create('hide.collapse');
-      this.$element.trigger(startEvent);
-      if (startEvent.isDefaultPrevented()) {
-        return ;
-      } 
-
-      var dimension = this.dimension();
-
-      this.$element[dimension](this.$element[dimension]())[0].offsetHeight;
-
-      this.$element
-        .addClass('collapsing')
-        .removeClass('collapse in')
-        .attr('aria-expanded', false);
-
-      //this.$trigger
-      //  .addClass('collapsed')
-      //  .attr('aria-expanded', false);
-
-      this.transitioning = 1;
-
-      var complete = function () {
-        this.transitioning = 0;
-        this.$element
-          .removeClass('collapsing')
-          .addClass('collapse')
-          .trigger('hidden.collapse');
-      }
-
-      if (!browser.support.transition) {
-        return complete.call(this);
-      }
-
-      this.$element
-        [dimension](0)
-        .one('transitionEnd', langx.proxy(complete, this))
-        .emulateTransitionEnd(Collapse.TRANSITION_DURATION)
-    },
-
-    toggle : function () {
-      this[this.$element.hasClass('in') ? 'hide' : 'show']();
-    }
-
-    /*
-    getParent : function () {
-      return $(this.options.parent)
-        .find('[data-toggle="collapse"][data-parent="' + this.options.parent + '"]')
-        .each(langx.proxy(function (i, element) {
-          var $element = $(element)
-          this.addAriaAndCollapsedClass(getTargetFromTrigger($element), $element)
-        }, this))
-        .end()
-    },
-
-    addAriaAndCollapsedClass : function ($element, $trigger) {
-      var isOpen = $element.hasClass('in');
-
-      $element.attr('aria-expanded', isOpen);
-      $trigger
-        .toggleClass('collapsed', !isOpen)
-        .attr('aria-expanded', isOpen);
-    }
-    */
-  });
-
-  Collapse.TRANSITION_DURATION = 350;
-
-  /*
-  function getTargetFromTrigger($trigger) {
-    var href
-    var target = $trigger.attr('data-target')
-      || (href = $trigger.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') // strip for ie7
-
-    return $(target)
-  }
-  */
-
-  plugins.register(Collapse);
-
-  return panels.Collapse = Collapse;
-
-});
-
 define('skylark-bootstrap3/collapse',[
     "skylark-langx/langx",
     "skylark-domx-browser",
@@ -1215,7 +959,7 @@ define('skylark-bootstrap3/collapse',[
     "skylark-domx-geom",
     "skylark-domx-query",
     "skylark-domx-plugins",
-    "skylark-domx-panels/Collapse",
+    "skylark-domx-toggles/Collapsable",
    "./bs3",
     "./transition"
 ], function(langx, browser, eventer, noder, geom, $, plugins,_Collapse, bs3) {
@@ -2755,143 +2499,9 @@ define('skylark-bootstrap3/scrollspy',[
 
 });
 
-define('skylark-domx-panels/Tab',[
-  "skylark-langx/langx",
-  "skylark-domx-browser",
-  "skylark-domx-eventer",
-  "skylark-domx-noder",
-  "skylark-domx-geom",
-  "skylark-domx-query",
-  "skylark-domx-plugins",
-  "./panels"
-],function(langx,browser,eventer,noder,geom,$,plugins,panels){
-
-  'use strict';
-
-  // TAB CLASS DEFINITION
-  // ====================
-
-
-  var Tab =  plugins.Plugin.inherit({
-    klassName: "Tab",
-
-    pluginName : "domx.tab",
-
-    _construct : function(element,options) {
-      // jscs:disable requireDollarBeforejQueryAssignment
-      this.element = $(element)
-      this.target = options && options.target;
-
-      // jscs:enable requireDollarBeforejQueryAssignment
-      this.element.on("click.bs.tab.data-api",langx.proxy(function(e){
-        e.preventDefault()
-        this.show();
-      },this));    
-    },
-
-    show : function () {
-      var $this    = this.element
-      var $ul      = $this.closest('ul:not(.dropdown-menu)')
-      var selector = this.target || $this.data('target');
-
-      if (!selector) {
-        selector = $this.attr('href')
-        selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
-      }
-
-      if ($this.parent('li').hasClass('active')) return
-
-      var $previous = $ul.find('.active:last a')
-      var hideEvent = eventer.create('hide.bs.tab', {
-        relatedTarget: $this[0]
-      })
-      var showEvent = eventer.create('show.bs.tab', {
-        relatedTarget: $previous[0]
-      })
-
-      $previous.trigger(hideEvent)
-      $this.trigger(showEvent)
-
-      if (showEvent.isDefaultPrevented() || hideEvent.isDefaultPrevented()) return
-
-      var $target = $(selector)
-
-      this.activate($this.closest('li'), $ul)
-      this.activate($target, $target.parent(), function () {
-        $previous.trigger({
-          type: 'hidden.bs.tab',
-          relatedTarget: $this[0]
-        })
-        $this.trigger({
-          type: 'shown.bs.tab',
-          relatedTarget: $previous[0]
-        })
-      })
-    },
-
-    activate : function (element, container, callback) {
-      var $active    = container.find('> .active')
-      var transition = callback
-        && browser.support.transition
-        && ($active.length && $active.hasClass('fade') || !!container.find('> .fade').length)
-
-      function next() {
-        $active
-          .removeClass('active')
-          .find('> .dropdown-menu > .active')
-            .removeClass('active')
-          .end()
-          .find('[data-toggle="tab"]')
-            .attr('aria-expanded', false)
-
-        element
-          .addClass('active')
-          .find('[data-toggle="tab"]')
-            .attr('aria-expanded', true)
-
-        if (transition) {
-          element[0].offsetWidth // reflow for transition
-          element.addClass('in')
-        } else {
-          element.removeClass('fade')
-        }
-
-        if (element.parent('.dropdown-menu').length) {
-          element
-            .closest('li.dropdown')
-              .addClass('active')
-            .end()
-            .find('[data-toggle="tab"]')
-              .attr('aria-expanded', true)
-        }
-
-        callback && callback()
-      }
-
-      $active.length && transition ?
-        $active
-          .one('transitionEnd', next)
-          .emulateTransitionEnd(Tab.TRANSITION_DURATION) :
-        next()
-
-      $active.removeClass('in')
-    }
-
-
-  });
-
-
-  Tab.TRANSITION_DURATION = 150
-
-
-  plugins.register(Tab);
-
-  return panels.Tab = Tab;
-});
-
 define('skylark-bootstrap3/tab',[
   "skylark-domx-plugins",
-  "skylark-domx-panels/Tab",
+  "skylark-domx-toggles/TabButton",
   "./bs3"
 ],function(plugins,_Tab,bs3){
 
@@ -3838,6 +3448,156 @@ define('skylark-bootstrap3/main',[
 });
 define('skylark-bootstrap3', ['skylark-bootstrap3/main'], function (main) { return main; });
 
+define('skylark-domx-toggles/Checkbox',[
+  "skylark-langx/langx",
+  "skylark-domx/browser",
+  "skylark-domx/eventer",
+  "skylark-domx/noder",
+  "skylark-domx/geom",
+  "skylark-domx/query",
+  "skylark-domx-plugins",  
+  "./toggles"
+],function(langx,browser,eventer,noder,geom,$,plugins,toggles){
+
+  var Checkbox = plugins.Plugin.inherit({
+    klassName: "Checkbox",
+
+    pluginName : "domx.toggles.checkbox",
+
+    options : {
+      ignoreVisibilityCheck: false
+    },
+
+    _construct : function(elm,options) {
+      this.overrided(elm,options);
+      var $element = this.$();
+
+      if (elm.tagName.toLowerCase() !== 'label') {
+        throw new Error('Checkbox must be initialized on the `label` that wraps the `input` element. See https://github.com/ExactTarget/fuelux/blob/master/reference/markup/checkbox.html for example of proper markup. Call `.checkbox()` on the `<label>` not the `<input>`');
+        return;
+      }
+
+      // cache elements
+      this.$label = $element;
+      this.$chk = this.$label.find('input[type="checkbox"]');
+      this.$container = $element.parent('.checkbox'); // the container div
+
+      if (!this.options.ignoreVisibilityCheck && this.$chk.css('visibility').match(/hidden|collapse/)) {
+        throw new Error('For accessibility reasons, in order for tab and space to function on checkbox, checkbox `<input />`\'s `visibility` must not be set to `hidden` or `collapse`. See https://github.com/ExactTarget/fuelux/pull/1996 for more details.');
+      }
+
+      // determine if a toggle container is specified
+      var containerSelector = this.$chk.attr('data-toggle');
+      this.$toggleContainer = $(containerSelector);
+
+      // handle internal events
+      this.$chk.on('change', langx.proxy(this.itemchecked, this));
+
+      // set default state
+      this.setInitialState();
+    },
+
+    setInitialState: function setInitialState () {
+      var $chk = this.$chk;
+
+      // get current state of input
+      var checked = $chk.prop('checked');
+      var disabled = $chk.prop('disabled');
+
+      // sync label class with input state
+      this.setCheckedState($chk, checked);
+      this.setDisabledState($chk, disabled);
+    },
+
+    setCheckedState: function setCheckedState (element, checked) {
+      var $chk = element;
+      var $lbl = this.$label;
+      var $containerToggle = this.$toggleContainer;
+
+      if (checked) {
+        $chk.prop('checked', true);
+        $lbl.addClass('checked');
+        $containerToggle.removeClass('hide hidden');
+        $lbl.trigger('checked.fu.checkbox');
+      } else {
+        $chk.prop('checked', false);
+        $lbl.removeClass('checked');
+        $containerToggle.addClass('hidden');
+        $lbl.trigger('unchecked.fu.checkbox');
+      }
+
+      $lbl.trigger('changed.fu.checkbox', checked);
+    },
+
+    setDisabledState: function (element, disabled) {
+      var $chk = $(element);
+      var $lbl = this.$label;
+
+      if (disabled) {
+        $chk.prop('disabled', true);
+        $lbl.addClass('disabled');
+        $lbl.trigger('disabled.fu.checkbox');
+      } else {
+        $chk.prop('disabled', false);
+        $lbl.removeClass('disabled');
+        $lbl.trigger('enabled.fu.checkbox');
+      }
+
+      return $chk;
+    },
+
+    itemchecked: function (evt) {
+      var $chk = $(evt.target);
+      var checked = $chk.prop('checked');
+
+      this.setCheckedState($chk, checked);
+    },
+
+    toggle: function () {
+      var checked = this.isChecked();
+
+      if (checked) {
+        this.uncheck();
+      } else {
+        this.check();
+      }
+    },
+
+    check: function () {
+      this.setCheckedState(this.$chk, true);
+    },
+
+    uncheck: function () {
+      this.setCheckedState(this.$chk, false);
+    },
+
+    isChecked: function () {
+      var checked = this.$chk.prop('checked');
+      return checked;
+    },
+
+    enable: function () {
+      this.setDisabledState(this.$chk, false);
+    },
+
+    disable: function () {
+      this.setDisabledState(this.$chk, true);
+    },
+
+    destroy: function () {
+      this.$label.remove();
+      return this.$label[0].outerHTML;
+    }
+  });
+
+
+  Checkbox.prototype.getValue = Checkbox.prototype.isChecked;
+
+  plugins.register(Checkbox);
+
+  return toggles.Checkbox = Checkbox;
+});
+
 define('skylark-fuelux/fuelux',[
   "skylark-langx/skylark",
   "skylark-langx/langx",
@@ -3976,48 +3736,72 @@ define('skylark-fuelux/checkbox',[
 	return $.fn.checkbox;
 });
 
-define('skylark-fuelux/combobox',[
+define('skylark-domx-popups/Combobox',[
   "skylark-langx/langx",
-  "skylark-domx/browser",
-  "skylark-domx/eventer",
-  "skylark-domx/noder",
-  "skylark-domx/geom",
-  "skylark-domx/query",
-  "./fuelux",
-  "skylark-bootstrap3/dropdown"  
-],function(langx,browser,eventer,noder,geom,$,fuelux){
-
-
-	/*
-	 * Fuel UX Combobox
-	 * https://github.com/ExactTarget/fuelux
-	 *
-	 * Copyright (c) 2014 ExactTarget
-	 * Licensed under the BSD New license.
-	 */
-
-	var old = $.fn.combobox;
+  "skylark-domx-browser",
+  "skylark-domx-eventer",
+  "skylark-domx-noder",
+  "skylark-domx-geom",
+  "skylark-domx-query",
+  "skylark-domx-plugins",
+  "./popups",
+  "./Dropdown"
+],function(langx,browser,eventer,noder,geom,$,plugins,popups,Dropdown){
 
 
 	// COMBOBOX CONSTRUCTOR AND PROTOTYPE
 
-	var Combobox = fuelux.Combobox = fuelux.WidgetBase.inherit({
-		klassName: "Combobox",
+	var ComboBox = plugins.Plugin.inherit({
+		klassName: "ComboBox",
 
-		init : function(element,options) {
-			this.$element = $(element);
-			this.options = langx.mixin({}, $.fn.combobox.defaults, options);
+		pluginName : "domx.combobox",
+
+		options : {
+
+			autoResizeMenu: true,
+			filterOnKeypress: false,
+			showOptionsOnKeypress: false,
+			filter: function filter (list, predicate, self) {
+				var visible = 0;
+				self.$dropMenu.find('.empty-indicator').remove();
+
+				list.each(function (i) {
+					var $li = $(this);
+					var text = $(this).text().trim();
+
+					$li.removeClass();
+
+					if (text === predicate) {
+						$li.addClass('text-success');
+						visible++;
+					} else if (text.substr(0, predicate.length) === predicate) {
+						$li.addClass('text-info');
+						visible++;
+					} else {
+						$li.addClass('hidden');
+					}
+				});
+
+				if (visible === 0) {
+					self.$dropMenu.append('<li class="empty-indicator text-muted"><em>No Matches</em></li>');
+				}
+			}
+		},
+
+    	_construct : function(elm,options) {
+      		this.overrided(elm,options);
+      		this.$element = this.$();
 
 			this.$dropMenu = this.$element.find('.dropdown-menu');
 			this.$input = this.$element.find('input');
 			this.$button = this.$element.find('.btn');
-			this.$button.dropdown();
+			this.$button.plugin("domx.dropdown");
 			this.$inputGroupBtn = this.$element.find('.input-group-btn');
 
-			this.$element.on('click.fu.combobox', 'a', langx.proxy(this.itemclicked, this));
-			this.$element.on('change.fu.combobox', 'input', langx.proxy(this.inputchanged, this));
+			this.$element.on('click.lark', 'a', langx.proxy(this.itemclicked, this));
+			this.$element.on('change.lark', 'input', langx.proxy(this.inputchanged, this));
 			this.$element.on('shown.bs.dropdown', langx.proxy(this.menuShown, this));
-			this.$input.on('keyup.fu.combobox', langx.proxy(this.keypress, this));
+			this.$input.on('keyup.lark', langx.proxy(this.keypress, this));
 
 			// set default selection
 			this.setDefaultSelection();
@@ -4034,7 +3818,7 @@ define('skylark-fuelux/combobox',[
 			}
 		},
 
-		destroy: function () {
+		_destroy: function () {
 			this.$element.remove();
 			// remove any external bindings
 			// [none]
@@ -4171,7 +3955,7 @@ define('skylark-fuelux/combobox',[
 			var data = this.selectedItem();
 
 			// trigger changed event
-			this.$element.trigger('changed.fu.combobox', data);
+			this.$element.trigger('changed.lark', data);
 
 			e.preventDefault();
 
@@ -4196,7 +3980,7 @@ define('skylark-fuelux/combobox',[
 			);
 
 			if(this.options.showOptionsOnKeypress && !this.$inputGroupBtn.hasClass('open')){
-				this.$button.dropdown('toggle');
+				this.$button.plugin("domx.dropdown").toggle();
 				this.$input.focus();
 			}
 
@@ -4266,71 +4050,47 @@ define('skylark-fuelux/combobox',[
 			}
 
 			// trigger changed event
-			this.$element.trigger('changed.fu.combobox', data);
+			this.$element.trigger('changed.lark', data);
 		}
 
 	});
 
 
 
-	Combobox.prototype.getValue = Combobox.prototype.selectedItem;
+	ComboBox.prototype.getValue = ComboBox.prototype.selectedItem;
 
-	// COMBOBOX PLUGIN DEFINITION
+    plugins.register(ComboBox);
 
-	$.fn.combobox = function (option) {
-		var args = Array.prototype.slice.call(arguments, 1);
-		var methodReturn;
+	return popups.ComboBox = ComboBox;
+});
 
-		var $set = this.each(function () {
-			var $this = $(this);
-			var data = $this.data('fu.combobox');
-			var options = typeof option === 'object' && option;
+define('skylark-fuelux/combobox',[
+  "skylark-domx-query",
+  "skylark-domx-plugins",
+  "skylark-domx-popups/Combobox",
+   "./fuelux"
+],function($,plugins,_Combobox,fuelux){
+	/*
+	 * Fuel UX Combobox
+	 * https://github.com/ExactTarget/fuelux
+	 *
+	 * Copyright (c) 2014 ExactTarget
+	 * Licensed under the BSD New license.
+	 */
 
-			if (!data) {
-				$this.data('fu.combobox', (data = new Combobox(this, options)));
-			}
+	var old = $.fn.combobox;
+	
+	var Combobox = fuelux.Combobox = _Combobox.inherit({
+	    klassName: "Combobox",
 
-			if (typeof option === 'string') {
-				methodReturn = data[option].apply(data, args);
-			}
-		});
+	    pluginName : "fuelux.combobox"
+	});
 
-		return (methodReturn === undefined) ? $set : methodReturn;
-	};
 
-	$.fn.combobox.defaults = {
+    plugins.register(Combobox,"combobox");
 
-		autoResizeMenu: true,
-		filterOnKeypress: false,
-		showOptionsOnKeypress: false,
-		filter: function filter (list, predicate, self) {
-			var visible = 0;
-			self.$dropMenu.find('.empty-indicator').remove();
 
-			list.each(function (i) {
-				var $li = $(this);
-				var text = $(this).text().trim();
-
-				$li.removeClass();
-
-				if (text === predicate) {
-					$li.addClass('text-success');
-					visible++;
-				} else if (text.substr(0, predicate.length) === predicate) {
-					$li.addClass('text-info');
-					visible++;
-				} else {
-					$li.addClass('hidden');
-				}
-			});
-
-			if (visible === 0) {
-				self.$dropMenu.append('<li class="empty-indicator text-muted"><em>No Matches</em></li>');
-			}
-		}
-	};
-
-	$.fn.combobox.Constructor =  Combobox;
+	$.fn.combobox.Constructor = Combobox;
 
 	$.fn.combobox.noConflict = function () {
 		$.fn.combobox = old;
@@ -4361,6 +4121,7 @@ define('skylark-fuelux/combobox',[
 
 	return $.fn.combobox;
 });
+
 
 define('skylark-fuelux/datepicker',[
     "skylark-langx/langx",
@@ -5313,43 +5074,45 @@ define('skylark-fuelux/dropdown-autoflip',[
 
 });
 
-define('skylark-fuelux/infinite-scroll',[
+define('skylark-domx-spy/InfiniteScroll',[
   "skylark-langx/langx",
-  "skylark-domx/browser",
-  "skylark-domx/eventer",
-  "skylark-domx/noder",
-  "skylark-domx/geom",
-  "skylark-domx/query"
-],function(langx,browser,eventer,noder,geom,$){
+  "skylark-domx-browser",
+  "skylark-domx-eventer",
+  "skylark-domx-noder",
+  "skylark-domx-geom",
+  "skylark-domx-query",
+  "skylark-domx-plugins",
+  "./spy"
+],function(langx,browser,eventer,noder,geom,$,plugins,spy){
 
-	/*
-	 * Fuel UX infinitescroll
-	 * https://github.com/ExactTarget/fuelux
-	 *
-	 * Copyright (c) 2014 ExactTarget
-	 * Licensed under the BSD New license.
-	 */
-
-	var old = $.fn.infinitescroll;
+  'use strict';
 
 	// INFINITE SCROLL CONSTRUCTOR AND PROTOTYPE
 
-	var InfiniteScroll = function (element, options) {
-		this.$element = $(element);
-		this.$element.addClass('infinitescroll');
-		this.options = langx.mixin({}, $.fn.infinitescroll.defaults, options);
+  var InfiniteScroll = plugins.Plugin.inherit({
+        klassName: "InfiniteScroll",
 
-		this.curScrollTop = this.$element.scrollTop();
-		this.curPercentage = this.getPercentage();
-		this.fetchingData = false;
+        pluginName : "domx.infinitescroll",
 
-		this.$element.on('scroll.fu.infinitescroll', langx.proxy(this.onScroll, this));
-		this.onScroll();
-	};
+        options : {
+			dataSource: null,
+			hybrid: false,//can be true or an object with structure: { 'label': (markup or jQuery obj) }
+			percentage: 95//percentage scrolled to the bottom before more is loaded
+        },
 
-	InfiniteScroll.prototype = {
+        _construct : function(elm,options) {
+	        this.overrided(elm,options);
+			this.$element = this.$();
+			this.$element.addClass('infinitescroll');
+			//this.options = langx.mixin({}, $.fn.infinitescroll.defaults, options);
 
-		constructor: InfiniteScroll,
+			this.curScrollTop = this.$element.scrollTop();
+			this.curPercentage = this.getPercentage();
+			this.fetchingData = false;
+
+			this.$element.on('scroll.domx.infinitescroll', langx.proxy(this.onScroll, this));
+			this.onScroll();
+		},
 
 		destroy: function () {
 			this.$element.remove();
@@ -5363,11 +5126,11 @@ define('skylark-fuelux/infinite-scroll',[
 		},
 
 		disable: function () {
-			this.$element.off('scroll.fu.infinitescroll');
+			this.$element.off('scroll.domx.infinitescroll');
 		},
 
 		enable: function () {
-			this.$element.on('scroll.fu.infinitescroll', langx.proxy(this.onScroll, this));
+			this.$element.on('scroll.domx.infinitescroll', langx.proxy(this.onScroll, this));
 		},
 
 		end: function (content) {
@@ -5429,7 +5192,7 @@ define('skylark-fuelux/infinite-scroll',[
 					moreBtn.append('<span class="glyphicon glyphicon-repeat"></span>');
 				}
 
-				moreBtn.on('click.fu.infinitescroll', function () {
+				moreBtn.on('click.domx.infinitescroll', function () {
 					moreBtn.remove();
 					fetch();
 				});
@@ -5446,43 +5209,47 @@ define('skylark-fuelux/infinite-scroll',[
 				this.fetchData();
 			}
 		}
-	};
+  });
 
-	// INFINITE SCROLL PLUGIN DEFINITION
+  plugins.register(InfiniteScroll);
 
-	$.fn.infinitescroll = function (option) {
-		var args = Array.prototype.slice.call(arguments, 1);
-		var methodReturn;
+  return spy.InfiniteScroll = InfiniteScroll;	
+});
 
-		var $set = this.each(function () {
-			var $this = $(this);
-			var data = $this.data('fu.infinitescroll');
-			var options = typeof option === 'object' && option;
+define('skylark-fuelux/infinite-scroll',[
+  "skylark-domx-query",
+  "skylark-domx-plugins",
+  "skylark-domx-spy/InfiniteScroll",
+   "./fuelux"
+],function($,plugins,_InfiniteScroll,fuelux){
 
-			if (!data) {
-				$this.data('fu.infinitescroll', (data = new InfiniteScroll(this, options)));
-			}
+	/*
+	 * Fuel UX InfiniteScroll
+	 * https://github.com/ExactTarget/fuelux
+	 *
+	 * Copyright (c) 2014 ExactTarget
+	 * Licensed under the BSD New license.
+	 */
 
-			if (typeof option === 'string') {
-				methodReturn = data[option].apply(data, args);
-			}
-		});
+	var old = $.fn.infinitescroll;
 
-		return (methodReturn === undefined) ? $set : methodReturn;
-	};
+	var InfiniteScroll = fuelux.InfiniteScroll = _InfiniteScroll.inherit({
+	    klassName: "Checkbox",
 
-	$.fn.infinitescroll.defaults = {
-		dataSource: null,
-		hybrid: false,//can be true or an object with structure: { 'label': (markup or jQuery obj) }
-		percentage: 95//percentage scrolled to the bottom before more is loaded
-	};
+	    pluginName : "fuelux.infinitescroll"
+	});
 
-	$.fn.infinitescroll.Constructor = InfiniteScroll;
+
+    plugins.register(InfiniteScroll,"infinitescroll");
+    
 
 	$.fn.infinitescroll.noConflict = function () {
 		$.fn.infinitescroll = old;
 		return this;
 	};
+
+
+	return $.fn.infinitescroll ;
 
 });
 
@@ -7074,7 +6841,7 @@ define('skylark-domx-popups/Selectlist',[
 
     	_construct : function(elm,options) {
       		this.overrided(elm,options);
-      		this.$element = $(this._elm);
+      		this.$element = this.$();
 			//this.options = langx.mixin({}, $.fn.selectlist.defaults, options);
 
 
@@ -9686,6 +9453,70 @@ define('skylark-fuelux/tree',[
 
 	return $.fn.tree;
 });
+define('skylark-domx-panels/panels',[
+  "skylark-langx/skylark",
+  "skylark-langx/langx",
+  "skylark-domx-browser",
+  "skylark-domx-eventer",
+  "skylark-domx-noder",
+  "skylark-domx-geom",
+  "skylark-domx-query"
+],function(skylark,langx,browser,eventer,noder,geom,$){
+	var panels = {};
+
+	var CONST = {
+		BACKSPACE_KEYCODE: 8,
+		COMMA_KEYCODE: 188, // `,` & `<`
+		DELETE_KEYCODE: 46,
+		DOWN_ARROW_KEYCODE: 40,
+		ENTER_KEYCODE: 13,
+		TAB_KEYCODE: 9,
+		UP_ARROW_KEYCODE: 38
+	};
+
+	var isShiftHeld = function isShiftHeld (e) { return e.shiftKey === true; };
+
+	var isKey = function isKey (keyCode) {
+		return function compareKeycodes (e) {
+			return e.keyCode === keyCode;
+		};
+	};
+
+	var isBackspaceKey = isKey(CONST.BACKSPACE_KEYCODE);
+	var isDeleteKey = isKey(CONST.DELETE_KEYCODE);
+	var isTabKey = isKey(CONST.TAB_KEYCODE);
+	var isUpArrow = isKey(CONST.UP_ARROW_KEYCODE);
+	var isDownArrow = isKey(CONST.DOWN_ARROW_KEYCODE);
+
+	var ENCODED_REGEX = /&[^\s]*;/;
+	/*
+	 * to prevent double encoding decodes content in loop until content is encoding free
+	 */
+	var cleanInput = function cleanInput (questionableMarkup) {
+		// check for encoding and decode
+		while (ENCODED_REGEX.test(questionableMarkup)) {
+			questionableMarkup = $('<i>').html(questionableMarkup).text();
+		}
+
+		// string completely decoded now encode it
+		return $('<i>').text(questionableMarkup).html();
+	};
+
+	langx.mixin(panels, {
+		CONST: CONST,
+		cleanInput: cleanInput,
+		isBackspaceKey: isBackspaceKey,
+		isDeleteKey: isDeleteKey,
+		isShiftHeld: isShiftHeld,
+		isTabKey: isTabKey,
+		isUpArrow: isUpArrow,
+		isDownArrow: isDownArrow
+	});
+
+	return skylark.attach("domx.panels",panels);
+
+});
+
 define('skylark-domx-panels/Wizard',[
   "skylark-langx/langx",
   "skylark-domx-browser",
@@ -9701,7 +9532,7 @@ define('skylark-domx-panels/Wizard',[
 	var Wizard = plugins.Plugin.inherit({
 		klassName: "Wizard",
 
-	    pluginName : "domx.wizard",
+	    pluginName : "domx.panels.wizard",
 
 	    options : {
 			disablePreviousStep: false,
