@@ -64,7 +64,7 @@ define([
 	    pluginName : "fuelux.thumbnailview",
 
 	    options: {
-	        template : '<div class="clearfix repeater-thumbnail-cont" data-container="true" data-infinite="true" data-preserve="shallow"></div>'	
+	        viewClass : "repeater-thumbnail-cont"
 	    }
 	});
 

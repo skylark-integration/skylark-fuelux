@@ -41,7 +41,7 @@
         "es6toamd": false,
         "cjstoamd": false
       },
-      "bundle": {
+      "bundles": {
         "slax": {
           "include": [
             "skylark-bootstrap3",
