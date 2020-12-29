@@ -1715,7 +1715,7 @@ define('skylark-fuelux/dropdown-autoflip',[
 define('skylark-fuelux/infinite-scroll',[
   "skylark-domx-query",
   "skylark-domx-plugins",
-  "skylark-domx-spy/InfiniteScroll",
+  "skylark-domx-scrolls/InfiniteScroll",
    "./fuelux"
 ],function($,plugins,_InfiniteScroll,fuelux){
 

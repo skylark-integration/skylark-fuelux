@@ -1,7 +1,7 @@
 define([
   "skylark-domx-query",
   "skylark-domx-plugins",
-  "skylark-domx-spy/InfiniteScroll",
+  "skylark-domx-scrolls/InfiniteScroll",
    "./fuelux"
 ],function($,plugins,_InfiniteScroll,fuelux){
 
