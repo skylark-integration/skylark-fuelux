@@ -1,7 +1,7 @@
 define([
   "skylark-domx-query",
-  "skylark-domx-plugins",
-  "skylark-domx-popups/Selectlist",
+  "skylark-domx-plugins-base",
+  "skylark-domx-plugins-popups/select-list",
    "./fuelux"
 ],function($,plugins,_Selectlist,fuelux){
 

@@ -1,7 +1,7 @@
 define([
   "skylark-domx-query",
-  "skylark-domx-plugins",
-  "skylark-domx-toggles/Radio",
+  "skylark-domx-plugins-base",
+  "skylark-domx-plugins-toggles/radio",
    "./fuelux"
 ],function($,plugins,_Radio,fuelux){
 

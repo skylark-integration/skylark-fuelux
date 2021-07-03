@@ -1,7 +1,7 @@
 define([
   "skylark-domx-query",
-  "skylark-domx-plugins",
-  "skylark-domx-popups/Combobox",
+  "skylark-domx-plugins-base",
+  "skylark-domx-plugins-popups/combobox",
    "./fuelux"
 ],function($,plugins,_Combobox,fuelux){
 	/*

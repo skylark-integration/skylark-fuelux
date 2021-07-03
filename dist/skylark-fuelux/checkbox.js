@@ -5,5 +5,5 @@
  * @link https://github.com/skylark-integration/skylark-fuelux/
  * @license MIT
  */
-define(["skylark-domx-query","skylark-domx-plugins","skylark-domx-toggles/Checkbox","./fuelux"],function(e,c,o,k){var n=e.fn.checkbox,x=k.Checkbox=o.inherit({klassName:"Checkbox",pluginName:"fuelux.checkbox"});return c.register(x,"checkbox"),e.fn.checkbox.noConflict=function(){return e.fn.checkbox=n,this},e.fn.checkbox});
+define(["skylark-domx-query","skylark-domx-plugins-base","skylark-domx-plugins-toggles/checkbox","./fuelux"],function(e,c,n,o){var k=e.fn.checkbox,x=o.Checkbox=n.inherit({klassName:"Checkbox",pluginName:"fuelux.checkbox"});return c.register(x,"checkbox"),e.fn.checkbox.noConflict=function(){return e.fn.checkbox=k,this},e.fn.checkbox});
 //# sourceMappingURL=sourcemaps/checkbox.js.map

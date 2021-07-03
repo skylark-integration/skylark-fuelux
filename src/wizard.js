@@ -1,7 +1,7 @@
 define([
   "skylark-domx-query",
-  "skylark-domx-plugins",
-  "skylark-domx-panels/Wizard",
+  "skylark-domx-plugins-base",
+  "skylark-domx-plugins-panels/wizard",
    "./fuelux"
 ],function($,plugins,_Wizard,fuelux){
 

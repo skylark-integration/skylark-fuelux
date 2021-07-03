@@ -22,9 +22,9 @@
   "dependencies": {
     "skylark-bootstrap3": "git+https://github.com/skylark-integration/skylark-bootstrap3.git#master",
     "skylark-domx": "git+https://github.com/skylark-domx/skylark-domx.git#master",
-    "skylark-domx-repeater": "git+https://github.com/skylark-domx/skylark-domx-repeater.git#master",
-    "skylark-domx-scrolls": "git+https://github.com/skylark-domx/skylark-domx-spy.git#master",
-    "skylark-domx-toggles": "git+https://github.com/skylark-domx/skylark-domx-toggles.git#master",
+    "skylark-domx-plugins-scrolls": "git+https://github.com/skylark-domx/skylark-domx-spy.git#master",
+    "skylark-domx-plugins-toggles": "git+https://github.com/skylark-domx/skylark-domx-toggles.git#master",
+    "skylark-fuelux-repeater": "git+https://github.com/skylark-integration/skylark-fuelux-repeater.git#master",
     "skylark-langx": "git+https://github.com/skylark-langx/skylark-langx.git#master"
   },
   "skylarkjs": {

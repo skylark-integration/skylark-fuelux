@@ -5,5 +5,5 @@
  * @link https://github.com/skylark-integration/skylark-fuelux/
  * @license MIT
  */
-define(["skylark-domx-query","skylark-domx-plugins","skylark-domx-toggles/Radio","./fuelux"],function(i,r,o,a){var n=i.fn.radio,d=a.Radio=o.inherit({klassName:"Radio",pluginName:"fuelux.radio"});return r.register(d,"radio"),i.fn.radio.noConflict=function(){return i.fn.radio=n,this},i.fn.radio});
+define(["skylark-domx-query","skylark-domx-plugins-base","skylark-domx-plugins-toggles/radio","./fuelux"],function(i,r,a,n){var o=i.fn.radio,e=n.Radio=a.inherit({klassName:"Radio",pluginName:"fuelux.radio"});return r.register(e,"radio"),i.fn.radio.noConflict=function(){return i.fn.radio=o,this},i.fn.radio});
 //# sourceMappingURL=sourcemaps/radio.js.map

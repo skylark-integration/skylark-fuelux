@@ -1,7 +1,7 @@
 define([
   "skylark-domx-query",
-  "skylark-domx-plugins",
-  "skylark-domx-toggles/Checkbox",
+  "skylark-domx-plugins-base",
+  "skylark-domx-plugins-toggles/checkbox",
    "./fuelux"
 ],function($,plugins,_Checkbox,fuelux){
 

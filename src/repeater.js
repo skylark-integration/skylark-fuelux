@@ -1,9 +1,9 @@
 define([
   "skylark-domx-query",
-  "skylark-domx-plugins",
-  "skylark-domx-repeater/Repeater",
-  "skylark-domx-repeater/views/TableView",
-  "skylark-domx-repeater/views/TileView",
+  "skylark-domx-plugins-base",
+  "skylark-fuelux-repeater/repeater",
+  "skylark-fuelux-repeater/views/table-view",
+  "skylark-fuelux-repeater/views/tile-view",
    "./fuelux"
 ],function($,plugins,_Repeater,_TableView,_TileView,fuelux){
 
