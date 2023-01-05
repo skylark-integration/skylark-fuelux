@@ -24,7 +24,7 @@
     "skylark-domx": "git+https://github.com/skylark-domx/skylark-domx.git",
     "skylark-domx-plugins-scrolls": "git+https://github.com/skylark-domx/skylark-domx-spy.git",
     "skylark-domx-plugins-toggles": "git+https://github.com/skylark-domx/skylark-domx-toggles.git",
-    "skylark-fuelux-repeater": "git+https://github.com/skylark-integration/skylark-fuelux-repeater.git",
+    "skylark-domx-plugins-repeaters": "git+https://github.com/skylark-domx-plugins/skylark-domx-plugins-repeaters.git",
     "skylark-langx": "git+https://github.com/skylark-langx/skylark-langx.git"
   },
   "skylarkjs": {
