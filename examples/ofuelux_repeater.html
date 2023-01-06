@@ -1038,6 +1038,11 @@
             main: 'main'
          },
          {
+           name : "skylark-langx-chars",
+           location : "../node_modules/skylark-langx-chars/dist/uncompressed/skylark-langx-chars",
+            main: 'main'
+         },
+         {
            name : "skylark-langx-constructs",
            location : "../node_modules/skylark-langx-constructs/dist/uncompressed/skylark-langx-constructs",
             main: 'main'
@@ -1098,8 +1103,18 @@
             main: 'main'
          },
          {
+           name : "skylark-langx-paths",
+           location : "../node_modules/skylark-langx-paths/dist/uncompressed/skylark-langx-paths",
+            main: 'main'
+         },
+         {
            name : "skylark-langx-strings",
            location : "../node_modules/skylark-langx-strings/dist/uncompressed/skylark-langx-strings",
+            main: 'main'
+         },
+         {
+           name : "skylark-langx-scripter",
+           location : "../node_modules/skylark-langx-scripter/dist/uncompressed/skylark-langx-scripter",
             main: 'main'
          },
          {
@@ -1115,6 +1130,16 @@
          {
            name : "skylark-langx-xhr",
            location : "../node_modules/skylark-langx-xhr/dist/uncompressed/skylark-langx-xhr",
+            main: 'main'
+         },
+         {
+           name : "skylark-langx-urls",
+           location : "../node_modules/skylark-langx-urls/dist/uncompressed/skylark-langx-urls",
+            main: 'main'
+         },
+         {
+           name : "skylark-domx-animates",
+           location : "../node_modules/skylark-domx-animates/dist/uncompressed/skylark-domx-animates",
             main: 'main'
          },
          {
@@ -1163,13 +1188,23 @@
             main: 'main'
          },
          {
-           name : "skylark-domx-noder",
+          name : "skylark-domx-noder",
            location : "../node_modules/skylark-domx-noder/dist/uncompressed/skylark-domx-noder",
             main: 'main'
          },
          {
            name : "skylark-domx-plugins-base",
            location : "../node_modules/skylark-domx-plugins-base/dist/uncompressed/skylark-domx-plugins-base",
+            main: 'main'
+         },
+         {
+           name : "skylark-domx-plugins-interact",
+           location : "../node_modules/skylark-domx-plugins-interact/dist/uncompressed/skylark-domx-plugins-interact",
+            main: 'main'
+         },
+         {
+           name : "skylark-domx-plugins-panels",
+           location : "../node_modules/skylark-domx-plugins-panels/dist/uncompressed/skylark-domx-plugins-panels",
             main: 'main'
          },
          {
@@ -1184,13 +1219,13 @@
          },
 
          {
-           name : "skylark-domx-scripter",
-           location : "../node_modules/skylark-domx-scripter/dist/uncompressed/skylark-domx-scripter",
+           name : "skylark-domx-plugins-scrolls",
+           location : "../node_modules/skylark-domx-plugins-scrolls/dist/uncompressed/skylark-domx-plugins-scrolls",
             main: 'main'
          },
          {
-           name : "skylark-domx-plugins-scrolls",
-           location : "../node_modules/skylark-domx-plugins-scrolls/dist/uncompressed/skylark-domx-plugins-scrolls",
+           name : "skylark-domx-plugins-toggles",
+           location : "../node_modules/skylark-domx-plugins-toggles/dist/uncompressed/skylark-domx-plugins-toggles",
             main: 'main'
          },
          {
@@ -1206,6 +1241,11 @@
          {
            name : "skylark-domx-transforms",
            location : "../node_modules/skylark-domx-transforms/dist/uncompressed/skylark-domx-transforms",
+            main: 'main'
+         },
+         {
+           name : "skylark-domx-transits",
+           location : "../node_modules/skylark-domx-transits/dist/uncompressed/skylark-domx-transits",
             main: 'main'
          },
          {
@@ -1251,19 +1291,27 @@
          {
             name: 'skylark-langx',
             location: '../node_modules/skylark-langx/dist/uncompressed/skylark-langx',
-//            location: '../../../langx/skylark-langx/src',
             main: 'main'
           },
      
          {
             name: 'skylark-domx-plugins-repeaters',
-//            location: '../dist/uncompressed/skylark-ui-repeater',
             location: '../node_modules/skylark-domx-plugins-repeaters/dist/uncompressed/skylark-domx-plugins-repeaters',
             main: 'main'
           },
          {
+            name: 'skylark-bootstrap3',
+            location: '../node_modules/skylark-bootstrap3/dist/uncompressed/skylark-bootstrap3',
+            main: 'main'
+          },
+         {
+            name: 'skylark-lodash',
+            location: '../node_modules/skylark-lodash/dist/uncompressed/skylark-lodash',
+            main: 'main'
+          },
+          {
             name: 'skylark-fuelux',
-            location: '../dist/uncompressed/skylark-fuelux',
+            location: '../src',
             main: 'main'
           }
       ]
@@ -1274,11 +1322,9 @@
 <script>
   require(['skylark-domx'],function(){
     require(['skylark-fuelux'],function(){
-      require(['moment'],function(){
         require(['ofuelux_all/js/application-repeater'], function($){
 
         });
-      });
     });
   });
 </script>

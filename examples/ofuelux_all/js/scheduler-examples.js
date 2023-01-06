@@ -6,8 +6,7 @@
  */
 
 define([
-	"skylark-fuelux",
-	"moment"
+	"skylark-fuelux"
 ],function ($) {
 
 	// SCHEDULER

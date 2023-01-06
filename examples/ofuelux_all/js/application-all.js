@@ -20,8 +20,7 @@ define([
 	"./selectlist-examples",
 	"./spinbox-examples",
 	"./tree-examples",
-	"./wizard-examples",
-	"supercopy"
+	"./wizard-examples"
 ],function ($) {
 	var $body = $(document.body);
 	var $window = $(window);

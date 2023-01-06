@@ -9,8 +9,7 @@ define([
 	"skylark-domx/query",
 	"skylark-bootstrap3/affix",
 	"skylark-bootstrap3/scrollspy",
-	"./repeater-examples",
-	"supercopy"
+	"./repeater-examples"
 ],function ($) {
 	var $body = $(document.body);
 	var $window = $(window);

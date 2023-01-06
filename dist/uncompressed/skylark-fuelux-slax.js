@@ -3039,7 +3039,8 @@ define('skylark-bootstrap3/loadedInit',[
 		    // =================
 			$(document).on('click.bs3.button.data-api', '[data-toggle^="button"]', function (e) {
 				var $btn = $(e.target).closest('.btn')
-				$btn.button('toggle');
+				///$btn.button('toggle');
+				$btn.plugin("bs3.button").toggle();
 				if (!($(e.target).is('input[type="radio"], input[type="checkbox"]'))) {
 					// Prevent double click on radios, and the double selections (so cancellation) on checkboxes
 					e.preventDefault()
@@ -3050,9 +3051,10 @@ define('skylark-bootstrap3/loadedInit',[
 						$btn.find('input:visible,button:visible').first().trigger('focus');
 					}
 				}
-			}).on('focus.bs3.button.data-api blur.bs3.button.data-api', '[data-toggle^="button"]', function (e) {
-				$(e.target).closest('.btn').toggleClass('focus', /^focus(in)?$/.test(e.type));
 			});
+			///.on('focus.bs3.button.data-api blur.bs3.button.data-api', '[data-toggle^="button"]', function (e) {
+			///	$(e.target).closest('.btn').toggleClass('focus', /^focus(in)?$/.test(e.type));
+			///});
 
 		    // CAROUSEL DATA-API
 		    // =================
@@ -8389,11 +8391,12 @@ define('skylark-fuelux/wizard',[
 define('skylark-fuelux/repeater',[
   "skylark-domx-query",
   "skylark-domx-plugins-base",
-  "skylark-fuelux-repeater/repeater",
-  "skylark-fuelux-repeater/views/table-view",
-  "skylark-fuelux-repeater/views/tile-view",
+  "skylark-domx-plugins-repeaters/repeater",
+  "skylark-domx-plugins-repeaters/views/table-view",
+  "skylark-domx-plugins-repeaters/views/tile-view",
+  "skylark-domx-plugins-repeaters/view-type-registry",   
    "./fuelux"
-],function($,plugins,_Repeater,_TableView,_TileView,fuelux){
+],function($,plugins,_Repeater,_TableView,_TileView,viewTypeRegistry,fuelux){
 
 	/*
 	 * Repeater
@@ -8456,18 +8459,16 @@ define('skylark-fuelux/repeater',[
 	    }
 	});
 
-	Repeater.addons = {
-		"views" : {
-	 		"thumbnail" : {
-	 			"name" : "thumbnail",
-	 			"ctor" : ThumbnailView
-	 		},
-	 		"list" : {
-	 			"name" : "list",
-	 			"ctor": ListView
-	 		}
-		}
-	};
+    viewTypeRegistry["thumbnail"] = {
+        name : "thumbnail",
+        ctor : ThumbnailView
+    };
+
+    viewTypeRegistry["list"] = {
+        name : "list",
+        ctor : ListView
+    };
+
 	return $.fn.repeater;
 
 });

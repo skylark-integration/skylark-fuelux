@@ -8,7 +8,7 @@
 define([
 	"skylark-langx/langx",
 	"skylark-domx/query",
-	"underscore",
+	"skylark-lodash",
 	"./data/pokemon",
 	"./data/colors"
 ],function (langx,$,_,pokemon,colors) {

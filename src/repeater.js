@@ -2,10 +2,11 @@ define([
   "skylark-domx-query",
   "skylark-domx-plugins-base",
   "skylark-domx-plugins-repeaters/repeater",
-  "skylark-domx-plugins-repeaters/table-view",
-  "skylark-domx-plugins-repeaters/tile-view",
+  "skylark-domx-plugins-repeaters/views/table-view",
+  "skylark-domx-plugins-repeaters/views/tile-view",
+  "skylark-domx-plugins-repeaters/view-type-registry",   
    "./fuelux"
-],function($,plugins,_Repeater,_TableView,_TileView,fuelux){
+],function($,plugins,_Repeater,_TableView,_TileView,viewTypeRegistry,fuelux){
 
 	/*
 	 * Repeater
@@ -68,18 +69,16 @@ define([
 	    }
 	});
 
-	Repeater.addons = {
-		"views" : {
-	 		"thumbnail" : {
-	 			"name" : "thumbnail",
-	 			"ctor" : ThumbnailView
-	 		},
-	 		"list" : {
-	 			"name" : "list",
-	 			"ctor": ListView
-	 		}
-		}
-	};
+    viewTypeRegistry["thumbnail"] = {
+        name : "thumbnail",
+        ctor : ThumbnailView
+    };
+
+    viewTypeRegistry["list"] = {
+        name : "list",
+        ctor : ListView
+    };
+
 	return $.fn.repeater;
 
 });
